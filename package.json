@@ -1,0 +1,10 @@
+{
+  "name": "handschrift",
+  "private": true,
+  "type": "module",
+  "description": "Eigene Handschrift erfassen und als radierbare .goodnotes-Datei oder PDF ausgeben",
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "test": "node --test"
+  }
+}
