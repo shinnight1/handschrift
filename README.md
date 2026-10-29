@@ -4,7 +4,7 @@ Eigene Buchstaben mit Stift, Finger oder Maus erfassen, Text damit setzen und al
 radierbare `.goodnotes`-Datei oder als PDF ausgeben. Reines HTML, CSS und JavaScript: kein
 Framework, kein Build-Schritt, keine Abhängigkeiten.
 
-Seite: https://shinnight1.github.io/handschrift/
+Seite: https://siebwrite.de/ (die alte Adresse https://shinnight1.github.io/handschrift/ leitet dorthin um)
 
 ## So geht's
 
@@ -27,6 +27,9 @@ Nur im Browser des Geräts (localStorage), nirgends sonst. Auf ein anderes Gerä
 - **Sichern / Laden:** dasselbe als Datei `Handschrift-Profil.json`.
 
 Das Handschrift-Artifact auf claude.ai erzeugt dieselben Links (Format `v1` in `src/handoff.js`).
+
+Die Handschrift hängt an der Adresse der Seite. Was unter `shinnight1.github.io` gespeichert war,
+ist unter `siebwrite.de` nicht zu sehen: dort per „Sichern“ und „Laden“ umziehen.
 
 ## Lokal starten und testen
 
