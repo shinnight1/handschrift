@@ -15,10 +15,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="landing/style.css">
+  <link rel="stylesheet" href="landing/style.css?v=5">
   <script type="module">
     import { horizonGrid } from './landing/horizon-grid.js';
     import { tryPad } from './landing/pad.js';
+    import { film } from './landing/film.js';
+    film(document.getElementById('film'));
     horizonGrid(document.querySelector('.horizon'), { horizon: 0.22, speed: 0.22 });
     tryPad(document.getElementById('pad'), document.getElementById('pad-clear'));
   </script>
@@ -48,6 +50,34 @@
     </section>
 
     <div class="floor" aria-hidden="true"><canvas class="horizon"></canvas></div>
+
+    <section class="film" aria-label="Film: Warum nicht einfach einfügen?">
+      <figure class="player" id="film" tabindex="-1">
+        <div class="stage">
+          <svg class="stage-svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+          <div class="grain" aria-hidden="true"></div>
+          <button class="big-play" type="button" aria-label="Film abspielen" hidden>
+            <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><path d="M9 5.5v17l14-8.5z" fill="currentColor"/></svg>
+          </button>
+        </div>
+        <div class="controls">
+          <button class="ctl-play" type="button" aria-label="Abspielen">
+            <svg class="i-play" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4l8.6-5.2z" fill="currentColor"/></svg>
+            <svg class="i-pause" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h2.8v10H4zM9.2 3H12v10H9.2z" fill="currentColor"/></svg>
+          </button>
+          <span class="ctl-time">0:00</span>
+          <div class="ctl-track" role="slider" tabindex="0" aria-label="Stelle im Film" aria-valuemin="0" aria-valuemax="37" aria-valuenow="0">
+            <div class="ctl-rail"><div class="ctl-fill"></div></div>
+            <span class="ctl-mark" style="left: 49.7%"></span>
+          </div>
+          <span class="ctl-chapters">
+            <button type="button" data-chapter="0">Problem</button>
+            <button type="button" data-chapter="18.4">Lösung</button>
+          </span>
+        </div>
+        <figcaption class="sr-only">Notizen in GoodNotes. Eingefügter Text sieht nach Tastatur aus und lässt sich nicht radieren, Abschreiben dauert. Mit Siebwrite schreibst du einmal dein Alphabet, tippst den Text und bekommst echte, radierbare Striche in deiner Schrift.</figcaption>
+      </figure>
+    </section>
 
     <section class="how" aria-labelledby="how-title">
       <h2 id="how-title">So geht's</h2>

@@ -114,8 +114,11 @@ class DrawingGrid {
     return [...this.cells.keys()].every((i) => this.hooks.getCell(i)?.length);
   }
 
+  // Die Markierung wandert erst nach einer kurzen Pause weiter: Bei i, j, ä oder ! setzt man ab
+  // und schreibt im selben Feld weiter, da soll nichts springen.
   changed() {
-    this.markNext();
+    clearTimeout(this.nextTimer);
+    this.nextTimer = setTimeout(() => this.markNext(), 1200);
     this.root.dispatchEvent(new CustomEvent('change'));
   }
 
@@ -199,6 +202,9 @@ class DrawingGrid {
       if (ignore(e) || this.active || (e.pointerType === 'mouse' && e.button !== 0)) return;
       e.preventDefault();
       canvas.setPointerCapture(e.pointerId);
+      // Weiterschreiben im selben Feld hält die Markierung fest, ein neues Feld zieht sie sofort nach
+      clearTimeout(this.nextTimer);
+      if (!this.hooks.getCell(index)?.length) this.markNext();
       this.active = { pointerId: e.pointerId, index, points: [toGlyph(e)] };
       this.paint(index);
     });

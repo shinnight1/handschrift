@@ -203,3 +203,149 @@ h2 {
   color: var(--muted);
   font-size: 13px;
 }
+
+/* Film: 16:9-Bühne mit Lichtkante, Steuerleiste darunter */
+.film {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 var(--gutter) clamp(40px, 7vw, 80px);
+}
+.player { margin: 0; outline: none; }
+.stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0c0d0f;
+  border: 1px solid var(--edge);
+  box-shadow: inset 0 1px 0 var(--edge-hi), 0 40px 80px -40px rgba(0, 0, 0, 0.9);
+  cursor: pointer;
+  isolation: isolate;
+}
+.stage-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--noise);
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+}
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 80% at 50% 45%, transparent 60%, rgba(0, 0, 0, 0.32));
+}
+.big-play {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  border-radius: 50%;
+  border: 1px solid var(--edge-hi);
+  background: rgba(19, 20, 23, 0.82);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 20px 40px rgba(0, 0, 0, 0.6);
+  color: var(--bright);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0 0 0 4px;
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+}
+.big-play:hover { background: rgba(30, 31, 35, 0.9); }
+.big-play[hidden] { display: none; }
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+  font: 400 12px/1 var(--mono);
+  color: var(--muted);
+}
+.ctl-play {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  border: 1px solid var(--edge-hi);
+  background: var(--raise);
+  color: var(--bright);
+  cursor: pointer;
+  flex: none;
+}
+.ctl-play .i-pause, .is-playing .ctl-play .i-play { display: none; }
+.is-playing .ctl-play .i-pause { display: block; }
+.ctl-time { min-width: 3.2em; font-variant-numeric: tabular-nums; }
+.ctl-track {
+  position: relative;
+  flex: 1;
+  height: 28px;
+  cursor: pointer;
+  touch-action: none;
+  outline: none;
+}
+.ctl-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+.ctl-fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, #b8bcc3, #f1f2f4);
+}
+.ctl-track::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: calc(var(--p, 0) * 100%);
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #f1f2f4, #b8bcc3);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.ctl-track:hover::after, .ctl-track:focus-visible::after { opacity: 1; }
+.ctl-track:focus-visible .ctl-rail { outline: 1px solid var(--bright); outline-offset: 4px; }
+.ctl-mark {
+  position: absolute;
+  top: 50%;
+  width: 1px;
+  height: 10px;
+  margin-top: -5px;
+  background: var(--muted);
+}
+.ctl-chapters { display: flex; gap: 2px; }
+.ctl-chapters button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px;
+  cursor: pointer;
+}
+.ctl-chapters button:hover { color: var(--bright); }
+.ctl-play:focus-visible, .ctl-chapters button:focus-visible, .big-play:focus-visible { outline: 2px solid var(--bright); outline-offset: 2px; }
+@media (max-width: 600px) { .ctl-chapters { display: none; } }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
