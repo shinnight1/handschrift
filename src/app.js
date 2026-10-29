@@ -93,10 +93,10 @@ function updateProgress() {
   $('bar-fill').style.width = `${(100 * n) / total}%`;
   $('bar-tick').style.left = `${(100 * basisTotal) / total}%`;
   $('phase-hint').textContent = n === total
-    ? 'Fertig, alle Felder sind ausgefüllt. Deine Schrift hat jetzt die meiste Abwechslung.'
+    ? 'Alles ausgefüllt.'
     : basisDone
-      ? 'Alle Zeichen sind da, du kannst setzen. Jede weitere Variante macht die Schrift lebendiger.'
-      : `Jedes Zeichen einmal, auf die durchgezogene Linie. Noch ${basisTotal - basis}, dann kannst du Text setzen.`;
+      ? 'Alle Zeichen da. Varianten sind freiwillig.'
+      : `Jedes Zeichen einmal. Noch ${basisTotal - basis}.`;
   $('to-compose').classList.toggle('btn-primary', basisDone);
   $('undo').disabled = grid.undoStack.length === 0;
   $('clear-area').hidden = n === 0; // Nichts da, nichts zu löschen
@@ -376,11 +376,9 @@ function renderSheet() {
 
 // Ein Satz unter den Knöpfen: wie die Datei in GoodNotes kommt.
 function updateGoodNotesNote() {
-  const parts = [isTouch()
-    ? 'Im Teilen-Menü GoodNotes wählen.'
-    : 'Lädt die .goodnotes-Datei herunter. Dann in GoodNotes öffnen oder aufs iPad schicken.'];
-  if (currentLayout?.pages.length > 1) parts.push('Jede Seite wird eine eigene Datei.');
-  if (!PAGE_FORMATS[settings.format].tested) parts.push('A4 in GoodNotes ist Beta.');
+  const parts = [isTouch() ? 'Im Teilen-Menü GoodNotes wählen.' : 'Lädt die .goodnotes-Datei herunter.'];
+  if (currentLayout?.pages.length > 1) parts.push('Eine Datei pro Seite.');
+  if (!PAGE_FORMATS[settings.format].tested) parts.push('A4 ist Beta.');
   $('goodnotes-note').textContent = parts.join(' ');
 }
 
@@ -491,7 +489,7 @@ async function receiveHandoff() {
     syncControls();
     showView();
     updateProgress();
-    showResult('ok', `Deine Handschrift ist da (${filledCount(store.profile)} Felder) und ersetzt die bisherige auf diesem Gerät. Tipp auf „Als GoodNotes importieren“.`);
+    showResult('ok', `Handschrift übernommen (${filledCount(store.profile)} Felder). Sie ersetzt die bisherige auf diesem Gerät.`);
   } catch (e) {
     showView();
     showResult('error', e?.message || 'Der Link ließ sich nicht lesen.');

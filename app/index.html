@@ -35,7 +35,7 @@
       <div class="intro">
         <div class="intro-text">
           <h1 class="title">Schreib dein Alphabet</h1>
-          <p class="sub" id="phase-hint">Jedes Zeichen einmal, auf die durchgezogene Linie. Danach kannst du schon Text setzen.</p>
+          <p class="sub" id="phase-hint">Jedes Zeichen einmal.</p>
         </div>
         <div class="progress" aria-live="polite">
           <div class="progress-row">
@@ -47,8 +47,8 @@
       </div>
 
       <div class="tips" id="tips" hidden>
-        <p>Schreib über die blasse Vorlage. Kleine Buchstaben enden an der gestrichelten Linie, große und Ziffern an der oberen. Das hervorgehobene Feld ist das nächste.</p>
-        <p class="keys"><kbd>×</kbd> leert ein Feld <span class="sep"></span><kbd>Strg</kbd><kbd>Z</kbd> macht rückgängig <span class="sep"></span><kbd>←</kbd><kbd>→</kbd> blättern</p>
+        <p>Über die Vorlage schreiben, auf die durchgezogene Linie.</p>
+        <p class="keys"><kbd>Strg</kbd><kbd>Z</kbd> rückgängig <span class="sep"></span><kbd>←</kbd><kbd>→</kbd> blättern</p>
         <button class="btn btn-quiet" id="tips-close" type="button">Verstanden</button>
       </div>
 
@@ -62,7 +62,7 @@
           <button class="btn btn-icon" id="next" type="button" aria-label="Nächste Seite" title="Nächste Seite (→)"><svg width="18" height="18"><use href="#i-right"/></svg></button>
         </div>
         <span class="spacer"></span>
-        <span class="chip" id="pen-chip" hidden>Stift erkannt, Hand wird ignoriert</span>
+        <span class="chip" id="pen-chip" hidden>Stift erkannt</span>
         <button class="btn btn-icon" id="undo" type="button" aria-label="Rückgängig" title="Rückgängig (Strg+Z)"><svg width="18" height="18"><use href="#i-undo"/></svg></button>
         <a class="btn" href="#setzen" id="to-compose">Weiter zum Setzen</a>
       </div>
@@ -86,7 +86,7 @@
     <section class="view" id="view-setzen" aria-label="Setzen" hidden>
       <div class="empty" id="compose-empty" hidden>
         <h1 class="title">Noch keine Buchstaben</h1>
-        <p class="sub">Schreib zuerst dein Alphabet. Sobald ein paar Zeichen da sind, erscheint hier deine Seite.</p>
+        <p class="sub">Erst schreiben, dann setzen.</p>
         <a class="btn btn-primary" href="#schreiben">Zum Schreiben</a>
       </div>
 

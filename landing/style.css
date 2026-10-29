@@ -151,11 +151,6 @@ h1 em { font-style: italic; }
   touch-action: none;
   cursor: crosshair;
 }
-.pad figcaption {
-  margin-top: 12px;
-  font-size: 13px;
-  color: var(--muted);
-}
 
 /* Horizon Grid als Boden unter dem Hero */
 .floor {
