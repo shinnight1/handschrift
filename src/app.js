@@ -99,6 +99,7 @@ function updateProgress() {
       : `Jedes Zeichen einmal, auf die durchgezogene Linie. Noch ${basisTotal - basis}, dann kannst du Text setzen.`;
   $('to-compose').classList.toggle('btn-primary', basisDone);
   $('undo').disabled = grid.undoStack.length === 0;
+  $('clear-area').hidden = n === 0; // Nichts da, nichts zu löschen
   updateTips(n);
 }
 
