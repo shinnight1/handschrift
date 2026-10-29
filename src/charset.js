@@ -18,6 +18,15 @@ const CELL_CHARS = [
   ...FREQUENT,
 ];
 
+// Überschrift je Kästchen, parallel zu CELL_CHARS: sagt beim Blättern, wo man gerade ist.
+const tag = (chars, group) => chars.map(() => group);
+const CELL_GROUPS = [
+  ...tag(LOWER, 'Kleinbuchstaben'), ...tag(UPPER, 'Großbuchstaben'), ...tag(DIGITS, 'Ziffern'), ...tag(PUNCT, 'Satzzeichen'),
+  ...tag([...LOWER, ...UPPER], '2. Variante'),
+  ...tag([...LOWER, ...DIGITS], '3. Variante'),
+  ...tag(FREQUENT, '4. Variante'),
+];
+
 // Zeichen, deren Unterkante auf der Grundlinie liegt. Bei ihnen wird die
 // geschriebene Unterkante leicht auf die Grundlinie gezogen.
 const SITS_ON_BASELINE = new Set([
@@ -38,4 +47,4 @@ const GUIDES = { ascender: 0.18, xline: 0.46, baseline: 0.7 };
 const fromTop = (glyphY) => glyphY + GUIDES.baseline;
 const toGlyphY = (fractionFromTop) => fractionFromTop - GUIDES.baseline;
 
-export { LOWER, UPPER, DIGITS, PUNCT, FREQUENT, FIRST_PASS, CELL_CHARS, SITS_ON_BASELINE, X_HEIGHT_CHARS, BOX_ASPECT, GUIDES, fromTop, toGlyphY };
+export { LOWER, UPPER, DIGITS, PUNCT, FREQUENT, FIRST_PASS, CELL_CHARS, CELL_GROUPS, SITS_ON_BASELINE, X_HEIGHT_CHARS, BOX_ASPECT, GUIDES, fromTop, toGlyphY };

@@ -2,11 +2,12 @@
 // Ohne Abhängigkeiten; zeichnet in ein <canvas>, das per CSS die Fläche des Hintergrunds füllt.
 
 export function horizonGrid(canvas, {
-  color = '152, 164, 247', // Akzent als RGB, damit sich die Deckkraft pro Linie setzen lässt
+  color = '214, 218, 224', // Silber als RGB, damit sich die Deckkraft pro Linie setzen lässt
   horizon = 0.58,          // Höhe des Horizonts als Anteil der Fläche, oder eine Funktion, die ihn liefert
   columns = 14,            // Längslinien je Seite
   rows = 36,               // Querlinien bis zum Horizont
   speed = 0.35,            // Rasterzellen pro Sekunde
+  glow = 0.07,             // Helligkeit des Scheins am Horizont
 } = {}) {
   const ctx = canvas.getContext('2d');
   const still = matchMedia('(prefers-reduced-motion: reduce)');
@@ -30,11 +31,11 @@ export function horizonGrid(canvas, {
     const cell = Math.max(w, 720) / 7; // Zellbreite an der Unterkante
 
     // Schein hinter dem Horizont
-    const glow = ctx.createRadialGradient(cx, hy, 0, cx, hy, Math.max(w, h) * 0.55);
-    glow.addColorStop(0, `rgba(${color}, 0.22)`);
-    glow.addColorStop(0.35, `rgba(${color}, 0.06)`);
-    glow.addColorStop(1, `rgba(${color}, 0)`);
-    ctx.fillStyle = glow;
+    const shine = ctx.createRadialGradient(cx, hy, 0, cx, hy, Math.max(w, h) * 0.55);
+    shine.addColorStop(0, `rgba(${color}, ${glow})`);
+    shine.addColorStop(0.35, `rgba(${color}, ${glow / 4})`);
+    shine.addColorStop(1, `rgba(${color}, 0)`);
+    ctx.fillStyle = shine;
     ctx.fillRect(0, 0, w, h);
 
     ctx.lineWidth = 1;
@@ -42,7 +43,7 @@ export function horizonGrid(canvas, {
     // Längslinien laufen im Fluchtpunkt zusammen und blenden zum Horizont hin aus
     const fade = ctx.createLinearGradient(0, hy, 0, h);
     fade.addColorStop(0, `rgba(${color}, 0)`);
-    fade.addColorStop(1, `rgba(${color}, 0.38)`);
+    fade.addColorStop(1, `rgba(${color}, 0.22)`);
     ctx.strokeStyle = fade;
     ctx.beginPath();
     for (let i = -columns; i <= columns; i++) {
@@ -57,7 +58,7 @@ export function horizonGrid(canvas, {
       if (z < 1) continue;
       const y = hy + depth / z;
       const near = (y - hy) / depth;
-      ctx.strokeStyle = `rgba(${color}, ${(0.42 * near * near).toFixed(3)})`;
+      ctx.strokeStyle = `rgba(${color}, ${(0.26 * near * near).toFixed(3)})`;
       ctx.beginPath();
       ctx.moveTo(0, Math.round(y) + 0.5);
       ctx.lineTo(w, Math.round(y) + 0.5);
@@ -67,7 +68,7 @@ export function horizonGrid(canvas, {
     // Horizontlinie
     const line = ctx.createLinearGradient(0, 0, w, 0);
     line.addColorStop(0, `rgba(${color}, 0)`);
-    line.addColorStop(0.5, `rgba(${color}, 0.7)`);
+    line.addColorStop(0.5, `rgba(${color}, 0.45)`);
     line.addColorStop(1, `rgba(${color}, 0)`);
     ctx.strokeStyle = line;
     ctx.beginPath();

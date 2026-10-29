@@ -1,6 +1,6 @@
 // Steuerung der Seite: Schritt 1 (Kästchen ausfüllen) und Schritt 2 (Text setzen, speichern).
 
-import { CELL_CHARS, FIRST_PASS } from './charset.js';
+import { CELL_CHARS, CELL_GROUPS, FIRST_PASS } from './charset.js';
 import { DrawingGrid } from './draw.js';
 import { ProfileStore } from './store.js';
 import { parseProfile, glyphTable, filledCount, createProfile } from './profile.js';
@@ -14,6 +14,7 @@ import { handoffLink, readHandoff } from './handoff.js';
 const $ = (id) => document.getElementById(id);
 const SETTINGS_KEY = 'handschrift.settings.v1';
 const TEXT_KEY = 'handschrift.text.v1';
+const TIPS_KEY = 'handschrift.tips.v1';
 const EXAMPLE_TEXT = `Liebe Oma,
 
 vielen Dank für das schöne Paket! Die Plätzchen waren schon am ersten Abend weg. Ich hoffe, euch geht es gut und der Garten übersteht den Herbst.
@@ -68,7 +69,7 @@ const grid = new DrawingGrid($('grid'), {
 });
 
 function applyGridColors() {
-  grid.setColors({ guide: cssVar('--guide'), base: cssVar('--guide-strong'), ink: cssVar('--fg') });
+  grid.setColors({ guide: cssVar('--guide'), base: cssVar('--guide-strong'), ink: cssVar('--ink'), ghost: cssVar('--ghost') });
 }
 
 function layoutGrid() {
@@ -79,31 +80,65 @@ function layoutGrid() {
   grid.layout(width, height);
 }
 
+// Zwei Phasen: erst jedes Zeichen einmal (Basis), dann freiwillige Varianten.
 function updateProgress() {
   const n = filledCount(store.profile);
   const total = CELL_CHARS.length;
-  $('count').textContent = n;
-  $('total').textContent = total;
-  $('bar-fill').style.width = `${(100 * n) / total}%`;
-  $('bar-tick').style.left = `${(100 * FIRST_PASS.length) / total}%`;
+  const basisTotal = FIRST_PASS.length;
   const basis = FIRST_PASS.filter((_, i) => store.getCell(i)).length;
-  $('pass-label').textContent = basis === FIRST_PASS.length ? 'Alle Zeichen ✓' : `Basis ${basis}/${FIRST_PASS.length}`;
+  const basisDone = basis === basisTotal;
+  $('pass-label').textContent = basisDone ? 'Varianten, freiwillig' : 'Basis';
+  $('count').textContent = basisDone ? n - basis : basis;
+  $('total').textContent = basisDone ? total - basisTotal : basisTotal;
+  $('bar-fill').style.width = `${(100 * n) / total}%`;
+  $('bar-tick').style.left = `${(100 * basisTotal) / total}%`;
+  $('phase-hint').textContent = n === total
+    ? 'Fertig, alle Felder sind ausgefüllt. Deine Schrift hat jetzt die meiste Abwechslung.'
+    : basisDone
+      ? 'Alle Zeichen sind da, du kannst setzen. Jede weitere Variante macht die Schrift lebendiger.'
+      : `Jedes Zeichen einmal, auf die durchgezogene Linie. Noch ${basisTotal - basis}, dann kannst du Text setzen.`;
+  $('to-compose').classList.toggle('btn-primary', basisDone);
   $('undo').disabled = grid.undoStack.length === 0;
+  updateTips(n);
 }
 
 function updatePageInfo() {
-  const last = Math.min(CELL_CHARS.length, grid.first + grid.perPage);
-  $('page-info').textContent = `${grid.first + 1}–${last}`;
+  const last = Math.min(CELL_CHARS.length, grid.first + grid.perPage) - 1;
+  const groups = [...new Set([CELL_GROUPS[grid.first], CELL_GROUPS[last]])];
+  $('page-group').textContent = groups.join(', ');
+  $('page-info').textContent = `Seite ${grid.page + 1} von ${grid.pageCount}`;
   $('prev').disabled = grid.page === 0;
   $('next').disabled = grid.page >= grid.pageCount - 1;
+  // Seite voll: der Pfeil nach rechts wird zur Hauptaktion.
+  $('next').classList.toggle('nudge', !$('next').disabled && grid.pageDone);
 }
 
+// Kurze Anleitung, bis sie weggeklickt wird oder die ersten Felder sitzen.
+function updateTips(filled) {
+  const was = $('tips').hidden;
+  $('tips').hidden = readJson(TIPS_KEY) === 'closed' || filled >= 6;
+  if (was !== $('tips').hidden && !$('view-schreiben').hidden) layoutGrid();
+}
+$('tips-close').addEventListener('click', () => { writeJson(TIPS_KEY, 'closed'); updateTips(0); });
+
 $('grid').addEventListener('pagechange', updatePageInfo);
-$('grid').addEventListener('change', () => { updateProgress(); scheduleCompose(); });
+$('grid').addEventListener('change', () => { updateProgress(); updatePageInfo(); scheduleCompose(); });
 $('grid').addEventListener('pendetected', () => { $('pen-chip').hidden = false; });
 $('prev').addEventListener('click', () => grid.goTo(grid.page - 1));
 $('next').addEventListener('click', () => grid.goTo(grid.page + 1));
 $('undo').addEventListener('click', () => { if (!grid.undo()) toast('Nichts rückgängig zu machen'); });
+
+// Tasten: Strg/Cmd+Z macht rückgängig, Pfeile blättern. Nicht beim Tippen im Textfeld.
+document.addEventListener('keydown', (e) => {
+  if ($('view-schreiben').hidden || e.target.closest('input, textarea, [contenteditable]')) return;
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'z') {
+    e.preventDefault();
+    if (!grid.undo()) toast('Nichts rückgängig zu machen');
+  } else if (!e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+    e.preventDefault();
+    grid.goTo(grid.page + (e.key === 'ArrowRight' ? 1 : -1));
+  }
+});
 
 $('export-profile').addEventListener('click', async () => {
   const json = JSON.stringify({ ...createProfile(), cells: store.profile.cells });
@@ -162,7 +197,7 @@ function resetClearArea() {
   btn.className = 'btn btn-text btn-danger';
   btn.type = 'button';
   btn.id = 'clear-all';
-  btn.textContent = 'Löschen';
+  btn.textContent = 'Alles löschen';
   btn.addEventListener('click', askClear);
   area.append(btn);
 }
@@ -172,7 +207,7 @@ function askClear() {
   area.replaceChildren();
   const q = document.createElement('span');
   q.className = 'mono';
-  q.textContent = 'Alles löschen?';
+  q.textContent = 'Alle Felder löschen?';
   const yes = document.createElement('button');
   yes.className = 'btn btn-danger';
   yes.type = 'button';
@@ -238,26 +273,36 @@ const RANGE_FORMAT = {
   pen: (v) => `${v.toFixed(2)} mm`,
 };
 
+// Wert neben dem Regler und silberne Füllung der Spur bis zum Griff.
+function showRange(key) {
+  const input = $(key);
+  const v = Number(input.value);
+  $(`${key}-out`).textContent = RANGE_FORMAT[key](v);
+  input.style.setProperty('--fill', `${(100 * (v - input.min)) / (input.max - input.min)}%`);
+}
+
 function syncControls() {
   for (const key of Object.keys(RANGE_FORMAT)) {
     $(key).value = settings[key];
-    $(`${key}-out`).textContent = RANGE_FORMAT[key](Number(settings[key]));
+    showRange(key);
   }
   for (const name of ['format', 'paper', 'ink']) {
     const input = document.querySelector(`input[name="${name}"][value="${settings[name]}"]`);
     if (input) input.checked = true;
   }
+  $('ink-name').textContent = INKS[settings.ink].label;
 }
 
 function readControls() {
   for (const key of Object.keys(RANGE_FORMAT)) {
     settings[key] = Number($(key).value);
-    $(`${key}-out`).textContent = RANGE_FORMAT[key](settings[key]);
+    showRange(key);
   }
   for (const name of ['format', 'paper', 'ink']) {
     const input = document.querySelector(`input[name="${name}"]:checked`);
     if (input) settings[name] = input.value;
   }
+  $('ink-name').textContent = INKS[settings.ink].label;
   writeJson(SETTINGS_KEY, settings);
 }
 
@@ -487,6 +532,7 @@ $('text').value = readJson(TEXT_KEY) ?? EXAMPLE_TEXT;
 renderInks();
 syncControls();
 applyGridColors();
+document.fonts.ready.then(applyGridColors); // Vorlagen-Zeichen erst mit geladener Schrift richtig
 grid.goToFirstEmpty();
 showView();
 updateProgress();

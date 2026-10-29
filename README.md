@@ -54,7 +54,8 @@ prüft Mitnehmen-Link, Profil, Satz, LZ4, TPL, die `.goodnotes`-Datei und das PD
 | Datei | Aufgabe |
 | --- | --- |
 | `index.html`, `landing/style.css` | Startseite |
-| `landing/horizon-grid.js` | animiertes Bodenraster im Hintergrund der Startseite |
+| `landing/horizon-grid.js` | animiertes Bodenraster unter dem Hero der Startseite |
+| `landing/pad.js` | Probierfeld auf der Startseite (speichert nichts) |
 | `app/index.html`, `style.css` | App und Aussehen |
 | `src/app.js` | Steuerung beider Schritte |
 | `src/charset.js` | welche Zeichen in welcher Reihenfolge erfasst werden |

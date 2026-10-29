@@ -30,10 +30,11 @@ class DrawingGrid {
   }
 
   // Wie viele Kästchen auf eine Seite passen, aus der verfügbaren Breite.
+  // Die Zahlen folgen style.css: 12px Abstand, 8px Innenrand, 1px Rand, 22px Kopf, 6px Lücke.
   layout(width, height) {
-    const cols = Math.max(3, Math.min(8, Math.floor(width / 140)));
+    const cols = Math.max(3, Math.min(8, Math.floor(width / 150)));
     const cellW = (width - (cols - 1) * 12) / cols;
-    const rowH = cellW / BOX_ASPECT + 34;
+    const rowH = (cellW - 18) / BOX_ASPECT + 46 + 12;
     const rows = Math.max(2, Math.min(5, Math.floor(height / rowH)));
     const perPage = cols * rows;
     if (perPage !== this.perPage || cols !== this.cols) {
@@ -79,6 +80,7 @@ class DrawingGrid {
       clear.type = 'button';
       clear.className = 'cell-clear';
       clear.setAttribute('aria-label', `Kästchen ${i + 1} (${CELL_CHARS[i]}) leeren`);
+      clear.title = 'Feld leeren';
       clear.textContent = '×';
       clear.addEventListener('click', () => this.clearCell(i));
       head.append(label, num, clear);
@@ -92,8 +94,29 @@ class DrawingGrid {
     }
     requestAnimationFrame(() => {
       for (const i of this.cells.keys()) this.paint(i);
+      this.markNext();
     });
     this.root.dispatchEvent(new CustomEvent('pagechange'));
+  }
+
+  // Das erste leere Kästchen der Seite hervorheben: dort geht es weiter.
+  markNext() {
+    let found = false;
+    for (const [i, cell] of this.cells) {
+      const next = !found && !this.hooks.getCell(i)?.length;
+      if (next) found = true;
+      cell.el.classList.toggle('next', next);
+    }
+  }
+
+  // Alle Kästchen der Seite ausgefüllt?
+  get pageDone() {
+    return [...this.cells.keys()].every((i) => this.hooks.getCell(i)?.length);
+  }
+
+  changed() {
+    this.markNext();
+    this.root.dispatchEvent(new CustomEvent('change'));
   }
 
   size(cell) {
@@ -129,6 +152,17 @@ class DrawingGrid {
     ctx.setLineDash([]);
 
     const strokes = this.hooks.getCell(i) ?? [];
+    // Leeres Feld: das Zeichen blass als Vorlage, in der Größe, die es haben soll.
+    // Großbuchstaben und Ziffern reichen bis zur oberen Linie, der Rest bis zur gestrichelten.
+    if (!strokes.length && this.active?.index !== i && this.colors.ghost) {
+      const ch = CELL_CHARS[i];
+      const tall = /[A-ZÄÖÜ0-9]/.test(ch);
+      const size = tall ? (GUIDES.baseline - GUIDES.ascender) / 0.7 : (GUIDES.baseline - GUIDES.xline) / 0.52;
+      ctx.fillStyle = this.colors.ghost;
+      ctx.font = `400 ${size * h}px "IBM Plex Sans", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(ch, w / 2, GUIDES.baseline * h);
+    }
     ctx.strokeStyle = this.colors.ink;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -184,7 +218,7 @@ class DrawingGrid {
       this.hooks.setCell(index, strokes);
       this.undoStack.push({ index, before: strokes.slice(0, -1) });
       this.paint(index);
-      this.root.dispatchEvent(new CustomEvent('change'));
+      this.changed();
     };
     canvas.addEventListener('pointerup', finish);
     canvas.addEventListener('pointercancel', finish);
@@ -196,7 +230,7 @@ class DrawingGrid {
     this.undoStack.push({ index, before });
     this.hooks.setCell(index, null);
     this.paint(index);
-    this.root.dispatchEvent(new CustomEvent('change'));
+    this.changed();
   }
 
   undo() {
@@ -205,7 +239,7 @@ class DrawingGrid {
     this.hooks.setCell(step.index, step.before.length ? step.before : null);
     if (!this.cells.has(step.index)) this.goTo(Math.floor(step.index / this.perPage));
     else this.paint(step.index);
-    this.root.dispatchEvent(new CustomEvent('change'));
+    this.changed();
     return true;
   }
 }

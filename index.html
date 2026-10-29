@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Siebwrite</title>
   <meta name="description" content="Schreib jeden Buchstaben einmal, dann steht jeder Text in deiner Handschrift: als radierbare GoodNotes-Datei oder PDF.">
-  <meta name="theme-color" content="#0f101a">
+  <meta name="theme-color" content="#0c0d0f">
   <meta name="color-scheme" content="dark">
   <script>
     // Links aus dem Artifact und alte Lesezeichen zeigen noch auf die Startseite: weiter in die App
@@ -14,65 +14,64 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600&family=Inter:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="landing/style.css">
   <script type="module">
     import { horizonGrid } from './landing/horizon-grid.js';
-    // Horizont knapp unter den Knöpfen, damit kein Text auf dem Raster steht
-    const hero = document.querySelector('.hero');
-    const actions = document.querySelector('.actions');
-    const grid = horizonGrid(document.querySelector('.horizon'), {
-      horizon: () => (actions.getBoundingClientRect().bottom - hero.getBoundingClientRect().top + 72) / hero.offsetHeight,
-    });
-    document.fonts.ready.then(grid.refresh); // Webfonts verschieben die Knöpfe noch
+    import { tryPad } from './landing/pad.js';
+    horizonGrid(document.querySelector('.horizon'), { horizon: 0.22, speed: 0.22 });
+    tryPad(document.getElementById('pad'), document.getElementById('pad-clear'));
   </script>
 </head>
 <body>
-  <header class="nav">
-    <a class="logo" href="./"><img src="icon.svg" alt="" width="22" height="22">Siebwrite</a>
-    <a class="btn btn-ghost btn-sm" href="app/">Öffnen</a>
+  <header class="bar">
+    <a class="word" href="./">Siebwrite</a>
+    <a class="link" href="app/">App öffnen</a>
   </header>
 
   <main>
     <section class="hero">
-      <canvas class="horizon" aria-hidden="true"></canvas>
-      <div class="hero-inner">
-        <p class="pill"><span class="pill-dot"></span>Kostenlos · ohne Konto</p>
-        <h1>Deine Handschrift.<br><span class="soft">Aus der Tastatur.</span></h1>
-        <p class="lead">Schreib jeden Buchstaben einmal mit dem Stift. Danach setzt Siebwrite jeden Text in deiner Schrift und gibt ihn als radierbare GoodNotes-Datei oder als PDF aus.</p>
-        <div class="actions">
-          <a class="btn btn-primary" href="app/">Handschrift erfassen</a>
-          <a class="btn btn-ghost" href="#ablauf">So geht's</a>
-        </div>
+      <div class="hero-text">
+        <h1>Tippen, und es steht in <em>deiner</em> Handschrift da.</h1>
+        <p class="lead">Du schreibst das Alphabet einmal mit Stift oder Finger. Siebwrite setzt daraus jeden Text, Zeile für Zeile, und gibt ihn als <span class="nowrap">GoodNotes-Datei</span> aus, in der jeder Strich radierbar bleibt.</p>
+        <a class="btn" href="app/">Alphabet schreiben</a>
+        <p class="aside">Kostenlos. Kein Konto. Deine Schrift bleibt im Browser.</p>
       </div>
+
+      <figure class="pad">
+        <div class="pad-head">
+          <span>Probier es aus</span>
+          <button class="pad-clear" id="pad-clear" type="button" hidden>Leeren</button>
+        </div>
+        <canvas id="pad" aria-label="Probierfeld: schreib ein a auf die Linie"></canvas>
+        <figcaption>So sieht ein Feld in der App aus. Das kleine a sitzt zwischen gestrichelter Linie und Grundlinie.</figcaption>
+      </figure>
     </section>
 
-    <section class="steps" id="ablauf" aria-labelledby="ablauf-titel">
-      <h2 id="ablauf-titel">Drei Schritte, ein paar Minuten.</h2>
-      <div class="cards">
-        <article class="card">
-          <span class="num">01</span>
-          <h3>Schreiben</h3>
-          <p>87 Zeichen auf die Grundlinie, mit Stift, Finger oder Maus. Mehr Varianten machen die Schrift lebendiger.</p>
-        </article>
-        <article class="card">
-          <span class="num">02</span>
-          <h3>Setzen</h3>
-          <p>Text eintippen, Papier, Farbe und Abstände wählen. „Mischen“ würfelt die Varianten neu.</p>
-        </article>
-        <article class="card">
-          <span class="num">03</span>
-          <h3>Importieren</h3>
-          <p>Auf iPad und Handy direkt in GoodNotes teilen, am PC als Datei laden. Jeder Strich bleibt radierbar.</p>
-        </article>
-      </div>
-      <p class="note">Deine Schrift bleibt im Browser deines Geräts. Kein Server, kein Konto.</p>
+    <div class="floor" aria-hidden="true"><canvas class="horizon"></canvas></div>
+
+    <section class="how" aria-labelledby="how-title">
+      <h2 id="how-title">Wie es läuft</h2>
+      <ol class="rows">
+        <li>
+          <span class="k">Schreiben</span>
+          <p>87 Zeichen, jedes in ein eigenes Feld: Buchstaben, Umlaute, Ziffern, Satzzeichen. Wer mag, schreibt danach noch Varianten, dann wiederholt sich kein Buchstabe sichtbar.</p>
+        </li>
+        <li>
+          <span class="k">Setzen</span>
+          <p>Text eintippen, liniert oder kariert, Kuli-Blau oder Bleistift. Größe, Abstände und wie stark die Zeichen schwanken stellst du selbst ein.</p>
+        </li>
+        <li>
+          <span class="k">Mitnehmen</span>
+          <p>Auf dem iPad direkt ins Teilen-Menü und in GoodNotes, am PC als Datei oder PDF. Auf ein anderes Gerät kommt die Schrift per Link.</p>
+        </li>
+      </ol>
     </section>
   </main>
 
   <footer class="foot">
-    <span>© 2026 Siebwrite</span>
-    <span>GoodNotes ist eine Marke ihres Inhabers. Siebwrite ist kein Angebot von GoodNotes.</span>
+    <span>Siebwrite, 2026</span>
+    <span>GoodNotes ist eine Marke ihres Inhabers. Siebwrite gehört nicht dazu.</span>
   </footer>
 </body>
 </html>
