@@ -3,139 +3,76 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Handschrift</title>
-  <meta name="description" content="Eigene Handschrift erfassen, Text damit setzen und als radierbare GoodNotes-Datei oder PDF speichern.">
-  <meta name="theme-color" content="#0a0c0f">
+  <title>Siebwrite</title>
+  <meta name="description" content="Schreib jeden Buchstaben einmal, dann steht jeder Text in deiner Handschrift: als radierbare GoodNotes-Datei oder PDF.">
+  <meta name="theme-color" content="#0f101a">
   <meta name="color-scheme" content="dark">
+  <script>
+    // Links aus dem Artifact und alte Lesezeichen zeigen noch auf die Startseite: weiter in die App
+    if (/^#(gn|schreiben|setzen)/.test(location.hash)) location.replace('app/' + location.hash);
+  </script>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="style.css">
-  <script type="module" src="src/app.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600&family=Inter:wght@400;500&display=swap">
+  <link rel="stylesheet" href="landing/style.css">
+  <script type="module">
+    import { horizonGrid } from './landing/horizon-grid.js';
+    // Horizont knapp unter den Knöpfen, damit kein Text auf dem Raster steht
+    const hero = document.querySelector('.hero');
+    const actions = document.querySelector('.actions');
+    const grid = horizonGrid(document.querySelector('.horizon'), {
+      horizon: () => (actions.getBoundingClientRect().bottom - hero.getBoundingClientRect().top + 72) / hero.offsetHeight,
+    });
+    document.fonts.ready.then(grid.refresh); // Webfonts verschieben die Knöpfe noch
+  </script>
 </head>
 <body>
-  <div class="app">
-    <header class="top">
-      <div class="brand"><span class="brand-dot" aria-hidden="true"></span>Handschrift</div>
-      <nav class="tabs" aria-label="Schritte">
-        <a class="tab step" href="#schreiben" data-view="schreiben">Schreiben</a>
-        <a class="tab step" href="#setzen" data-view="setzen">Setzen</a>
-      </nav>
-    </header>
+  <header class="nav">
+    <a class="logo" href="./"><img src="icon.svg" alt="" width="22" height="22">Siebwrite</a>
+    <a class="btn btn-ghost btn-sm" href="app/">Öffnen</a>
+  </header>
 
-    <section class="view" id="view-schreiben" aria-label="Schreiben">
-      <div class="stats" aria-live="polite">
-        <div class="stat-num"><span class="sr-only">Ausgefüllt: </span><b id="count">0</b><span>/<span id="total">196</span></span></div>
-        <div class="stat-side">
-          <div class="stat-row"><span>Auf die Linie schreiben</span><b id="pass-label">Basis 0/87</b></div>
-          <div class="bar"><div class="bar-fill" id="bar-fill"></div><div class="bar-tick" id="bar-tick"></div></div>
-        </div>
-      </div>
-
-      <div class="toolbar">
-        <button class="btn btn-icon" id="prev" type="button" aria-label="Vorherige Felder">←</button>
-        <span class="mono" id="page-info">1–12</span>
-        <button class="btn btn-icon" id="next" type="button" aria-label="Nächste Felder">→</button>
-        <span class="spacer"></span>
-        <span class="chip chip-accent" id="pen-chip" hidden>Stift erkannt</span>
-        <button class="btn btn-icon" id="undo" type="button" aria-label="Rückgängig" title="Rückgängig">↶</button>
-        <a class="btn btn-primary" href="#setzen" id="to-compose">Weiter</a>
-      </div>
-
-      <div class="grid" id="grid"></div>
-
-      <div class="foot">
-        <button class="btn btn-text" id="export-profile" type="button">Sichern</button>
-        <label class="btn btn-text" for="import-profile">Laden</label>
-        <button class="btn btn-text" id="share-profile" type="button">Mitnehmen</button>
-        <input class="sr-only" type="file" id="import-profile" accept=".json,application/json">
-        <span class="confirm" id="clear-area">
-          <button class="btn btn-text btn-danger" id="clear-all" type="button">Löschen</button>
-        </span>
-        <span class="status" id="sync-status">Im Browser</span>
-      </div>
-    </section>
-
-    <section class="view" id="view-setzen" aria-label="Setzen" hidden>
-      <div class="empty" id="compose-empty" hidden>
-        <div class="empty-title">Noch keine Buchstaben</div>
-        <a class="btn btn-primary" href="#schreiben">Schreiben</a>
-      </div>
-
-      <div class="compose" id="compose">
-        <div class="card">
-          <textarea id="text" spellcheck="true" aria-label="Text"></textarea>
-
-          <fieldset class="settings">
-            <legend class="sr-only">Einstellungen</legend>
-            <div class="field">
-              <span class="label">Format</span>
-              <div class="pills" role="radiogroup" aria-label="Format">
-                <label><input type="radio" name="format" id="format-a4" value="a4" checked>A4</label>
-                <label><input type="radio" name="format" id="format-standard" value="standard">GoodNotes</label>
-              </div>
-            </div>
-            <div class="field">
-              <span class="label">Papier</span>
-              <div class="pills" role="radiogroup" aria-label="Papier">
-                <label><input type="radio" name="paper" id="paper-lined" value="lined" checked>Liniert</label>
-                <label><input type="radio" name="paper" id="paper-grid" value="grid">Kariert</label>
-                <label><input type="radio" name="paper" id="paper-blank" value="blank">Leer</label>
-              </div>
-            </div>
-            <div class="field span-2">
-              <span class="label">Farbe</span>
-              <div class="pills swatches" role="radiogroup" aria-label="Farbe" id="inks"></div>
-            </div>
-            <div class="field">
-              <div class="field-row"><label class="label" for="size">Größe</label><output for="size" id="size-out"></output></div>
-              <input type="range" id="size" min="2" max="6" step="0.1" value="3.2">
-            </div>
-            <div class="field">
-              <div class="field-row"><label class="label" for="lines">Zeilen</label><output for="lines" id="lines-out"></output></div>
-              <input type="range" id="lines" min="6" max="14" step="0.5" value="9">
-            </div>
-            <div class="field">
-              <div class="field-row"><label class="label" for="letters">Buchstaben</label><output for="letters" id="letters-out"></output></div>
-              <input type="range" id="letters" min="0" max="0.6" step="0.02" value="0.18">
-            </div>
-            <div class="field">
-              <div class="field-row"><label class="label" for="words">Wörter</label><output for="words" id="words-out"></output></div>
-              <input type="range" id="words" min="0.4" max="2" step="0.05" value="0.9">
-            </div>
-            <div class="field">
-              <div class="field-row"><label class="label" for="natural">Variation</label><output for="natural" id="natural-out"></output></div>
-              <input type="range" id="natural" min="0" max="1" step="0.05" value="0.5">
-            </div>
-            <div class="field">
-              <div class="field-row"><label class="label" for="pen">Strich</label><output for="pen" id="pen-out"></output></div>
-              <input type="range" id="pen" min="0.15" max="0.9" step="0.05" value="0.35">
-            </div>
-          </fieldset>
-        </div>
-
-        <div class="sheet">
-          <div class="sheet-bar">
-            <button class="btn btn-icon" id="page-prev" type="button" aria-label="Vorherige Seite">←</button>
-            <span class="mono" id="sheet-info">1/1</span>
-            <button class="btn btn-icon" id="page-next" type="button" aria-label="Nächste Seite">→</button>
-            <span class="spacer"></span>
-            <span class="chip chip-warn" id="missing" hidden></span>
-            <button class="btn" id="reshuffle" type="button">Mischen</button>
-          </div>
-          <div class="page-frame"><canvas id="preview" aria-label="Vorschau der Seite"></canvas></div>
-          <div class="export">
-            <button class="btn btn-primary" id="save-goodnotes" type="button">Als GoodNotes importieren</button>
-            <button class="btn" id="save-pdf" type="button">PDF</button>
-          </div>
-          <p class="gn-result" id="goodnotes-result" role="status" hidden></p>
-          <p class="hint" id="goodnotes-note"></p>
+  <main>
+    <section class="hero">
+      <canvas class="horizon" aria-hidden="true"></canvas>
+      <div class="hero-inner">
+        <p class="pill"><span class="pill-dot"></span>Kostenlos · ohne Konto</p>
+        <h1>Deine Handschrift.<br><span class="soft">Aus der Tastatur.</span></h1>
+        <p class="lead">Schreib jeden Buchstaben einmal mit dem Stift. Danach setzt Siebwrite jeden Text in deiner Schrift und gibt ihn als radierbare GoodNotes-Datei oder als PDF aus.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="app/">Handschrift erfassen</a>
+          <a class="btn btn-ghost" href="#ablauf">So geht's</a>
         </div>
       </div>
     </section>
 
-    <div class="toast" id="toast" role="status" hidden></div>
-  </div>
+    <section class="steps" id="ablauf" aria-labelledby="ablauf-titel">
+      <h2 id="ablauf-titel">Drei Schritte, ein paar Minuten.</h2>
+      <div class="cards">
+        <article class="card">
+          <span class="num">01</span>
+          <h3>Schreiben</h3>
+          <p>87 Zeichen auf die Grundlinie, mit Stift, Finger oder Maus. Mehr Varianten machen die Schrift lebendiger.</p>
+        </article>
+        <article class="card">
+          <span class="num">02</span>
+          <h3>Setzen</h3>
+          <p>Text eintippen, Papier, Farbe und Abstände wählen. „Mischen“ würfelt die Varianten neu.</p>
+        </article>
+        <article class="card">
+          <span class="num">03</span>
+          <h3>Importieren</h3>
+          <p>Auf iPad und Handy direkt in GoodNotes teilen, am PC als Datei laden. Jeder Strich bleibt radierbar.</p>
+        </article>
+      </div>
+      <p class="note">Deine Schrift bleibt im Browser deines Geräts. Kein Server, kein Konto.</p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>© 2026 Siebwrite</span>
+    <span>GoodNotes ist eine Marke ihres Inhabers. Siebwrite ist kein Angebot von GoodNotes.</span>
+  </footer>
 </body>
 </html>

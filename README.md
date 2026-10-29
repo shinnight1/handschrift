@@ -4,7 +4,10 @@ Eigene Buchstaben mit Stift, Finger oder Maus erfassen, Text damit setzen und al
 radierbare `.goodnotes`-Datei oder als PDF ausgeben. Reines HTML, CSS und JavaScript: kein
 Framework, kein Build-Schritt, keine Abhängigkeiten.
 
-Seite: https://siebwrite.de/ (die alte Adresse https://shinnight1.github.io/handschrift/ leitet dorthin um)
+Seite: https://siebwrite.de/ (die alte Adresse https://shinnight1.github.io/handschrift/ leitet dorthin um).
+Auf `/` liegt die Startseite, die App selbst unter `/app/`. Links mit `#gn…`, `#schreiben` oder
+`#setzen` auf die Startseite leitet sie in die App weiter, damit ältere Links und das Artifact
+weiter ankommen.
 
 ## So geht's
 
@@ -37,7 +40,7 @@ ist unter `siebwrite.de` nicht zu sehen: dort per „Sichern“ und „Laden“ 
 node tools/serve.mjs
 ```
 
-Dann http://localhost:5190/ öffnen. `file://` geht nicht, weil Browser ES-Module von dort
+Dann http://localhost:5190/ öffnen (die App: http://localhost:5190/app/). `file://` geht nicht, weil Browser ES-Module von dort
 blockieren.
 
 ```
@@ -50,7 +53,9 @@ prüft Mitnehmen-Link, Profil, Satz, LZ4, TPL, die `.goodnotes`-Datei und das PD
 
 | Datei | Aufgabe |
 | --- | --- |
-| `index.html`, `style.css` | Seite und Aussehen |
+| `index.html`, `landing/style.css` | Startseite |
+| `landing/horizon-grid.js` | animiertes Bodenraster im Hintergrund der Startseite |
+| `app/index.html`, `style.css` | App und Aussehen |
 | `src/app.js` | Steuerung beider Schritte |
 | `src/charset.js` | welche Zeichen in welcher Reihenfolge erfasst werden |
 | `src/draw.js` | Schreibkästchen, Stift-Erkennung, Rückgängig |

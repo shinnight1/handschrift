@@ -1,0 +1,195 @@
+:root {
+  --bg: #0f101a;
+  --surface: #151724;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text: #f3f4fa;
+  --muted: #9b9eb5;
+  --accent: #98a4f7;
+  --accent-hover: #b0b9fa;
+  --display: "Helvetica Now Display", "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+  --body: "Helvetica Now Text", "Inter", "Helvetica Neue", Arial, sans-serif;
+  --gutter: clamp(16px, 4vw, 40px);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 16px/1.6 var(--body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* Navigation */
+.nav {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px var(--gutter);
+  background: rgba(15, 16, 26, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font: 600 17px/1 var(--display);
+  letter-spacing: -0.02em;
+}
+
+/* Knöpfe */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font: 500 15px/1 var(--body);
+  transition: background-color .15s, border-color .15s, color .15s;
+}
+.btn-sm { height: 34px; padding: 0 14px; font-size: 14px; border-radius: 8px; }
+.btn-primary { background: var(--accent); color: var(--bg); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost { background: rgba(255, 255, 255, 0.03); border-color: var(--border-strong); color: var(--text); }
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.07); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Hero mit Horizon Grid */
+.hero {
+  position: relative;
+  min-height: max(640px, 100svh);
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--gutter);
+  overflow: hidden;
+  isolation: isolate;
+}
+.horizon {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 15%, #000 45%, #000 calc(100% - 140px), transparent);
+          mask-image: linear-gradient(to bottom, transparent 15%, #000 45%, #000 calc(100% - 140px), transparent);
+}
+.hero-inner {
+  max-width: 760px;
+  padding: clamp(120px, 20vh, 190px) 0 300px;
+  text-align: center;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 28px;
+  padding: 6px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.2;
+}
+.pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+h1 {
+  margin: 0;
+  font: 600 clamp(40px, 7.4vw, 76px)/1.02 var(--display);
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+.soft {
+  background: linear-gradient(180deg, var(--text) 10%, var(--accent));
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+.lead {
+  max-width: 560px;
+  margin: 24px auto 0;
+  color: var(--muted);
+  font-size: clamp(16px, 2.2vw, 18px);
+  text-wrap: pretty;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+/* Ablauf */
+.steps {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: clamp(64px, 10vw, 120px) var(--gutter);
+}
+h2 {
+  margin: 0 0 40px;
+  font: 600 clamp(28px, 4vw, 40px)/1.1 var(--display);
+  letter-spacing: -0.03em;
+  text-align: center;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.card {
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--surface), rgba(21, 23, 36, 0.4));
+  transition: border-color .2s;
+}
+.card:hover { border-color: rgba(152, 164, 247, 0.35); }
+.num {
+  font: 500 13px/1 var(--display);
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+h3 {
+  margin: 18px 0 8px;
+  font: 600 20px/1.2 var(--display);
+  letter-spacing: -0.02em;
+}
+.card p { margin: 0; color: var(--muted); font-size: 15px; }
+.note {
+  margin: 40px 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding: 24px var(--gutter) 32px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+}
