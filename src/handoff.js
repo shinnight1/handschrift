@@ -1,33 +1,48 @@
 // Mitnehmen-Link: Profil, Text und Einstellungen reisen komprimiert im Teil
 // nach "#" zu einem anderen Gerät. Den Teil schickt der Browser nie an den
 // Server. Das Handschrift-Artifact auf claude.ai erzeugt dieselben Links
-// (Format v1), deshalb muss das Format zu ihm passen.
+// (Format v1), deshalb muss das Format zu ihm passen. Eigene Zeichen stehen
+// im zusätzlichen Feld "u", das ältere Leser übergehen.
 
-import { CELL_CHARS } from './charset.js';
+import { CELL_CHARS, isCustomChar } from './charset.js';
 import { utf8, fromUtf8, fromBase64 } from './goodnotes/bytes.js';
 
 const Q = 10000; // Koordinaten in Zehntausendsteln, so genau wie gespeichert
 const canCompress = typeof CompressionStream === 'function';
 
-// "index:dx,dy dx,dy|…;index:…" — ganze Zahlen, je Punkt der Abstand zum vorigen.
+// "dx,dy dx,dy|…" — ganze Zahlen, je Punkt der Abstand zum vorigen.
+function packStrokes(strokes) {
+  return strokes.map((st) => {
+    let px = 0;
+    let py = 0;
+    return st.map(([x, y]) => {
+      const X = Math.round(x * Q);
+      const Y = Math.round(y * Q);
+      const r = `${X - px},${Y - py}`;
+      px = X;
+      py = Y;
+      return r;
+    }).join(' ');
+  }).join('|');
+}
+
+function unpackStrokes(text) {
+  if (typeof text !== 'string') return [];
+  return text.split('|').map((st) => {
+    let x = 0;
+    let y = 0;
+    return st.split(' ').map((p) => {
+      const [dx, dy] = p.split(',').map(Number);
+      x += dx;
+      y += dy;
+      return [x / Q, y / Q];
+    }).filter((p) => p.every(Number.isFinite));
+  }).filter((st) => st.length);
+}
+
+// "index:Striche;index:…"
 function packCells(cells) {
-  const out = [];
-  for (const [k, strokes] of Object.entries(cells)) {
-    const s = strokes.map((st) => {
-      let px = 0;
-      let py = 0;
-      return st.map(([x, y]) => {
-        const X = Math.round(x * Q);
-        const Y = Math.round(y * Q);
-        const r = `${X - px},${Y - py}`;
-        px = X;
-        py = Y;
-        return r;
-      }).join(' ');
-    }).join('|');
-    out.push(`${k}:${s}`);
-  }
-  return out.join(';');
+  return Object.entries(cells).map(([k, strokes]) => `${k}:${packStrokes(strokes)}`).join(';');
 }
 
 function unpackCells(text) {
@@ -37,19 +52,25 @@ function unpackCells(text) {
     const i = part.indexOf(':');
     const k = Number(part.slice(0, i));
     if (!Number.isInteger(k) || k < 0 || k >= CELL_CHARS.length) continue;
-    const strokes = part.slice(i + 1).split('|').map((st) => {
-      let x = 0;
-      let y = 0;
-      return st.split(' ').map((p) => {
-        const [dx, dy] = p.split(',').map(Number);
-        x += dx;
-        y += dy;
-        return [x / Q, y / Q];
-      }).filter((p) => p.every(Number.isFinite));
-    }).filter((st) => st.length);
+    const strokes = unpackStrokes(part.slice(i + 1));
     if (strokes.length) cells[k] = strokes;
   }
   return cells;
+}
+
+// Eigene Zeichen als Objekt { Zeichen: Striche }: so stört kein ":" oder ";" im Zeichen.
+function packCustom(custom = {}) {
+  return Object.fromEntries(Object.entries(custom).map(([c, strokes]) => [c, packStrokes(strokes)]));
+}
+
+function unpackCustom(data) {
+  const custom = {};
+  if (!data || typeof data !== 'object') return custom;
+  for (const [c, text] of Object.entries(data)) {
+    const strokes = isCustomChar(c) ? unpackStrokes(text) : [];
+    if (strokes.length) custom[c] = strokes;
+  }
+  return custom;
 }
 
 function toBase64Url(bytes) {
@@ -71,8 +92,10 @@ async function pipe(bytes, stream) {
  * Link auf diese Seite mit allem, was ein anderes Gerät zum Setzen braucht.
  * @param {string} [base]  Adresse der Seite; im Browser die aktuelle.
  */
-async function handoffLink({ cells, text, settings }, base = new URL('./', location.href).href) {
-  const raw = utf8(JSON.stringify({ v: 1, c: packCells(cells), t: text, s: settings }));
+async function handoffLink({ cells, custom, text, settings }, base = new URL('./', location.href).href) {
+  const data = { v: 1, c: packCells(cells), t: text, s: settings };
+  if (custom && Object.keys(custom).length) data.u = packCustom(custom);
+  const raw = utf8(JSON.stringify(data));
   const packed = canCompress ? await pipe(raw, new CompressionStream('deflate-raw')) : raw;
   return `${base}#gn${canCompress ? 1 : 0}=${toBase64Url(packed)}`;
 }
@@ -95,6 +118,7 @@ async function readHandoff(hash) {
   if (data?.v !== 1) throw new Error('Dieser Link ist von einer anderen Version.');
   return {
     cells: unpackCells(data.c),
+    custom: unpackCustom(data.u),
     text: typeof data.t === 'string' ? data.t : '',
     settings: data.s && typeof data.s === 'object' ? data.s : {},
   };

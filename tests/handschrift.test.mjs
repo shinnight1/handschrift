@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { CELL_CHARS, FIRST_PASS } from '../src/charset.js';
+import { CELL_CHARS, FIRST_PASS, BASE_CELLS, EXTRA_PASSES, isCustomChar } from '../src/charset.js';
 import { round4 } from '../src/geometry.js';
 import { glyphTable, parseProfile } from '../src/profile.js';
 import { layoutText, FORMATS } from '../src/layout.js';
@@ -82,6 +82,33 @@ test('Satz bricht um, verteilt auf Seiten und meldet fehlende Zeichen', () => {
       }
     }
   }
+});
+
+test('Zusatz-Durchgänge hängen hinten an, die alten Kästchen behalten ihre Nummer', () => {
+  assert.equal(BASE_CELLS, 196);
+  assert.equal(CELL_CHARS.length, BASE_CELLS + EXTRA_PASSES * FIRST_PASS.length);
+  assert.deepEqual(CELL_CHARS.slice(0, FIRST_PASS.length), FIRST_PASS);
+  assert.deepEqual(CELL_CHARS.slice(BASE_CELLS, BASE_CELLS + FIRST_PASS.length), FIRST_PASS);
+  // Mehr Kästchen je Zeichen = mehr Varianten beim Setzen.
+  assert.equal(glyphTable({ cells: fakeCells() }).get('b').length, 3 + EXTRA_PASSES);
+});
+
+test('Eigene Zeichen: schließen die Lücke und reisen mit Datei und Link', async () => {
+  assert.ok(isCustomChar('*') && isCustomChar('§') && isCustomChar('#'));
+  assert.ok(!isCustomChar('a') && !isCustomChar(' ') && !isCustomChar('\uFE0F') && !isCustomChar('ab'));
+  const cells = fakeCells(FIRST_PASS.length);
+  const custom = { '*': fakeCells(1)[0], ':;|': fakeCells(1)[0] };
+  assert.deepEqual(setText(cells, 'a * b').missing, ['*']);
+  assert.deepEqual(layoutText('a * b', glyphTable({ cells, custom }), { format: FORMATS.a4 }).missing, []);
+
+  const profile = parseProfile(JSON.stringify({ app: 'handschrift', version: 1, cells, custom }));
+  assert.deepEqual(profile.custom, { '*': custom['*'] }, 'nur gültige eigene Zeichen');
+
+  const link = await handoffLink({ cells, custom: profile.custom, text: 'a*', settings: SETTINGS }, 'https://example.org/');
+  const back = await readHandoff(link.slice(link.indexOf('#')));
+  assert.deepEqual(back.custom, profile.custom);
+  const old = await handoffLink({ cells, text: 'a', settings: SETTINGS }, 'https://example.org/');
+  assert.deepEqual((await readHandoff(old.slice(old.indexOf('#')))).custom, {}, 'Links ohne eigene Zeichen (Artifact) gehen weiter');
 });
 
 test('LZ4 und Kugelschreiber-TPL kommen unverändert zurück', () => {

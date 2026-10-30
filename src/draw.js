@@ -1,8 +1,10 @@
 // Schreibkästchen im Browser: Apple Pencil, Finger oder Maus. Jedes Kästchen
 // ist ein Canvas mit Hilfslinien; Striche werden in Glyphen-Koordinaten
 // gespeichert (Einheit = Kästchenhöhe, y = 0 auf der Grundlinie).
+// Welche Kästchen es gibt, sagt setSlots(): je Platz ein Schlüssel für den
+// Speicher und das Zeichen, das hineingehört.
 
-import { CELL_CHARS, BOX_ASPECT, GUIDES, fromTop, toGlyphY } from './charset.js';
+import { BOX_ASPECT, GUIDES, fromTop, toGlyphY } from './charset.js';
 import { simplify, smooth, round4 } from './geometry.js';
 
 const SIMPLIFY_EPS = 0.002;
@@ -10,16 +12,18 @@ const SIMPLIFY_EPS = 0.002;
 class DrawingGrid {
   /**
    * @param {HTMLElement} root
-   * @param {object} hooks  getCell(i) → strokes | undefined, setCell(i, strokes|null)
+   * @param {object} hooks  getCell(key) → strokes | undefined, setCell(key, strokes|null)
    */
   constructor(root, hooks) {
     this.root = root;
     this.hooks = hooks;
     this.first = 0;
     this.perPage = 12;
-    this.cells = new Map(); // Index → {canvas, ctx, el}
+    this.slots = []; // [{key, char}] in Schreibreihenfolge
+    this.focus = null; // Kästchen, zu dem goToKey gesprungen ist: wird als nächstes markiert
+    this.cells = new Map(); // Schlüssel → {canvas, ctx, el, char}
     this.penSeen = false;
-    this.active = null; // {pointerId, index, points}
+    this.active = null; // {pointerId, key, points}
     this.undoStack = [];
     this.colors = { guide: '#c9d6ee', base: '#9fb2d8', ink: '#1f2a44' };
   }
@@ -45,52 +49,69 @@ class DrawingGrid {
     }
   }
 
-  get pageCount() { return Math.ceil(CELL_CHARS.length / this.perPage); }
+  setSlots(slots) {
+    this.slots = slots;
+    this.first = Math.min(this.first, Math.max(0, this.pageCount - 1) * this.perPage);
+    this.render();
+  }
+
+  get pageCount() { return Math.max(1, Math.ceil(this.slots.length / this.perPage)); }
   get page() { return Math.floor(this.first / this.perPage); }
 
   goTo(page) {
     const p = Math.max(0, Math.min(this.pageCount - 1, page));
     this.first = p * this.perPage;
+    this.focus = null;
     this.render();
   }
 
   // Springt zur Seite mit dem ersten leeren Kästchen.
   goToFirstEmpty() {
-    const i = CELL_CHARS.findIndex((_, k) => !this.hooks.getCell(k));
-    this.goTo(Math.floor((i < 0 ? 0 : i) / this.perPage));
+    const p = this.slots.findIndex(({ key }) => !this.hooks.getCell(key));
+    this.goTo(Math.floor((p < 0 ? 0 : p) / this.perPage));
+  }
+
+  // Springt zur Seite eines Kästchens. false, wenn es das Kästchen gerade nicht gibt.
+  goToKey(key) {
+    const p = this.slots.findIndex((s) => s.key === key);
+    if (p < 0) return false;
+    this.goTo(Math.floor(p / this.perPage));
+    this.focus = key;
+    return true;
   }
 
   render() {
     this.root.style.setProperty('--cols', this.cols ?? 4);
     this.root.replaceChildren();
     this.cells.clear();
-    const last = Math.min(CELL_CHARS.length, this.first + this.perPage);
-    for (let i = this.first; i < last; i++) {
+    const last = Math.min(this.slots.length, this.first + this.perPage);
+    for (let p = this.first; p < last; p++) {
+      const { key, char } = this.slots[p];
       const el = document.createElement('div');
       el.className = 'cell';
       const head = document.createElement('div');
       head.className = 'cell-head';
       const label = document.createElement('span');
       label.className = 'cell-char';
-      label.textContent = CELL_CHARS[i];
+      label.textContent = char;
       const num = document.createElement('span');
       num.className = 'cell-num';
-      num.textContent = String(i + 1);
+      num.textContent = String(p + 1);
       const clear = document.createElement('button');
       clear.type = 'button';
       clear.className = 'cell-clear';
-      clear.setAttribute('aria-label', `Kästchen ${i + 1} (${CELL_CHARS[i]}) leeren`);
+      clear.setAttribute('aria-label', `Kästchen ${p + 1} (${char}) leeren`);
       clear.title = 'Feld leeren';
       clear.textContent = '×';
-      clear.addEventListener('click', () => this.clearCell(i));
+      clear.addEventListener('click', () => this.clearCell(key));
       head.append(label, num, clear);
       const canvas = document.createElement('canvas');
       canvas.className = 'cell-canvas';
-      canvas.setAttribute('aria-label', `Schreibfeld für ${CELL_CHARS[i]}`);
+      canvas.setAttribute('aria-label', `Schreibfeld für ${char}`);
       el.append(head, canvas);
       this.root.append(el);
-      this.cells.set(i, { el, canvas, ctx: canvas.getContext('2d') });
-      this.bind(canvas, i);
+      this.cells.set(key, { el, canvas, ctx: canvas.getContext('2d'), char });
+      this.bind(canvas, key);
     }
     requestAnimationFrame(() => {
       for (const i of this.cells.keys()) this.paint(i);
@@ -100,13 +121,13 @@ class DrawingGrid {
   }
 
   // Das erste leere Kästchen der Seite hervorheben: dort geht es weiter.
+  // Nach einem Sprung (goToKey) wird ab dem angesprungenen Kästchen gesucht.
   markNext() {
-    let found = false;
-    for (const [i, cell] of this.cells) {
-      const next = !found && !this.hooks.getCell(i)?.length;
-      if (next) found = true;
-      cell.el.classList.toggle('next', next);
-    }
+    const keys = [...this.cells.keys()];
+    const from = Math.max(0, keys.indexOf(this.focus));
+    const empty = (k) => !this.hooks.getCell(k)?.length;
+    const next = keys.slice(from).find(empty) ?? keys.find(empty);
+    for (const [k, cell] of this.cells) cell.el.classList.toggle('next', k === next);
   }
 
   // Alle Kästchen der Seite ausgefüllt?
@@ -134,8 +155,8 @@ class DrawingGrid {
     return { w, h, dpr };
   }
 
-  paint(i) {
-    const cell = this.cells.get(i);
+  paint(key) {
+    const cell = this.cells.get(key);
     if (!cell) return;
     const { w, h, dpr } = this.size(cell);
     const ctx = cell.ctx;
@@ -154,12 +175,13 @@ class DrawingGrid {
     line(GUIDES.baseline, this.colors.base, 1.5, []);
     ctx.setLineDash([]);
 
-    const strokes = this.hooks.getCell(i) ?? [];
+    const strokes = this.hooks.getCell(key) ?? [];
     // Leeres Feld: das Zeichen blass als Vorlage, in der Größe, die es haben soll.
-    // Großbuchstaben und Ziffern reichen bis zur oberen Linie, der Rest bis zur gestrichelten.
-    if (!strokes.length && this.active?.index !== i && this.colors.ghost) {
-      const ch = CELL_CHARS[i];
-      const tall = /[A-ZÄÖÜ0-9]/.test(ch);
+    // Großbuchstaben, Ziffern und eigene Zeichen (meist Symbole wie # oder §) reichen bis zur
+    // oberen Linie, der Rest bis zur gestrichelten.
+    if (!strokes.length && this.active?.key !== key && this.colors.ghost) {
+      const ch = cell.char;
+      const tall = /[A-ZÄÖÜ0-9]/.test(ch) || (typeof key === 'string' && !/\p{Ll}/u.test(ch));
       const size = tall ? (GUIDES.baseline - GUIDES.ascender) / 0.7 : (GUIDES.baseline - GUIDES.xline) / 0.52;
       ctx.fillStyle = this.colors.ghost;
       ctx.font = `400 ${size * h}px "IBM Plex Sans", sans-serif`;
@@ -171,7 +193,7 @@ class DrawingGrid {
     ctx.lineJoin = 'round';
     ctx.lineWidth = Math.max(1.5 * dpr, h * 0.022);
     for (const s of strokes) this.strokePath(ctx, s, h);
-    if (this.active?.index === i) this.strokePath(ctx, this.active.points, h);
+    if (this.active?.key === key) this.strokePath(ctx, this.active.points, h);
     cell.el.classList.toggle('filled', strokes.length > 0);
   }
 
@@ -184,7 +206,7 @@ class DrawingGrid {
     ctx.stroke();
   }
 
-  bind(canvas, index) {
+  bind(canvas, key) {
     const toGlyph = (e) => {
       const r = canvas.getBoundingClientRect();
       return [(e.clientX - r.left) / r.height, toGlyphY((e.clientY - r.top) / r.height)];
@@ -204,47 +226,47 @@ class DrawingGrid {
       canvas.setPointerCapture(e.pointerId);
       // Weiterschreiben im selben Feld hält die Markierung fest, ein neues Feld zieht sie sofort nach
       clearTimeout(this.nextTimer);
-      if (!this.hooks.getCell(index)?.length) this.markNext();
-      this.active = { pointerId: e.pointerId, index, points: [toGlyph(e)] };
-      this.paint(index);
+      if (!this.hooks.getCell(key)?.length) this.markNext();
+      this.active = { pointerId: e.pointerId, key, points: [toGlyph(e)] };
+      this.paint(key);
     });
     canvas.addEventListener('pointermove', (e) => {
       if (!this.active || this.active.pointerId !== e.pointerId) return;
       e.preventDefault();
       const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
       for (const ev of events.length ? events : [e]) this.active.points.push(toGlyph(ev));
-      this.paint(index);
+      this.paint(key);
     });
     const finish = (e) => {
       if (!this.active || this.active.pointerId !== e.pointerId) return;
       const { points } = this.active;
       this.active = null;
       const clean = simplify(smooth(points), SIMPLIFY_EPS).map(([x, y]) => [round4(x), round4(y)]);
-      const strokes = [...(this.hooks.getCell(index) ?? []), clean];
-      this.hooks.setCell(index, strokes);
-      this.undoStack.push({ index, before: strokes.slice(0, -1) });
-      this.paint(index);
+      const strokes = [...(this.hooks.getCell(key) ?? []), clean];
+      this.hooks.setCell(key, strokes);
+      this.undoStack.push({ key, before: strokes.slice(0, -1) });
+      this.paint(key);
       this.changed();
     };
     canvas.addEventListener('pointerup', finish);
     canvas.addEventListener('pointercancel', finish);
   }
 
-  clearCell(index) {
-    const before = this.hooks.getCell(index);
+  clearCell(key) {
+    const before = this.hooks.getCell(key);
     if (!before?.length) return;
-    this.undoStack.push({ index, before });
-    this.hooks.setCell(index, null);
-    this.paint(index);
+    this.undoStack.push({ key, before });
+    this.hooks.setCell(key, null);
+    this.paint(key);
     this.changed();
   }
 
   undo() {
     const step = this.undoStack.pop();
     if (!step) return false;
-    this.hooks.setCell(step.index, step.before.length ? step.before : null);
-    if (!this.cells.has(step.index)) this.goTo(Math.floor(step.index / this.perPage));
-    else this.paint(step.index);
+    this.hooks.setCell(step.key, step.before.length ? step.before : null);
+    if (!this.cells.has(step.key)) this.goToKey(step.key);
+    else this.paint(step.key);
     this.changed();
     return true;
   }

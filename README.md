@@ -13,8 +13,11 @@ weiter ankommen.
 
 1. **Schreiben:** Jedes Kästchen zeigt ein Zeichen. Auf die Grundlinie schreiben. Nach dem ersten
    Durchgang (87 Zeichen) geht Setzen schon, weitere Varianten machen die Schrift lebendiger.
+   Wer noch mehr Abwechslung will, schaltet „+ 5 Durchgänge“ dazu: noch fünfmal alles, freiwillig.
 2. **Setzen:** Text eintippen, Format, Papier, Farbe und Abstände einstellen. „Mischen“ würfelt
-   die Varianten neu.
+   die Varianten neu. Steht oben „Fehlt: *“, führt ein Tipp darauf direkt zum Kästchen für das
+   Zeichen. Zeichen, die nicht in der Liste sind (z. B. `*`, `#`, `§`), bekommen dabei ein eigenes
+   Kästchen unter „Eigene Zeichen“.
 3. **Als GoodNotes importieren:** auf iPad und Handy öffnet sich das Teilen-Menü, dort GoodNotes
    wählen. Am PC wird die `.goodnotes`-Datei heruntergeladen. Jede Seite wird eine eigene Datei.
 
@@ -30,6 +33,8 @@ Nur im Browser des Geräts (localStorage), nirgends sonst. Auf ein anderes Gerä
 - **Sichern / Laden:** dasselbe als Datei `Handschrift-Profil.json`.
 
 Das Handschrift-Artifact auf claude.ai erzeugt dieselben Links (Format `v1` in `src/handoff.js`).
+Eigene Zeichen stehen im zusätzlichen Feld `u`, die Zusatz-Durchgänge hinter den bisherigen
+Kästchen (ab Index 196). Ältere Leser wie das Artifact übergehen beides.
 
 Die Handschrift hängt an der Adresse der Seite. Was unter `shinnight1.github.io` gespeichert war,
 ist unter `siebwrite.de` nicht zu sehen: dort per „Sichern“ und „Laden“ umziehen.

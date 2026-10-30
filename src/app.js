@@ -1,6 +1,6 @@
 // Steuerung der Seite: Schritt 1 (Kästchen ausfüllen) und Schritt 2 (Text setzen, speichern).
 
-import { CELL_CHARS, CELL_GROUPS, FIRST_PASS } from './charset.js';
+import { CELL_CHARS, CELL_GROUPS, FIRST_PASS, BASE_CELLS, EXTRA_PASSES, isCustomChar } from './charset.js';
 import { DrawingGrid } from './draw.js';
 import { ProfileStore } from './store.js';
 import { parseProfile, glyphTable, filledCount, createProfile } from './profile.js';
@@ -15,6 +15,7 @@ const $ = (id) => document.getElementById(id);
 const SETTINGS_KEY = 'handschrift.settings.v1';
 const TEXT_KEY = 'handschrift.text.v1';
 const TIPS_KEY = 'handschrift.tips.v1';
+const EXTRA_KEY = 'handschrift.extra.v1';
 const EXAMPLE_TEXT = `Liebe Oma,
 
 vielen Dank für das schöne Paket! Die Plätzchen waren schon am ersten Abend weg. Ich hoffe, euch geht es gut und der Garten übersteht den Herbst.
@@ -64,9 +65,32 @@ function fileBase() {
 // ---------- Schritt 1: Kästchen ----------
 
 const grid = new DrawingGrid($('grid'), {
-  getCell: (i) => store.getCell(i),
-  setCell: (i, strokes) => store.setCell(i, strokes),
+  getCell: (key) => store.getCell(key),
+  setCell: (key, strokes) => store.setCell(key, strokes),
 });
+
+// Kästchen in Schreibreihenfolge: die feste Liste, dann eigene Zeichen (über „Fehlt“
+// dazugekommen), dann, wenn eingeschaltet, die Zusatz-Durchgänge.
+let extrasOn = false;
+let customChars = []; // eigene Zeichen mit Kästchen, auch gerade geleerte
+
+const hasExtraCells = () => Object.keys(store.profile.cells).some((k) => Number(k) >= BASE_CELLS);
+
+function buildSlots() {
+  const fixed = (from, to) => CELL_CHARS.slice(from, to).map((char, k) => ({ key: from + k, char, group: CELL_GROUPS[from + k] }));
+  return [
+    ...fixed(0, BASE_CELLS),
+    ...customChars.map((char) => ({ key: char, char, group: 'Eigene Zeichen' })),
+    ...(extrasOn ? fixed(BASE_CELLS, CELL_CHARS.length) : []),
+  ];
+}
+
+// Nach Laden, Löschen oder Mitnehmen-Link: Kästchen neu aus dem Profil.
+function resetSlots() {
+  customChars = Object.keys(store.profile.custom);
+  extrasOn = readJson(EXTRA_KEY) === true || hasExtraCells();
+  grid.setSlots(buildSlots());
+}
 
 function applyGridColors() {
   grid.setColors({ guide: cssVar('--guide'), base: cssVar('--guide-strong'), ink: cssVar('--ink'), ghost: cssVar('--ghost') });
@@ -81,9 +105,10 @@ function layoutGrid() {
 }
 
 // Zwei Phasen: erst jedes Zeichen einmal (Basis), dann freiwillige Varianten.
+// Eigene Zeichen zählen nicht mit, die Zusatz-Durchgänge nur, wenn eingeschaltet.
 function updateProgress() {
-  const n = filledCount(store.profile);
-  const total = CELL_CHARS.length;
+  const total = extrasOn ? CELL_CHARS.length : BASE_CELLS;
+  const n = Object.keys(store.profile.cells).filter((k) => Number(k) < total).length;
   const basisTotal = FIRST_PASS.length;
   const basis = FIRST_PASS.filter((_, i) => store.getCell(i)).length;
   const basisDone = basis === basisTotal;
@@ -98,14 +123,17 @@ function updateProgress() {
       ? 'Alle Zeichen da. Varianten sind freiwillig.'
       : `Jedes Zeichen einmal. Noch ${basisTotal - basis}.`;
   $('to-compose').classList.toggle('btn-primary', basisDone);
+  // Ausblenden nur, solange in den Zusatz-Durchgängen noch nichts steht.
+  $('more-passes').hidden = !basisDone || (extrasOn && hasExtraCells());
+  $('more-passes').textContent = extrasOn ? 'Zusatz-Durchgänge ausblenden' : `+ ${EXTRA_PASSES} Durchgänge für mehr Abwechslung`;
   $('undo').disabled = grid.undoStack.length === 0;
-  $('clear-area').hidden = n === 0; // Nichts da, nichts zu löschen
+  $('clear-area').hidden = filledCount(store.profile) === 0; // Nichts da, nichts zu löschen
   updateTips(n);
 }
 
 function updatePageInfo() {
-  const last = Math.min(CELL_CHARS.length, grid.first + grid.perPage) - 1;
-  const groups = [...new Set([CELL_GROUPS[grid.first], CELL_GROUPS[last]])];
+  const last = Math.min(grid.slots.length, grid.first + grid.perPage) - 1;
+  const groups = [...new Set([grid.slots[grid.first]?.group, grid.slots[last]?.group])];
   $('page-group').textContent = groups.join(', ');
   $('page-info').textContent = `Seite ${grid.page + 1} von ${grid.pageCount}`;
   $('prev').disabled = grid.page === 0;
@@ -128,6 +156,17 @@ $('grid').addEventListener('pendetected', () => { $('pen-chip').hidden = false; 
 $('prev').addEventListener('click', () => grid.goTo(grid.page - 1));
 $('next').addEventListener('click', () => grid.goTo(grid.page + 1));
 $('undo').addEventListener('click', () => { if (!grid.undo()) toast('Nichts rückgängig zu machen'); });
+$('more-passes').addEventListener('click', () => {
+  extrasOn = !extrasOn;
+  writeJson(EXTRA_KEY, extrasOn);
+  grid.setSlots(buildSlots());
+  if (extrasOn) {
+    grid.goToKey(BASE_CELLS);
+    toast('Noch fünfmal alles, freiwillig');
+  }
+  updateProgress();
+  updatePageInfo();
+});
 
 // Tasten: Strg/Cmd+Z macht rückgängig, Pfeile blättern. Nicht beim Tippen im Textfeld.
 document.addEventListener('keydown', (e) => {
@@ -142,7 +181,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 $('export-profile').addEventListener('click', async () => {
-  const json = JSON.stringify({ ...createProfile(), cells: store.profile.cells });
+  const json = JSON.stringify({ ...createProfile(), cells: store.profile.cells, custom: store.profile.custom });
   try {
     await saveFile('Handschrift-Profil.json', new TextEncoder().encode(json));
     toast('Gesichert');
@@ -159,6 +198,7 @@ $('import-profile').addEventListener('change', async (e) => {
     const profile = parseProfile(await readFileText(file));
     store.replaceAll(profile);
     grid.undoStack = [];
+    resetSlots();
     grid.goToFirstEmpty();
     updateProgress();
     scheduleCompose();
@@ -188,7 +228,7 @@ $('share-profile').addEventListener('click', async () => {
 });
 
 function currentShareLink() {
-  return handoffLink({ cells: store.profile.cells, text: $('text').value, settings });
+  return handoffLink({ cells: store.profile.cells, custom: store.profile.custom, text: $('text').value, settings });
 }
 
 function resetClearArea() {
@@ -216,6 +256,7 @@ function askClear() {
   yes.addEventListener('click', () => {
     store.replaceAll(createProfile());
     grid.undoStack = [];
+    resetSlots();
     grid.goTo(0);
     updateProgress();
     scheduleCompose();
@@ -349,7 +390,7 @@ function compose() {
 
   const missing = currentLayout.missing;
   $('missing').hidden = missing.length === 0;
-  $('missing').textContent = missing.length
+  $('missing-chars').textContent = missing.length
     ? `Fehlt: ${missing.join(' ')}`
     : '';
   updateGoodNotesNote();
@@ -458,6 +499,26 @@ $('reshuffle').addEventListener('click', () => {
 });
 $('page-prev').addEventListener('click', () => { sheetPage = Math.max(0, sheetPage - 1); renderSheet(); });
 $('page-next').addEventListener('click', () => { sheetPage = Math.min((currentLayout?.pages.length ?? 1) - 1, sheetPage + 1); renderSheet(); });
+// „Fehlt: *“ antippen: gleich zum Schreiben, dorthin, wo das Zeichen hingehört. Zeichen der
+// festen Liste haben ihr Kästchen schon, alle anderen bekommen eins unter „Eigene Zeichen“.
+$('missing').addEventListener('click', () => {
+  const targets = [];
+  for (const char of currentLayout?.missing ?? []) {
+    if (CELL_CHARS.includes(char)) targets.push(CELL_CHARS.indexOf(char));
+    else if (isCustomChar(char)) {
+      if (!customChars.includes(char)) customChars.push(char);
+      targets.push(char);
+    }
+  }
+  if (!targets.length) { toast('Dieses Zeichen lässt sich nicht schreiben'); return; }
+  grid.setSlots(buildSlots());
+  location.hash = '#schreiben';
+  showView();
+  grid.goToKey(targets[0]);
+  // Auf schmalen Bildschirmen liegt das Kästchen sonst unten unter der Meldung.
+  setTimeout(() => $('grid').querySelector('.cell.next')?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50);
+  toast('Hier schreiben, dann zurück zum Setzen');
+});
 $('save-goodnotes').addEventListener('click', exportGoodNotes);
 $('save-pdf').addEventListener('click', exportPdf);
 
@@ -480,8 +541,9 @@ async function receiveHandoff() {
   try {
     const data = await readHandoff(hash);
     if (!data) throw new Error('Der Link ist unvollständig. Am besten neu erzeugen und ganz kopieren.');
-    store.replaceAll({ ...createProfile(), cells: data.cells });
+    store.replaceAll({ ...createProfile(), cells: data.cells, custom: data.custom });
     grid.undoStack = [];
+    resetSlots();
     Object.assign(settings, cleanSettings(data.settings));
     writeJson(SETTINGS_KEY, settings);
     $('text').value = data.text;
@@ -532,6 +594,7 @@ renderInks();
 syncControls();
 applyGridColors();
 document.fonts.ready.then(applyGridColors); // Vorlagen-Zeichen erst mit geladener Schrift richtig
+resetSlots();
 grid.goToFirstEmpty();
 showView();
 updateProgress();

@@ -81,6 +81,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .intro-text { max-width: 36em; }
 .title { margin: 0; font: 400 clamp(28px, 4vw, 40px)/1.08 var(--serif); color: var(--bright); letter-spacing: -0.02em; }
 .sub { margin: 8px 0 0; color: var(--muted); text-wrap: pretty; }
+.btn-more { margin: 4px 0 0 -10px; min-height: 34px; font-size: 14px; }
 .progress { display: grid; gap: 10px; flex: 0 1 320px; min-width: min(260px, 100%); }
 .progress-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 #pass-label { font: 500 12px/1 var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
@@ -130,6 +131,8 @@ kbd {
 .mono { font: 400 13px/1.2 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 5px; font-size: 13px; border: 1px solid var(--edge); color: var(--muted); }
 .chip-warn { color: #f0a3a5; border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
+.chip-action { background: transparent; font: inherit; font-size: 13px; cursor: pointer; transition: border-color .15s, background .15s; }
+.chip-action:hover { border-color: color-mix(in srgb, var(--danger) 70%, transparent); background: color-mix(in srgb, var(--danger) 10%, transparent); }
 
 .pager { display: flex; align-items: center; gap: 10px; }
 .pager-label { display: grid; gap: 3px; min-width: 9.5em; }

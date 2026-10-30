@@ -1,12 +1,21 @@
 // Handschrift-Profil: die gezeichneten Striche je Kästchen, plus abgeleitete
-// Glyphen-Tabelle mit Maßen.
+// Glyphen-Tabelle mit Maßen. Zeichen außerhalb der festen Liste (z. B. "*")
+// liegen unter `custom`, mit dem Zeichen selbst als Schlüssel.
 
-import { CELL_CHARS, SITS_ON_BASELINE, X_HEIGHT_CHARS, GUIDES } from './charset.js';
+import { CELL_CHARS, SITS_ON_BASELINE, X_HEIGHT_CHARS, GUIDES, isCustomChar } from './charset.js';
 
 const PROFILE_VERSION = 1;
 
 function createProfile() {
-  return { version: PROFILE_VERSION, app: 'handschrift', created: new Date().toISOString(), cells: {} };
+  return { version: PROFILE_VERSION, app: 'handschrift', created: new Date().toISOString(), cells: {}, custom: {} };
+}
+
+function cleanStrokes(strokes) {
+  if (!Array.isArray(strokes)) return [];
+  return strokes
+    .filter((s) => Array.isArray(s))
+    .map((s) => s.filter((p) => Array.isArray(p) && p.length >= 2 && p.every(Number.isFinite)).map(([x, y]) => [x, y]))
+    .filter((s) => s.length > 0);
 }
 
 // Prüft eine geladene Profil-Datei und gibt ein sauberes Profil zurück.
@@ -19,17 +28,19 @@ function parseProfile(json) {
   const cells = {};
   for (const [key, strokes] of Object.entries(data.cells)) {
     const index = Number(key);
-    if (!Number.isInteger(index) || index < 0 || index >= CELL_CHARS.length || !Array.isArray(strokes)) continue;
-    const clean = strokes
-      .filter((s) => Array.isArray(s))
-      .map((s) => s.filter((p) => Array.isArray(p) && p.length >= 2 && p.every(Number.isFinite)).map(([x, y]) => [x, y]))
-      .filter((s) => s.length > 0);
+    if (!Number.isInteger(index) || index < 0 || index >= CELL_CHARS.length) continue;
+    const clean = cleanStrokes(strokes);
     if (clean.length) cells[index] = clean;
   }
-  return { ...createProfile(), created: data.created ?? null, cells };
+  const custom = {};
+  for (const [char, strokes] of Object.entries(data.custom ?? {})) {
+    const clean = isCustomChar(char) ? cleanStrokes(strokes) : [];
+    if (clean.length) custom[char] = clean;
+  }
+  return { ...createProfile(), created: data.created ?? null, cells, custom };
 }
 
-const filledCount = (profile) => Object.keys(profile.cells).length;
+const filledCount = (profile) => Object.keys(profile.cells).length + Object.keys(profile.custom ?? {}).length;
 
 function bbox(strokes) {
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -63,6 +74,10 @@ function glyphTable(profile, { snap = 0.8 } = {}) {
     const variant = { char, cell: Number(key), strokes, ...box, shift };
     if (!table.has(char)) table.set(char, []);
     table.get(char).push(variant);
+  }
+  // Eigene Zeichen stehen so, wie sie im Kästchen geschrieben wurden.
+  for (const [char, strokes] of Object.entries(profile.custom ?? {})) {
+    if (strokes.length) table.set(char, [{ char, cell: char, strokes, ...bbox(strokes), shift: 0 }]);
   }
   return table;
 }

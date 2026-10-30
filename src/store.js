@@ -27,6 +27,10 @@ function readLocal() {
       const strokes = decodeStrokes(v);
       if (strokes.length) profile.cells[k] = strokes;
     }
+    for (const [c, v] of Object.entries(data.custom ?? {})) {
+      const strokes = decodeStrokes(v);
+      if (strokes.length) profile.custom[c] = strokes;
+    }
     return profile;
   } catch {
     return null;
@@ -40,24 +44,29 @@ class ProfileStore {
     this.onStatus = onStatus ?? (() => {});
   }
 
-  getCell(i) { return this.profile.cells[i]; }
+  // Schlüssel: Zahl = festes Kästchen, Text = eigenes Zeichen.
+  slotOf(key) { return typeof key === 'number' ? this.profile.cells : this.profile.custom; }
 
-  setCell(i, strokes) {
-    if (strokes?.length) this.profile.cells[i] = strokes;
-    else delete this.profile.cells[i];
+  getCell(key) { return this.slotOf(key)[key]; }
+
+  setCell(key, strokes) {
+    if (strokes?.length) this.slotOf(key)[key] = strokes;
+    else delete this.slotOf(key)[key];
     this.save();
   }
 
   replaceAll(profile) {
-    this.profile = { ...createProfile(), cells: { ...profile.cells } };
+    this.profile = { ...createProfile(), cells: { ...profile.cells }, custom: { ...profile.custom } };
     this.save();
   }
 
   save() {
     try {
       const cells = {};
+      const custom = {};
       for (const [k, v] of Object.entries(this.profile.cells)) cells[k] = encodeStrokes(v);
-      localStorage.setItem(LOCAL_KEY, JSON.stringify({ cells }));
+      for (const [c, v] of Object.entries(this.profile.custom)) custom[c] = encodeStrokes(v);
+      localStorage.setItem(LOCAL_KEY, JSON.stringify({ cells, custom }));
       this.onStatus('saved');
     } catch {
       // Speicher voll oder gesperrt (privates Fenster): dann hilft nur Sichern.
