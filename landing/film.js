@@ -76,7 +76,7 @@ export function measure(text, em) {
 
 // Ein Text in Handschrift als einzelne Striche, die sich nacheinander schreiben lassen.
 // Jedes Zeichen bekommt ein wenig eigene Neigung, Größe und Höhe, wie bei echter Schrift.
-class Hand {
+export class Hand {
   constructor(parent, text, { x, y, em, color, width = 2.4, seed = 7, jitter = 1, lineGap = 46, gap = 0.4 }) {
     this.group = el('g', { fill: 'none', stroke: color, 'stroke-width': width, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, parent);
     this.paths = [];
@@ -179,6 +179,7 @@ const LINE = (k) => 214 + 46 * k;
 const PX = SCR.x + 46;
 const PAGE_W = SCR.w - 92;
 const INK = '#16338f';
+const BG = '#222428'; // wie --bg der Seite
 const SILVER = '#eef0f3';
 const MUTED = '#80858e';
 
@@ -197,7 +198,7 @@ function build(svg) {
     <filter id="f-shadow" x="-20%" y="-20%" width="140%" height="150%"><feGaussianBlur stdDeviation="22"/></filter>
     <clipPath id="f-screen"><rect x="${SCR.x}" y="${SCR.y}" width="${SCR.w}" height="${SCR.h}" rx="30"/></clipPath>`;
 
-  el('rect', { width: 1600, height: 900, fill: '#0c0d0f' }, svg);
+  el('rect', { width: 1600, height: 900, fill: BG }, svg);
   el('rect', { width: 1600, height: 900, fill: 'url(#f-sky)' }, svg);
   el('circle', { cx: 1200, cy: 450, r: 620, fill: 'url(#f-lamp)' }, svg);
 
@@ -257,7 +258,7 @@ function build(svg) {
   const kraft = result.word(3);
   const fix = new Hand(page, 'Energiequellen', { x: kraft.x0, y: LINE(4), em: bodyEm, color: INK, width: 2.3, seed: 33 });
 
-  const dim = el('rect', { x: SCR.x, y: SCR.y, width: SCR.w, height: SCR.h, fill: '#0c0d0f', opacity: 0 }, screen);
+  const dim = el('rect', { x: SCR.x, y: SCR.y, width: SCR.w, height: SCR.h, fill: BG, opacity: 0 }, screen);
 
   // Stift (Spitze im Ursprung) und Radierer
   const pen = el('g', {}, cam);
@@ -607,6 +608,7 @@ export async function film(root) {
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let t = still ? POSTER : 0;
+  let started = false; // Bis zum ersten Abspielen ein Standbild statt der schwarzen Anfangsblende
   let playing = false;
   let userPaused = still;
   let visible = false;
@@ -617,7 +619,7 @@ export async function film(root) {
   const label = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
   function paint() {
-    render(t);
+    render(started ? t : POSTER);
     const p = t / DURATION;
     fill.style.transform = `scaleX(${p})`;
     track.style.setProperty('--p', p);
@@ -641,6 +643,7 @@ export async function film(root) {
   function play() {
     if (playing) return;
     playing = true;
+    started = true;
     last = performance.now();
     raf = requestAnimationFrame(tick);
     paint();
@@ -651,6 +654,7 @@ export async function film(root) {
     paint();
   }
   function seek(s) {
+    started = true;
     t = clamp(s, 0, DURATION - 0.001);
     paint();
   }

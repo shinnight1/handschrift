@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Siebwrite</title>
   <meta name="description" content="Schreib jeden Buchstaben einmal, dann steht jeder Text in deiner Handschrift: als radierbare GoodNotes-Datei oder PDF.">
-  <meta name="theme-color" content="#0c0d0f">
+  <meta name="theme-color" content="#222428">
   <meta name="color-scheme" content="dark">
   <script>
     // Links aus dem Artifact und alte Lesezeichen zeigen noch auf die Startseite: weiter in die App
@@ -15,12 +15,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="landing/style.css?v=5">
+  <link rel="stylesheet" href="landing/style.css?v=6">
   <script type="module">
     import { horizonGrid } from './landing/horizon-grid.js';
     import { tryPad } from './landing/pad.js';
     import { film } from './landing/film.js';
+    import { wordmark } from './landing/wordmark.js';
     film(document.getElementById('film'));
+    wordmark(document.querySelector('.brand-name'));
     horizonGrid(document.querySelector('.horizon'), { horizon: 0.22, speed: 0.22 });
     tryPad(document.getElementById('pad'), document.getElementById('pad-clear'));
   </script>
@@ -47,6 +49,11 @@
         </div>
         <canvas id="pad" aria-label="Probierfeld: schreib ein a auf die Linie"></canvas>
       </figure>
+    </section>
+
+    <section class="brand" aria-label="Siebwrite">
+      <svg class="brand-name" role="img" aria-label="Siebwrite in Handschrift"></svg>
+      <p class="brand-url">siebwrite.de</p>
     </section>
 
     <div class="floor" aria-hidden="true"><canvas class="horizon"></canvas></div>

@@ -1,22 +1,22 @@
-/* Schwarz und Silber wie die Startseite: Anthrazit, eine schwache Lichtquelle oben,
+/* Graphit und Silber wie die Startseite: helles Anthrazit, eine Lichtquelle oben,
    helle 1px-Kanten statt Leuchten, keine Farbe außer Grautönen (Rot nur für Löschen).
    Die Seitenvorschau bleibt weißes Papier. */
 :root {
-  --bg: #0c0d0f;
-  --raise: #131417;
-  --raise-2: #1a1b1f;
-  --sunk: #090a0b;
-  --edge: rgba(255, 255, 255, 0.08);
-  --edge-hi: rgba(255, 255, 255, 0.17);
-  --text: #c9ccd2;
-  --bright: #eef0f3;
-  --muted: #80858e;
+  --bg: #222428;
+  --raise: #2b2d32;
+  --raise-2: #34373d;
+  --sunk: #1a1b1e;
+  --edge: rgba(255, 255, 255, 0.11);
+  --edge-hi: rgba(255, 255, 255, 0.23);
+  --text: #d5d8dd;
+  --bright: #f4f5f7;
+  --muted: #9a9fa8;
   --danger: #e5484d;
   /* Schreibfelder (werden per JS ins Canvas übernommen) */
-  --guide: rgba(220, 224, 230, 0.14);
-  --guide-strong: rgba(220, 224, 230, 0.42);
-  --ghost: rgba(220, 224, 230, 0.075);
-  --ink: #eef0f3;
+  --guide: rgba(220, 224, 230, 0.17);
+  --guide-strong: rgba(220, 224, 230, 0.45);
+  --ghost: rgba(220, 224, 230, 0.09);
+  --ink: #f4f5f7;
   --serif: "Newsreader", Georgia, serif;
   --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
@@ -32,7 +32,7 @@ body {
   margin: 0;
   min-height: 100svh;
   background:
-    radial-gradient(ellipse 60% 40% at 25% -8%, rgba(255, 255, 255, 0.05), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 25% -8%, rgba(255, 255, 255, 0.08), transparent 70%),
     var(--bg);
   background-attachment: fixed;
   color: var(--text);
@@ -254,7 +254,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px 
   .export {
     position: sticky; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 4;
     margin: -8px; padding: 8px; border-radius: 10px;
-    background: rgba(12, 13, 15, 0.94); border: 1px solid var(--edge); box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+    background: rgba(34, 36, 40, 0.95); border: 1px solid var(--edge); box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
     flex-wrap: nowrap;
   }
   .export .btn { flex: 1 1 0; min-width: 0; min-height: 46px; padding-inline: 12px; font-size: 14px; }

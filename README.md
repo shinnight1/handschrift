@@ -61,6 +61,7 @@ prüft Mitnehmen-Link, Profil, Satz, LZ4, TPL, die `.goodnotes`-Datei und das PD
 | `index.html`, `landing/style.css` | Startseite |
 | `landing/horizon-grid.js` | animiertes Bodenraster unter dem Hero der Startseite |
 | `landing/pad.js` | Probierfeld auf der Startseite (speichert nichts) |
+| `landing/wordmark.js` | Schriftzug „Siebwrite“ in Handschrift über dem Bodenraster (schreibt sich beim Hinscrollen) |
 | `landing/film.js`, `landing/hand-font.js` | Film auf der Startseite: SVG-Szene, für jede Zeit berechnet; Handschrift aus EMS Felix (`tools/build-hand-font.mjs`) |
 | `app/index.html`, `style.css` | App und Aussehen |
 | `src/app.js` | Steuerung beider Schritte |
