@@ -13,6 +13,8 @@ import { encodeBallpoint, ballpointFromTpl } from '../src/goodnotes/tpl.js';
 import { decodeRecords } from '../src/goodnotes/proto.js';
 import { handoffLink, readHandoff, packCells, unpackCells } from '../src/handoff.js';
 import { encodeStrokes, decodeStrokes } from '../src/store.js';
+import { readFileSync } from 'node:fs';
+import { moduleList } from '../tools/version.mjs';
 
 // Erfundene Handschrift: jedes Kästchen 1–3 krumme Striche mit 4 Nachkommastellen.
 function fakeCells(count = CELL_CHARS.length) {
@@ -143,4 +145,15 @@ test('PDF hat eine Seite pro gesetzter Seite', () => {
   assert.ok(pdf.startsWith('%PDF-1.4'));
   assert.ok(pdf.includes(`/Count ${layout.pages.length}`));
   assert.ok(pdf.trimEnd().endsWith('%%EOF'));
+});
+
+test('Jedes Modul hat in beiden Seiten dieselbe Versionsnummer (sonst mischt der Browser-Cache alt und neu)', async () => {
+  const files = await moduleList();
+  for (const [page, prefix] of [['index.html', './'], ['app/index.html', '../']]) {
+    const html = readFileSync(new URL(`../${page}`, import.meta.url), 'utf8');
+    const map = JSON.parse(/<script type="importmap">([\s\S]*?)<\/script>/.exec(html)[1]).imports;
+    const versions = new Set([...html.matchAll(/\?v=(\d+)/g)].map((m) => m[1]));
+    assert.equal(versions.size, 1, `${page}: eine Version überall (node tools/version.mjs)`);
+    assert.deepEqual(Object.keys(map).sort(), files.map((f) => prefix + f).sort(), `${page}: alle Module in der Import Map`);
+  }
 });

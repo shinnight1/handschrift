@@ -54,6 +54,17 @@ node --test
 
 prüft Mitnehmen-Link, Profil, Satz, LZ4, TPL, die `.goodnotes`-Datei und das PDF ohne Browser.
 
+Vor jedem Veröffentlichen:
+
+```
+node tools/version.mjs
+```
+
+zählt die Versionsnummer hoch, die an Stylesheets und an jedem Modul hängt (über eine Import Map in
+`index.html` und `app/index.html`). GitHub Pages lässt Browser Dateien 10 Minuten zwischenspeichern;
+ohne neue Nummer mischt der Browser neue und alte Module, und die App bleibt leer. Der Test schlägt
+fehl, wenn ein Modul in der Import Map fehlt.
+
 ## Aufbau
 
 | Datei | Aufgabe |

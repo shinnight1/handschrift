@@ -599,3 +599,4 @@ grid.goToFirstEmpty();
 showView();
 updateProgress();
 receiveHandoff();
+document.documentElement.dataset.ready = '1'; // sonst zeigt die Seite nach kurzer Zeit „Neu laden“

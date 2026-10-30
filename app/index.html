@@ -11,8 +11,36 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="../style.css?v=7">
-  <script type="module" src="../src/app.js?v=7"></script>
+  <link rel="stylesheet" href="../style.css?v=8">
+  <script type="importmap">{
+    "imports": {
+      "../landing/film.js": "../landing/film.js?v=8",
+      "../landing/hand-font.js": "../landing/hand-font.js?v=8",
+      "../landing/horizon-grid.js": "../landing/horizon-grid.js?v=8",
+      "../landing/pad.js": "../landing/pad.js?v=8",
+      "../landing/wordmark.js": "../landing/wordmark.js?v=8",
+      "../src/app.js": "../src/app.js?v=8",
+      "../src/charset.js": "../src/charset.js?v=8",
+      "../src/draw.js": "../src/draw.js?v=8",
+      "../src/geometry.js": "../src/geometry.js?v=8",
+      "../src/goodnotes/bytes.js": "../src/goodnotes/bytes.js?v=8",
+      "../src/goodnotes/lz4.js": "../src/goodnotes/lz4.js?v=8",
+      "../src/goodnotes/proto.js": "../src/goodnotes/proto.js?v=8",
+      "../src/goodnotes/template-data.js": "../src/goodnotes/template-data.js?v=8",
+      "../src/goodnotes/tpl.js": "../src/goodnotes/tpl.js?v=8",
+      "../src/goodnotes/writer.js": "../src/goodnotes/writer.js?v=8",
+      "../src/goodnotes/zip.js": "../src/goodnotes/zip.js?v=8",
+      "../src/handoff.js": "../src/handoff.js?v=8",
+      "../src/layout.js": "../src/layout.js?v=8",
+      "../src/pdf.js": "../src/pdf.js?v=8",
+      "../src/profile.js": "../src/profile.js?v=8",
+      "../src/random.js": "../src/random.js?v=8",
+      "../src/render.js": "../src/render.js?v=8",
+      "../src/save.js": "../src/save.js?v=8",
+      "../src/store.js": "../src/store.js?v=8"
+    }
+  }</script>
+  <script type="module" src="../src/app.js?v=8"></script>
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -176,6 +204,16 @@
     </section>
 
     <div class="toast" id="toast" role="status" hidden></div>
+    <div class="toast boot-fail" id="boot-fail" role="alert" hidden>
+      Die Seite hat nicht ganz geladen. Deine Handschrift ist noch da.
+      <button class="btn btn-quiet" type="button" onclick="location.reload()">Neu laden</button>
+    </div>
   </div>
+  <script>
+    // Läuft app.js nicht (Netz weg, alte Datei im Cache), sonst bliebe die Seite einfach leer
+    window.addEventListener('load', () => setTimeout(() => {
+      if (!document.documentElement.dataset.ready) document.getElementById('boot-fail').hidden = false;
+    }, 2500));
+  </script>
 </body>
 </html>
