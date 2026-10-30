@@ -489,7 +489,36 @@ function scheduleOutput() {
 
 $('text').addEventListener('input', () => {
   writeJson(TEXT_KEY, $('text').value);
+  clearedText = null; // Wer schon Neues tippt oder einfügt, soll es nicht überschrieben bekommen
+  updateTextClear();
   scheduleCompose();
+});
+
+// Text auf einen Tipp leeren, etwa bevor man den nächsten einfügt. Danach holt derselbe
+// Knopf ein paar Sekunden lang den alten Text zurück.
+let clearedText = null;
+let clearedTimer = null;
+function setText(value) {
+  $('text').value = value;
+  writeJson(TEXT_KEY, value);
+  scheduleCompose();
+}
+function updateTextClear() {
+  $('text-clear').hidden = clearedText === null && !$('text').value;
+  $('text-clear').textContent = clearedText === null ? 'Leeren' : 'Zurückholen';
+}
+$('text-clear').addEventListener('click', () => {
+  clearTimeout(clearedTimer);
+  if (clearedText === null) {
+    clearedText = $('text').value;
+    setText('');
+    $('text').focus(); // gleich bereit zum Einfügen
+    clearedTimer = setTimeout(() => { clearedText = null; updateTextClear(); }, 8000);
+  } else {
+    setText(clearedText);
+    clearedText = null;
+  }
+  updateTextClear();
 });
 document.querySelector('.settings').addEventListener('input', () => { readControls(); scheduleCompose(); });
 $('reshuffle').addEventListener('click', () => {
@@ -548,6 +577,7 @@ async function receiveHandoff() {
     writeJson(SETTINGS_KEY, settings);
     $('text').value = data.text;
     writeJson(TEXT_KEY, data.text);
+    updateTextClear();
     syncControls();
     showView();
     updateProgress();
@@ -590,6 +620,7 @@ window.addEventListener('resize', () => {
 // ---------- Start ----------
 
 $('text').value = readJson(TEXT_KEY) ?? EXAMPLE_TEXT;
+updateTextClear();
 renderInks();
 syncControls();
 applyGridColors();
