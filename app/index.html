@@ -11,42 +11,51 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="../style.css?v=9">
+  <link rel="stylesheet" href="../style.css?v=10">
   <script type="importmap">{
     "imports": {
-      "../landing/film.js": "../landing/film.js?v=9",
-      "../landing/hand-font.js": "../landing/hand-font.js?v=9",
-      "../landing/horizon-grid.js": "../landing/horizon-grid.js?v=9",
-      "../landing/pad.js": "../landing/pad.js?v=9",
-      "../landing/wordmark.js": "../landing/wordmark.js?v=9",
-      "../src/app.js": "../src/app.js?v=9",
-      "../src/charset.js": "../src/charset.js?v=9",
-      "../src/draw.js": "../src/draw.js?v=9",
-      "../src/geometry.js": "../src/geometry.js?v=9",
-      "../src/goodnotes/bytes.js": "../src/goodnotes/bytes.js?v=9",
-      "../src/goodnotes/lz4.js": "../src/goodnotes/lz4.js?v=9",
-      "../src/goodnotes/proto.js": "../src/goodnotes/proto.js?v=9",
-      "../src/goodnotes/template-data.js": "../src/goodnotes/template-data.js?v=9",
-      "../src/goodnotes/tpl.js": "../src/goodnotes/tpl.js?v=9",
-      "../src/goodnotes/writer.js": "../src/goodnotes/writer.js?v=9",
-      "../src/goodnotes/zip.js": "../src/goodnotes/zip.js?v=9",
-      "../src/handoff.js": "../src/handoff.js?v=9",
-      "../src/layout.js": "../src/layout.js?v=9",
-      "../src/pdf.js": "../src/pdf.js?v=9",
-      "../src/profile.js": "../src/profile.js?v=9",
-      "../src/random.js": "../src/random.js?v=9",
-      "../src/render.js": "../src/render.js?v=9",
-      "../src/save.js": "../src/save.js?v=9",
-      "../src/store.js": "../src/store.js?v=9"
+      "../landing/film.js": "../landing/film.js?v=10",
+      "../landing/hand-font.js": "../landing/hand-font.js?v=10",
+      "../landing/horizon-grid.js": "../landing/horizon-grid.js?v=10",
+      "../landing/pad.js": "../landing/pad.js?v=10",
+      "../landing/wordmark.js": "../landing/wordmark.js?v=10",
+      "../src/app.js": "../src/app.js?v=10",
+      "../src/charset.js": "../src/charset.js?v=10",
+      "../src/cloud.js": "../src/cloud.js?v=10",
+      "../src/draw.js": "../src/draw.js?v=10",
+      "../src/drive.js": "../src/drive.js?v=10",
+      "../src/geometry.js": "../src/geometry.js?v=10",
+      "../src/goodnotes/bytes.js": "../src/goodnotes/bytes.js?v=10",
+      "../src/goodnotes/lz4.js": "../src/goodnotes/lz4.js?v=10",
+      "../src/goodnotes/proto.js": "../src/goodnotes/proto.js?v=10",
+      "../src/goodnotes/template-data.js": "../src/goodnotes/template-data.js?v=10",
+      "../src/goodnotes/tpl.js": "../src/goodnotes/tpl.js?v=10",
+      "../src/goodnotes/writer.js": "../src/goodnotes/writer.js?v=10",
+      "../src/goodnotes/zip.js": "../src/goodnotes/zip.js?v=10",
+      "../src/handoff.js": "../src/handoff.js?v=10",
+      "../src/layout.js": "../src/layout.js?v=10",
+      "../src/pdf.js": "../src/pdf.js?v=10",
+      "../src/profile.js": "../src/profile.js?v=10",
+      "../src/random.js": "../src/random.js?v=10",
+      "../src/render.js": "../src/render.js?v=10",
+      "../src/save.js": "../src/save.js?v=10",
+      "../src/store.js": "../src/store.js?v=10",
+      "../src/sync.js": "../src/sync.js?v=10"
     }
   }</script>
-  <script type="module" src="../src/app.js?v=9"></script>
+  <script type="module" src="../src/app.js?v=10"></script>
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <symbol id="i-left" viewBox="0 0 20 20"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-right" viewBox="0 0 20 20"><path d="M7.5 4.5 13 10l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-undo" viewBox="0 0 20 20"><path d="M7 5.5 3.5 9 7 12.5M4 9h8a4.5 4.5 0 0 1 0 9h-2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-google" viewBox="0 0 256 262">
+      <path fill="#4285F4" d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622 38.755 30.023 2.685.268c24.659-22.774 38.875-56.282 38.875-96.027"/>
+      <path fill="#34A853" d="M130.55 261.1c35.248 0 64.839-11.605 86.453-31.622l-41.196-31.913c-11.024 7.688-25.82 13.055-45.257 13.055-34.523 0-63.824-22.773-74.269-54.25l-1.531.13-40.298 31.187-.527 1.465C35.393 231.798 79.49 261.1 130.55 261.1"/>
+      <path fill="#FBBC05" d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82 0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602l42.356-32.782"/>
+      <path fill="#EB4335" d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0 79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"/>
+    </symbol>
     <symbol id="i-pen" viewBox="0 0 20 20"><path d="M4 16l.9-3.6L13 4.3l2.7 2.7-8.1 8.1L4 16zM11.3 6l2.7 2.7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-shuffle" viewBox="0 0 20 20"><path d="M3 6h3c4 0 4 8 8 8h3m0 0-2.5-2.5M17 14l-2.5 2.5M3 14h3c1.4 0 2.3-1 3-2.3M17 6h-3c-1.4 0-2.3 1-3 2.3M17 6l-2.5-2.5M17 6l-2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </svg>
@@ -66,6 +75,7 @@
           <h1 class="title">Schreib dein Alphabet</h1>
           <p class="sub" id="phase-hint">Jedes Zeichen einmal.</p>
           <button class="btn btn-text btn-more" id="more-passes" type="button" hidden></button>
+          <button class="btn btn-text btn-more" id="cloud-restore" type="button" hidden>Schon geschrieben? Mit Google anmelden</button>
         </div>
         <div class="progress" aria-live="polite">
           <div class="progress-row">
@@ -98,19 +108,6 @@
       </div>
 
       <div class="grid" id="grid"></div>
-
-      <div class="foot">
-        <div class="file-actions">
-          <button class="btn btn-text" id="export-profile" type="button" title="Als Datei sichern">Sichern</button>
-          <label class="btn btn-text" for="import-profile" title="Gesicherte Datei laden">Laden</label>
-          <button class="btn btn-text" id="share-profile" type="button" title="Link für ein anderes Gerät">Mitnehmen</button>
-          <input class="sr-only" type="file" id="import-profile" accept=".json,application/json">
-          <span class="confirm" id="clear-area">
-            <button class="btn btn-text btn-danger" id="clear-all" type="button">Alles löschen</button>
-          </span>
-        </div>
-        <span class="status" id="sync-status">Im Browser</span>
-      </div>
     </section>
 
     <section class="view" id="view-setzen" aria-label="Setzen" hidden>
@@ -205,6 +202,37 @@
         </div>
       </div>
     </section>
+
+    <!-- Für beide Schritte: wo die Handschrift liegt und wie sie mitkommt -->
+    <footer class="foot">
+      <div class="file-actions">
+        <button class="btn btn-text" id="export-profile" type="button" title="Als Datei sichern">Sichern</button>
+        <label class="btn btn-text" for="import-profile" title="Gesicherte Datei laden">Laden</label>
+        <button class="btn btn-text" id="share-profile" type="button" title="Link für ein anderes Gerät">Mitnehmen</button>
+        <input class="sr-only" type="file" id="import-profile" accept=".json,application/json">
+        <span class="confirm" id="clear-area">
+          <button class="btn btn-text btn-danger" id="clear-all" type="button">Alles löschen</button>
+        </span>
+      </div>
+      <div class="foot-end">
+        <span class="status" id="sync-status">Im Browser</span>
+        <button class="btn-google" id="cloud-btn" type="button" hidden><svg viewBox="0 0 256 262" aria-hidden="true"><use href="#i-google"/></svg><span id="cloud-btn-label">Mit Google anmelden</span></button>
+      </div>
+    </footer>
+
+    <dialog class="dialog" id="cloud-dialog" aria-labelledby="cloud-title">
+      <h2 id="cloud-title">Mit Google anmelden</h2>
+      <p id="cloud-intro">So ist deine Handschrift auf jedem Gerät da, auf dem du dich anmeldest.</p>
+      <p id="cloud-account" hidden>Als <b id="cloud-email"></b>.</p>
+      <div class="dialog-actions">
+        <button class="btn-google" id="cloud-connect" type="button"><svg viewBox="0 0 256 262" aria-hidden="true"><use href="#i-google"/></svg>Weiter mit Google</button>
+        <button class="btn btn-primary" id="cloud-sync-now" type="button" hidden>Jetzt abgleichen</button>
+        <button class="btn btn-text btn-danger" id="cloud-disconnect" type="button" hidden>Abmelden</button>
+        <span class="spacer"></span>
+        <a class="btn btn-text" href="../datenschutz/" target="_blank" rel="noopener">Datenschutz</a>
+        <button class="btn btn-text" id="cloud-close" type="button">Schließen</button>
+      </div>
+    </dialog>
 
     <div class="toast" id="toast" role="status" hidden></div>
     <div class="toast boot-fail" id="boot-fail" role="alert" hidden>

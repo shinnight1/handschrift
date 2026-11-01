@@ -4,7 +4,8 @@ import assert from 'node:assert/strict';
 
 import { CELL_CHARS, FIRST_PASS, BASE_CELLS, EXTRA_PASSES, isCustomChar } from '../src/charset.js';
 import { round4 } from '../src/geometry.js';
-import { glyphTable, parseProfile } from '../src/profile.js';
+import { glyphTable, parseProfile, createProfile } from '../src/profile.js';
+import { serialize, deserialize, fingerprint, mergeProfiles, syncProfile } from '../src/sync.js';
 import { layoutText, FORMATS } from '../src/layout.js';
 import { pagesToGoodNotes, pagesToPdf, INKS } from '../src/render.js';
 import { readStoredZip } from '../src/goodnotes/zip.js';
@@ -113,6 +114,85 @@ test('Eigene Zeichen: schließen die Lücke und reisen mit Datei und Link', asyn
   assert.deepEqual((await readHandoff(old.slice(old.indexOf('#')))).custom, {}, 'Links ohne eigene Zeichen (Artifact) gehen weiter');
 });
 
+// Kopie in Google Drive, nur im Speicher.
+function fakeRemote(text = null) {
+  return {
+    text,
+    writes: 0,
+    async read() { return this.text; },
+    async write(t) { this.text = t; this.writes++; },
+  };
+}
+const pick = (cells, keys) => Object.fromEntries(keys.map((k) => [k, cells[k]]));
+const prof = (cells, custom = {}) => ({ ...createProfile(), cells, custom });
+
+test('Abgleich: beim ersten Anmelden bleibt alles, was schon auf dem Gerät ist', async () => {
+  const all = fakeCells(10);
+  const other = fakeCells(10);
+  // Leere Kopie: das Gerät wird hochgeladen, lokal ändert sich nichts.
+  const empty = fakeRemote();
+  const first = await syncProfile({ local: prof(pick(all, [0, 1, 2])), base: null, remote: empty });
+  assert.equal(first.action, 'upload');
+  assert.equal(first.profile, null);
+  assert.deepEqual(deserialize(empty.text).cells, pick(all, [0, 1, 2]));
+
+  // Kopie mit anderem a (0) und zusätzlichem b (1): das a des Geräts bleibt, b kommt dazu.
+  const remote = fakeRemote(serialize(prof({ 0: other[0], 1: other[1] }, { '*': other[5] })));
+  const res = await syncProfile({ local: prof({ 0: all[0], 4: all[4] }), base: null, remote });
+  assert.equal(res.action, 'merge');
+  assert.deepEqual(res.profile.cells, { 0: all[0], 1: other[1], 4: all[4] });
+  assert.deepEqual(res.profile.custom, { '*': other[5] });
+  assert.deepEqual(deserialize(remote.text).cells, res.profile.cells, 'Kopie hat danach dasselbe');
+  assert.equal(res.base, fingerprint(res.profile));
+
+  // Neues Gerät ohne Handschrift (oder Safari hat aufgeräumt): alles aus der Kopie.
+  const restore = await syncProfile({ local: prof({}), base: null, remote });
+  assert.equal(restore.action, 'download');
+  assert.deepEqual(restore.profile.cells, res.profile.cells);
+});
+
+test('Abgleich danach: nur die geänderte Seite zählt', async () => {
+  const c = fakeCells(10);
+  const start = prof(pick(c, [0, 1, 2]));
+  const remote = fakeRemote(serialize(start));
+  const base = fingerprint(start);
+
+  const same = await syncProfile({ local: start, base, remote });
+  assert.equal(same.action, 'same');
+  assert.equal(remote.writes, 0);
+
+  // Hier weitergeschrieben: hochladen.
+  const more = prof(pick(c, [0, 1, 2, 3]));
+  const up = await syncProfile({ local: more, base, remote });
+  assert.equal(up.action, 'upload');
+  assert.deepEqual(deserialize(remote.text).cells, more.cells);
+
+  // Auf dem anderen Gerät gelöscht, hier unverändert: Löschen kommt an.
+  const cleared = fakeRemote(serialize(prof({})));
+  const down = await syncProfile({ local: more, base: up.base, remote: cleared });
+  assert.equal(down.action, 'download');
+  assert.deepEqual(down.profile.cells, {});
+
+  // Beide geändert: zusammenlegen, dieses Gerät gewinnt.
+  const theirs = fakeRemote(serialize(prof({ ...pick(c, [0, 1, 2, 3]), 1: c[9], 5: c[5] })));
+  const mine = prof({ ...pick(c, [0, 1, 2, 3]), 1: c[8], 6: c[6] });
+  const both = await syncProfile({ local: mine, base: up.base, remote: theirs });
+  assert.equal(both.action, 'merge');
+  assert.deepEqual(both.profile.cells, { ...pick(c, [0, 2, 3, 5, 6]), 1: c[8] });
+});
+
+test('Kopie: gleicher Inhalt gibt gleichen Text, fremde Dateien werden abgelehnt', () => {
+  const c = fakeCells(5);
+  const a = prof({ 3: c[3], 0: c[0], 12: c[1] }, { '§': c[2], '*': c[4] });
+  const b = prof({ 0: c[0], 12: c[1], 3: c[3] }, { '*': c[4], '§': c[2] });
+  assert.equal(serialize(a), serialize(b));
+  assert.equal(fingerprint(a), fingerprint(b));
+  assert.deepEqual(deserialize(serialize(a)).cells, b.cells);
+  assert.notEqual(fingerprint(a), fingerprint(prof({ 0: c[0] })));
+  assert.deepEqual(mergeProfiles(prof({ 0: c[0] }), prof({ 0: c[1], 1: c[1] })).cells, { 0: c[0], 1: c[1] });
+  assert.throws(() => deserialize('{"app":"anders"}'), /nicht lesbar/);
+});
+
 test('LZ4 und Kugelschreiber-TPL kommen unverändert zurück', () => {
   const data = new TextEncoder().encode('Handschrift '.repeat(9000));
   assert.deepEqual(appleLz4Decompress(appleLz4Compress(data)).data, data);
@@ -154,6 +234,7 @@ test('Jedes Modul hat in beiden Seiten dieselbe Versionsnummer (sonst mischt der
     const map = JSON.parse(/<script type="importmap">([\s\S]*?)<\/script>/.exec(html)[1]).imports;
     const versions = new Set([...html.matchAll(/\?v=(\d+)/g)].map((m) => m[1]));
     assert.equal(versions.size, 1, `${page}: eine Version überall (node tools/version.mjs)`);
-    assert.deepEqual(Object.keys(map).sort(), files.map((f) => prefix + f).sort(), `${page}: alle Module in der Import Map`);
+    const expected = files.map((f) => prefix + f.split('\\').join('/')); // Windows liefert Pfade mit "\"
+    assert.deepEqual(Object.keys(map).sort(), expected.sort(), `${page}: alle Module in der Import Map`);
   }
 });

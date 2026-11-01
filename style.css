@@ -171,7 +171,50 @@ kbd {
 .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--edge-hi); }
 .status[data-state="saved"]::before { background: var(--text); }
 .status[data-state="error"]::before { background: var(--danger); }
+.status[data-state="cloud"]::before { background: var(--bright); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.14); }
+.status[data-state="pending"]::before { background: transparent; box-shadow: inset 0 0 0 1px var(--text); }
 .confirm { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.foot-end { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-left: auto; }
+
+/* "Weiter mit Google": Knopf von uiverse.io/Yaya12085/sharp-quail-80 (MIT, siehe THIRD_PARTY_NOTICES.md),
+   auf eine Klasse statt auf alle Knöpfe bezogen. Weiß mit buntem G, wie Google es für
+   Anmeldeknöpfe vorsieht: die einzige Farbe in der App. */
+.btn-google {
+  max-width: 320px;
+  display: inline-flex;
+  padding: 0.5rem 1.4rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  vertical-align: middle;
+  align-items: center;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  gap: 0.75rem;
+  color: rgb(65, 63, 63);
+  background-color: #fff;
+  cursor: pointer;
+  transition: all .6s ease;
+  white-space: nowrap;
+}
+.btn-google svg { height: 24px; width: 24px; flex: none; }
+.btn-google:hover:not(:disabled) { transform: scale(1.02); }
+.btn-google:disabled { opacity: 0.5; cursor: default; }
+.btn:not(.btn-google) > svg[viewBox="0 0 256 262"] { display: none; } /* G nur im Google-Knopf */
+
+/* Fenster (Google Drive) */
+.dialog {
+  width: min(440px, calc(100% - 32px)); padding: 22px; border-radius: 10px; color: var(--text);
+  background: var(--raise); border: 1px solid var(--edge-hi);
+  box-shadow: inset 0 1px 0 var(--edge-hi), 0 30px 60px -20px rgba(0, 0, 0, 0.9);
+}
+.dialog::backdrop { background: rgba(10, 11, 13, 0.72); }
+.dialog h2 { margin: 0 0 12px; font: 400 26px/1.1 var(--serif); color: var(--bright); letter-spacing: -0.01em; }
+.dialog p { margin: 0 0 10px; text-wrap: pretty; }
+.dialog b { color: var(--bright); font-weight: 500; }
+.dialog-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 18px; }
 
 /* Setzen */
 .compose { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 24px; align-items: start; padding-top: 12px; }
@@ -274,7 +317,9 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px 
   position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 20;
   background: var(--raise-2); color: var(--bright); border: 1px solid var(--edge-hi); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 12px 30px rgba(0, 0, 0, 0.6);
   padding: 10px 18px; border-radius: 8px; max-width: calc(100% - 32px); font-weight: 500;
+  display: flex; align-items: center; gap: 14px;
 }
+.toast .btn { margin: -4px -8px -4px 0; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 .boot-fail { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; }

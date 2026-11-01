@@ -23,8 +23,15 @@ weiter ankommen.
 
 ## Wo die Handschrift liegt
 
-Nur im Browser des Geräts (localStorage), nirgends sonst. Auf ein anderes Gerät kommt sie so:
+Im Browser des Geräts (localStorage). Auf ein anderes Gerät kommt sie so:
 
+- **Mit Google anmelden** (freiwillig): Die Handschrift liegt dann zusätzlich als `handschrift.json`
+  im versteckten App-Ordner des eigenen Google Drive (Zugriff `drive.appdata`, sieht keine anderen
+  Dateien). Kein eigener Server: Der Browser holt sich ein Token (gilt etwa eine Stunde) und spricht
+  direkt mit der Drive-API. Abgleich 2 s nach jeder Änderung, solange das Token gilt, danach auf
+  einen Tipp. Beim ersten Anmelden bleibt alles auf dem Gerät; aus Drive kommen nur Kästchen dazu,
+  die hier leer sind. Regeln in `src/sync.js`. Ohne Client-ID in `src/drive.js` bleibt der Knopf
+  ausgeblendet.
 - **Mitnehmen:** erzeugt einen Link mit Handschrift, Text und Einstellungen. Auf iPad und Handy
   über das Teilen-Menü, am PC in die Zwischenablage. Auf dem anderen Gerät öffnen, fertig. Die
   Daten stehen komprimiert hinter dem `#`; diesen Teil schickt der Browser nie an den Server, und
@@ -52,7 +59,11 @@ blockieren.
 node --test
 ```
 
-prüft Mitnehmen-Link, Profil, Satz, LZ4, TPL, die `.goodnotes`-Datei und das PDF ohne Browser.
+prüft Mitnehmen-Link, Profil, Abgleich mit Google Drive, Satz, LZ4, TPL, die `.goodnotes`-Datei und
+das PDF ohne Browser.
+
+Für die Google-Anmeldung lokal muss `http://localhost:5190` in der Google Cloud Console beim
+OAuth-Client unter „Autorisierte JavaScript-Quellen“ stehen.
 
 Vor jedem Veröffentlichen:
 
@@ -82,6 +93,9 @@ fehl, wenn ein Modul in der Import Map fehlt.
 | `src/layout.js`, `src/random.js` | Text setzen, Varianten und Schwankungen |
 | `src/render.js`, `src/pdf.js` | Vorschau, PDF, Papierlinien |
 | `src/handoff.js` | Mitnehmen-Link |
+| `src/sync.js` | Abgleich-Regeln: wer gewinnt, was hoch- und was runterkommt |
+| `src/drive.js` | Google-Anmeldung (Token) und die Datei im App-Ordner von Google Drive |
+| `src/cloud.js` | Knopf, Status und Fenster „Mit Google anmelden“, Abgleich nach Änderungen |
 | `src/save.js` | Teilen-Menü oder Download |
 | `src/goodnotes/*` | `.goodnotes`-Writer |
 

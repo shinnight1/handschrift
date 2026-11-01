@@ -10,6 +10,7 @@ import { PAGE_FORMATS } from './goodnotes/writer.js';
 import { fromBase64 } from './goodnotes/bytes.js';
 import { isTouch, saveFile, saveFiles, readFileText } from './save.js';
 import { handoffLink, readHandoff } from './handoff.js';
+import { createCloud } from './cloud.js';
 
 const $ = (id) => document.getElementById(id);
 const SETTINGS_KEY = 'handschrift.settings.v1';
@@ -23,23 +24,27 @@ vielen Dank für das schöne Paket! Die Plätzchen waren schon am ersten Abend w
 Bis bald und ganz liebe Grüße
 Lena`;
 
-const store = new ProfileStore({
-  onStatus: (state) => {
-    const el = $('sync-status');
-    el.dataset.state = state;
-    el.textContent = { saved: 'Im Browser gespeichert', error: 'Nicht gespeichert: Speicher gesperrt' }[state] ?? '';
-  },
-});
+// Status unten zeigt cloud.js: Browser und, wenn angemeldet, Google Drive.
+const store = new ProfileStore({ onStatus: (state) => cloud.localStatus(state) });
 
 // ---------- Hilfen ----------
 
+// action: {label, run} zeigt einen Knopf in der Meldung (z. B. Rückgängig) und lässt sie länger stehen.
 let toastTimer = null;
-function toast(message) {
+function toast(message, action = null) {
   const el = $('toast');
-  el.textContent = message;
+  el.replaceChildren(message);
+  if (action) {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-quiet';
+    btn.type = 'button';
+    btn.textContent = action.label;
+    btn.addEventListener('click', () => { el.hidden = true; action.run(); });
+    el.append(btn);
+  }
   el.hidden = false;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.hidden = true; }, 2600);
+  toastTimer = setTimeout(() => { el.hidden = true; }, action ? 8000 : 2600);
 }
 
 function readJson(key) {
@@ -67,6 +72,35 @@ function fileBase() {
 const grid = new DrawingGrid($('grid'), {
   getCell: (key) => store.getCell(key),
   setCell: (key, strokes) => store.setCell(key, strokes),
+});
+
+// Ganze Handschrift austauschen (Datei, Link, Löschen, Google Drive). Die bisherige
+// lässt sich ein paar Sekunden lang zurückholen. false, solange gerade ein Strich läuft.
+function replaceProfile(profile, message) {
+  if (grid.active) return false;
+  const before = store.profile;
+  store.replaceAll(profile);
+  grid.undoStack = [];
+  resetSlots();
+  updateProgress();
+  updatePageInfo();
+  scheduleCompose();
+  cloud.changed();
+  const undo = filledCount(before) ? { label: 'Rückgängig', run: () => replaceProfile(before, 'Zurückgeholt') } : null;
+  if (message) toast(message, undo);
+  return true;
+}
+
+const cloud = createCloud({
+  getProfile: () => store.profile,
+  applyProfile: (profile, action) => {
+    const had = filledCount(store.profile);
+    return replaceProfile(profile, action === 'merge'
+      ? `${filledCount(profile) - had} Kästchen von deinen anderen Geräten dazu`
+      : had ? 'Neuer Stand von einem anderen Gerät' : 'Handschrift geladen');
+  },
+  toast,
+  onChange: () => updateProgress(),
 });
 
 // Kästchen in Schreibreihenfolge: die feste Liste, dann eigene Zeichen (über „Fehlt“
@@ -128,6 +162,8 @@ function updateProgress() {
   $('more-passes').textContent = extrasOn ? 'Zusatz-Durchgänge ausblenden' : `+ ${EXTRA_PASSES} Durchgänge für mehr Abwechslung`;
   $('undo').disabled = grid.undoStack.length === 0;
   $('clear-area').hidden = filledCount(store.profile) === 0; // Nichts da, nichts zu löschen
+  // Leer und nicht angemeldet: vielleicht liegt die Handschrift schon in Google Drive.
+  $('cloud-restore').hidden = !cloud.available || cloud.on || filledCount(store.profile) > 0;
   updateTips(n);
 }
 
@@ -151,7 +187,8 @@ function updateTips(filled) {
 $('tips-close').addEventListener('click', () => { writeJson(TIPS_KEY, 'closed'); updateTips(0); });
 
 $('grid').addEventListener('pagechange', updatePageInfo);
-$('grid').addEventListener('change', () => { updateProgress(); updatePageInfo(); scheduleCompose(); });
+$('grid').addEventListener('change', () => { updateProgress(); updatePageInfo(); scheduleCompose(); cloud.changed(); });
+$('cloud-restore').addEventListener('click', () => cloud.open());
 $('grid').addEventListener('pendetected', () => { $('pen-chip').hidden = false; });
 $('prev').addEventListener('click', () => grid.goTo(grid.page - 1));
 $('next').addEventListener('click', () => grid.goTo(grid.page + 1));
@@ -196,13 +233,8 @@ $('import-profile').addEventListener('change', async (e) => {
   if (!file) return;
   try {
     const profile = parseProfile(await readFileText(file));
-    store.replaceAll(profile);
-    grid.undoStack = [];
-    resetSlots();
+    replaceProfile(profile, `${filledCount(profile)} Felder geladen`);
     grid.goToFirstEmpty();
-    updateProgress();
-    scheduleCompose();
-    toast(`${filledCount(profile)} Felder geladen`);
   } catch (err) {
     toast(err.message || 'Datei nicht lesbar');
   }
@@ -254,14 +286,9 @@ function askClear() {
   yes.type = 'button';
   yes.textContent = 'Löschen';
   yes.addEventListener('click', () => {
-    store.replaceAll(createProfile());
-    grid.undoStack = [];
-    resetSlots();
+    replaceProfile(createProfile(), 'Gelöscht');
     grid.goTo(0);
-    updateProgress();
-    scheduleCompose();
     resetClearArea();
-    toast('Gelöscht');
   });
   const no = document.createElement('button');
   no.className = 'btn btn-text';
@@ -570,9 +597,8 @@ async function receiveHandoff() {
   try {
     const data = await readHandoff(hash);
     if (!data) throw new Error('Der Link ist unvollständig. Am besten neu erzeugen und ganz kopieren.');
-    store.replaceAll({ ...createProfile(), cells: data.cells, custom: data.custom });
-    grid.undoStack = [];
-    resetSlots();
+    const had = filledCount(store.profile) > 0;
+    replaceProfile({ ...createProfile(), cells: data.cells, custom: data.custom }, had ? 'Bisherige Handschrift ersetzt' : null);
     Object.assign(settings, cleanSettings(data.settings));
     writeJson(SETTINGS_KEY, settings);
     $('text').value = data.text;
@@ -629,5 +655,6 @@ resetSlots();
 grid.goToFirstEmpty();
 showView();
 updateProgress();
+cloud.start();
 receiveHandoff();
 document.documentElement.dataset.ready = '1'; // sonst zeigt die Seite nach kurzer Zeit „Neu laden“
