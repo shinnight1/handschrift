@@ -8,7 +8,7 @@ import { join, relative, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const PAGES = ['index.html', 'app/index.html'];
+const PAGES = ['index.html', 'app/index.html', 'datenschutz/index.html'];
 
 async function modules(dir) {
   const out = [];

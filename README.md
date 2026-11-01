@@ -80,11 +80,15 @@ fehl, wenn ein Modul in der Import Map fehlt.
 
 | Datei | Aufgabe |
 | --- | --- |
-| `index.html`, `landing/style.css` | Startseite |
-| `landing/horizon-grid.js` | animiertes Bodenraster unter dem Hero der Startseite |
-| `landing/pad.js` | Probierfeld auf der Startseite (speichert nichts) |
-| `landing/wordmark.js` | Schriftzug „Siebwrite“ in Handschrift über dem Bodenraster (schreibt sich beim Hinscrollen) |
-| `landing/film.js`, `landing/hand-font.js` | Film auf der Startseite: SVG-Szene, für jede Zeit berechnet; Handschrift aus EMS Felix (`tools/build-hand-font.mjs`) |
+| `index.html`, `landing/style.css` | Startseite, Farbwelt „Tinte und Papier“ (Blauschwarz, Papier, Königsblau) |
+| `landing/sheet.js` | Blatt im Hero: Getipptes schreibt ein Füller sofort von Hand, sonst Beispiele |
+| `landing/note.js` | Haftnotiz: Buchstaben des Getippten selbst schreiben; landen auf dem Blatt und beim Weg in die App als Kästchen |
+| `landing/eraser.js` | „Radier ruhig“: eingefügter Text gegen Handschrift, die sich wegradieren lässt |
+| `landing/playground.js` | „Jeder Buchstabe ein Regler“: Siebwrite als neun Spielzeuge für die Einstellungen der App (angeregt von inkandswitch.com) |
+| `landing/scribble.js` | Handgeschriebene Wörter, Ziffern und Zettel, die sich beim Hinscrollen schreiben |
+| `landing/film.js`, `landing/hand-font.js` | Film auf der Startseite: SVG-Szene, für jede Zeit berechnet; `Hand` schreibt Text in der Handschrift aus EMS Felix (`tools/build-hand-font.mjs`) |
+| `datenschutz/index.html` | Datenschutzerklärung (auch für den Google-Zustimmungsbildschirm) |
+| `og.png`, `tools/build-og-image.mjs` | Vorschaubild für geteilte Links (1200 × 630), ohne Abhängigkeiten gezeichnet: `node tools/build-og-image.mjs` |
 | `app/index.html`, `style.css` | App und Aussehen |
 | `src/app.js` | Steuerung beider Schritte |
 | `src/charset.js` | welche Zeichen in welcher Reihenfolge erfasst werden |

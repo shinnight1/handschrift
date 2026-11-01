@@ -67,17 +67,18 @@ function set(node, name, value) {
 const move = (node, x, y, s = 1, r = 0) => set(node, 'transform', `translate(${x.toFixed(2)} ${y.toFixed(2)})${s !== 1 ? ` scale(${s.toFixed(4)})` : ''}${r ? ` rotate(${r.toFixed(2)})` : ''}`);
 const fade = (node, o) => { set(node, 'opacity', clamp(o)); set(node, 'visibility', o <= 0.001 ? 'hidden' : 'visible'); };
 
-// Breite eines Textes in der Handschrift, ohne Zittern
-export function measure(text, em) {
+// Breite eines Textes in der Handschrift, ohne Zittern. glyphs: eigene Zeichen, die die Vorlage ersetzen.
+export function measure(text, em, glyphs = GLYPHS) {
   let w = 0;
-  for (const ch of text) w += (GLYPHS[ch] ?? GLYPHS[' '])[0] * em / 1000;
+  for (const ch of text) w += (glyphs[ch] ?? GLYPHS[ch] ?? GLYPHS[' '])[0] * em / 1000;
   return w;
 }
 
 // Ein Text in Handschrift als einzelne Striche, die sich nacheinander schreiben lassen.
 // Jedes Zeichen bekommt ein wenig eigene Neigung, Größe und Höhe, wie bei echter Schrift.
+// glyphs: Zeichen, die die Vorlage ersetzen (Format wie GLYPHS), z. B. ein selbst geschriebenes a.
 export class Hand {
-  constructor(parent, text, { x, y, em, color, width = 2.4, seed = 7, jitter = 1, lineGap = 46, gap = 0.4 }) {
+  constructor(parent, text, { x, y, em, color, width = 2.4, seed = 7, jitter = 1, lineGap = 46, gap = 0.4, glyphs = GLYPHS }) {
     this.group = el('g', { fill: 'none', stroke: color, 'stroke-width': width, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, parent);
     this.paths = [];
     this.glyphs = [];
@@ -87,7 +88,7 @@ export class Hand {
       let cx = x;
       const base = y + li * lineGap;
       for (const ch of line) {
-        const [adv, strokes] = GLYPHS[ch] ?? GLYPHS[' '];
+        const [adv, strokes] = glyphs[ch] ?? GLYPHS[ch] ?? GLYPHS[' '];
         if (ch === ' ') { word++; cx += adv * em / 1000; continue; }
         const s = (em / 1000) * (1 + (r() - 0.5) * 0.07 * jitter);
         const rot = (r() - 0.5) * 0.06 * jitter;
@@ -179,14 +180,14 @@ const LINE = (k) => 214 + 46 * k;
 const PX = SCR.x + 46;
 const PAGE_W = SCR.w - 92;
 const INK = '#16338f';
-const BG = '#222428'; // wie --bg der Seite
+const BG = '#0c1222'; // wie --night der Seite
 const SILVER = '#eef0f3';
 const MUTED = '#80858e';
 
 function build(svg) {
   const defs = el('defs', {}, svg);
   defs.innerHTML = `
-    <radialGradient id="f-sky" cx="0.22" cy="-0.1" r="0.9"><stop offset="0" stop-color="#fff" stop-opacity="0.07"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="f-sky" cx="0.12" cy="-0.1" r="0.9"><stop offset="0" stop-color="#ffcc96" stop-opacity="0.13"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
     <radialGradient id="f-lamp" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#fff" stop-opacity="0.05"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
     <linearGradient id="f-metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3c42"/><stop offset="0.45" stop-color="#1b1c20"/><stop offset="1" stop-color="#2b2d32"/></linearGradient>
     <linearGradient id="f-edge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.35"/><stop offset="0.3" stop-color="#fff" stop-opacity="0.08"/><stop offset="1" stop-color="#fff" stop-opacity="0.18"/></linearGradient>

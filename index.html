@@ -3,10 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Siebwrite</title>
-  <meta name="description" content="Schreib jeden Buchstaben einmal, dann steht jeder Text in deiner Handschrift: als radierbare GoodNotes-Datei oder PDF.">
-  <meta name="theme-color" content="#222428">
+  <title>Siebwrite · Tippen, und es steht in deiner Handschrift da</title>
+  <meta name="description" content="Schreib jeden Buchstaben einmal, dann steht jeder Text in deiner Handschrift: als radierbare GoodNotes-Datei oder PDF. Kostenlos, ohne Konto.">
+  <meta name="theme-color" content="#0c1222">
   <meta name="color-scheme" content="dark">
+  <meta property="og:title" content="Siebwrite: Tippen, und es steht in deiner Handschrift da">
+  <meta property="og:description" content="Einmal das Alphabet schreiben, dann jeder Text als radierbare GoodNotes-Datei. Kostenlos, ohne Konto.">
+  <meta property="og:url" content="https://siebwrite.de/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="de_DE">
+  <meta property="og:image" content="https://siebwrite.de/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Siebwrite: ein Blatt Papier mit dem Satz „Tippen, und es steht in deiner Handschrift da.“ in Handschrift">
+  <meta name="twitter:card" content="summary_large_image">
   <script>
     // Links aus dem Artifact und alte Lesezeichen zeigen noch auf die Startseite: weiter in die App
     if (/^#(gn|schreiben|setzen)/.test(location.hash)) location.replace('app/' + location.hash);
@@ -15,81 +25,166 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="landing/style.css?v=10">
+  <link rel="stylesheet" href="landing/style.css?v=11">
   <script type="importmap">{
     "imports": {
-      "./landing/film.js": "./landing/film.js?v=10",
-      "./landing/hand-font.js": "./landing/hand-font.js?v=10",
-      "./landing/horizon-grid.js": "./landing/horizon-grid.js?v=10",
-      "./landing/pad.js": "./landing/pad.js?v=10",
-      "./landing/wordmark.js": "./landing/wordmark.js?v=10",
-      "./src/app.js": "./src/app.js?v=10",
-      "./src/charset.js": "./src/charset.js?v=10",
-      "./src/cloud.js": "./src/cloud.js?v=10",
-      "./src/draw.js": "./src/draw.js?v=10",
-      "./src/drive.js": "./src/drive.js?v=10",
-      "./src/geometry.js": "./src/geometry.js?v=10",
-      "./src/goodnotes/bytes.js": "./src/goodnotes/bytes.js?v=10",
-      "./src/goodnotes/lz4.js": "./src/goodnotes/lz4.js?v=10",
-      "./src/goodnotes/proto.js": "./src/goodnotes/proto.js?v=10",
-      "./src/goodnotes/template-data.js": "./src/goodnotes/template-data.js?v=10",
-      "./src/goodnotes/tpl.js": "./src/goodnotes/tpl.js?v=10",
-      "./src/goodnotes/writer.js": "./src/goodnotes/writer.js?v=10",
-      "./src/goodnotes/zip.js": "./src/goodnotes/zip.js?v=10",
-      "./src/handoff.js": "./src/handoff.js?v=10",
-      "./src/layout.js": "./src/layout.js?v=10",
-      "./src/pdf.js": "./src/pdf.js?v=10",
-      "./src/profile.js": "./src/profile.js?v=10",
-      "./src/random.js": "./src/random.js?v=10",
-      "./src/render.js": "./src/render.js?v=10",
-      "./src/save.js": "./src/save.js?v=10",
-      "./src/store.js": "./src/store.js?v=10",
-      "./src/sync.js": "./src/sync.js?v=10"
+      "./landing/eraser.js": "./landing/eraser.js?v=11",
+      "./landing/film.js": "./landing/film.js?v=11",
+      "./landing/hand-font.js": "./landing/hand-font.js?v=11",
+      "./landing/note.js": "./landing/note.js?v=11",
+      "./landing/playground.js": "./landing/playground.js?v=11",
+      "./landing/scribble.js": "./landing/scribble.js?v=11",
+      "./landing/sheet.js": "./landing/sheet.js?v=11",
+      "./src/app.js": "./src/app.js?v=11",
+      "./src/charset.js": "./src/charset.js?v=11",
+      "./src/cloud.js": "./src/cloud.js?v=11",
+      "./src/draw.js": "./src/draw.js?v=11",
+      "./src/drive.js": "./src/drive.js?v=11",
+      "./src/geometry.js": "./src/geometry.js?v=11",
+      "./src/goodnotes/bytes.js": "./src/goodnotes/bytes.js?v=11",
+      "./src/goodnotes/lz4.js": "./src/goodnotes/lz4.js?v=11",
+      "./src/goodnotes/proto.js": "./src/goodnotes/proto.js?v=11",
+      "./src/goodnotes/template-data.js": "./src/goodnotes/template-data.js?v=11",
+      "./src/goodnotes/tpl.js": "./src/goodnotes/tpl.js?v=11",
+      "./src/goodnotes/writer.js": "./src/goodnotes/writer.js?v=11",
+      "./src/goodnotes/zip.js": "./src/goodnotes/zip.js?v=11",
+      "./src/handoff.js": "./src/handoff.js?v=11",
+      "./src/layout.js": "./src/layout.js?v=11",
+      "./src/pdf.js": "./src/pdf.js?v=11",
+      "./src/profile.js": "./src/profile.js?v=11",
+      "./src/random.js": "./src/random.js?v=11",
+      "./src/render.js": "./src/render.js?v=11",
+      "./src/save.js": "./src/save.js?v=11",
+      "./src/store.js": "./src/store.js?v=11",
+      "./src/sync.js": "./src/sync.js?v=11"
     }
   }</script>
   <script type="module">
-    import { horizonGrid } from './landing/horizon-grid.js';
-    import { tryPad } from './landing/pad.js';
+    import { sheet } from './landing/sheet.js';
+    import { note } from './landing/note.js';
+    import { eraser } from './landing/eraser.js';
+    import { scribble, card } from './landing/scribble.js';
     import { film } from './landing/film.js';
-    import { wordmark } from './landing/wordmark.js';
-    film(document.getElementById('film'));
-    wordmark(document.querySelector('.brand-name'));
-    horizonGrid(document.querySelector('.horizon'), { horizon: 0.22, speed: 0.22 });
-    tryPad(document.getElementById('pad'), document.getElementById('pad-clear'));
+    import { playground } from './landing/playground.js';
+
+    const $ = (s) => document.querySelector(s);
+    const demo = sheet($('#sheet'), $('#type'));
+    const pad = note($('#note'), { clear: $('#note-clear'), title: $('#note-title'), count: $('#note-count'), label: $('#note-done'), onGlyph: (ch, g) => demo.setGlyph(ch, g) });
+    // Wer etwas tippt, schreibt dessen Buchstaben selbst: am besten den eigenen Namen
+    let asked = 0;
+    $('#type').addEventListener('input', () => { clearTimeout(asked); asked = setTimeout(() => pad.ask($('#type').value), 400); });
+    eraser($('#erase'));
+    playground($('#play'), { onGlyph: (ch, g) => demo.setGlyph(ch, g) });
+    film($('#film'));
+
+    scribble($('#h-deiner'), 'deiner', { em: 100, width: 6.5, color: 'var(--ink-light)', seed: 2, delay: 350 });
+    scribble($('#h-ruhig'), 'ruhig.', { em: 100, width: 6.5, color: 'var(--ink-light)', seed: 6 });
+    document.querySelectorAll('.step-n').forEach((svg, i) => scribble(svg, String(i + 1), { em: 100, width: 6, color: 'var(--bright)', seed: 20 + i, delay: i * 180 }));
+    document.querySelectorAll('.card svg').forEach((svg, i) => card(svg, svg.dataset.text.replace(/\\n/g, '\n'), svg.dataset.kind, { delay: i * 220, seed: 30 + i }));
+    scribble($('#h-name'), 'Siebwrite', { em: 250, width: 5, color: 'var(--bright)', seed: 9 });
+
+    // Wer schon geschrieben hat, kommt direkt weiter
+    try {
+      const n = Object.keys(JSON.parse(localStorage.getItem('handschrift.profile.v1'))?.cells ?? {}).length;
+      if (n > 1) document.querySelectorAll('[data-cta]').forEach((a) => { a.textContent = 'Weiterschreiben'; });
+    } catch { /* noch nichts gespeichert */ }
   </script>
 </head>
 <body>
   <header class="bar">
     <a class="word" href="./">Siebwrite</a>
-    <a class="link" href="app/">App öffnen</a>
+    <nav class="nav" aria-label="Seite">
+      <a href="#radieren">Radieren</a>
+      <a href="#ablauf">So geht's</a>
+      <a href="#fragen">Fragen</a>
+      <a class="nav-app" href="app/">App öffnen</a>
+    </nav>
   </header>
 
   <main>
     <section class="hero">
       <div class="hero-text">
-        <h1>Tippen, und es steht in <em>deiner</em> Handschrift da.</h1>
-        <p class="lead">Einmal das Alphabet schreiben, dann jeder Text als <span class="nowrap">GoodNotes-Datei</span>.</p>
-        <a class="btn" href="app/">Alphabet schreiben</a>
-        <p class="aside">Kostenlos. Ohne Konto.</p>
+        <h1>Tippen, und es steht in <span class="hw"><span class="sr-only">deiner</span><svg id="h-deiner" aria-hidden="true"></svg></span> Handschrift da.</h1>
+        <p class="lead">Einmal das Alphabet schreiben, dann wird jeder Text zu echter, radierbarer Handschrift in GoodNotes.</p>
+        <div class="cta">
+          <a class="btn" href="app/" data-cta>Alphabet schreiben</a>
+          <span class="aside">Kostenlos · ohne Konto</span>
+        </div>
       </div>
 
-      <figure class="pad">
-        <div class="pad-head">
-          <span>Probier es aus</span>
-          <button class="pad-clear" id="pad-clear" type="button" hidden>Leeren</button>
-        </div>
-        <canvas id="pad" aria-label="Probierfeld: schreib ein a auf die Linie"></canvas>
-      </figure>
+      <div class="desk">
+        <div class="sheet" id="sheet"></div>
+        <label class="type">
+          <span class="type-label">Tipp etwas</span>
+          <input id="type" type="text" maxlength="180" autocomplete="off" spellcheck="false" placeholder="z. B. deinen Namen" enterkeyhint="done">
+        </label>
+
+        <figure class="note">
+          <figcaption class="note-head">
+            <span id="note-title">Schreib ein e</span>
+            <span class="note-count" id="note-count" hidden></span>
+            <button class="note-clear" id="note-clear" type="button" hidden>Nochmal</button>
+          </figcaption>
+          <canvas id="note" aria-label="Notizzettel: schreib ein e auf die Linie"></canvas>
+          <p class="note-done" id="note-done" hidden>Steckt jetzt in jedem Wort.</p>
+        </figure>
+      </div>
     </section>
 
-    <section class="brand" aria-label="Siebwrite">
-      <svg class="brand-name" role="img" aria-label="Siebwrite in Handschrift"></svg>
-      <p class="brand-url">siebwrite.de</p>
+    <section class="erase" id="radieren" aria-labelledby="erase-title">
+      <div class="section-head">
+        <h2 id="erase-title">Radier <span class="hw"><span class="sr-only">ruhig.</span><svg id="h-ruhig" aria-hidden="true"></svg></span></h2>
+        <p>Eingefügter Text sieht nach Tastatur aus und bleibt stur. Siebwrite schreibt echte Striche, GoodNotes behandelt sie wie deine eigenen.</p>
+      </div>
+      <div class="erase-pair" id="erase">
+        <figure class="erase-panel">
+          <figcaption><span class="tag">Eingefügt</span><span class="tag-note">lässt sich nicht radieren</span></figcaption>
+          <svg class="erase-typed" role="img" aria-label="Eingefügter Text in Arial auf liniertem Papier"></svg>
+        </figure>
+        <figure class="erase-panel">
+          <figcaption><span class="tag tag-ink">Siebwrite</span><span class="erase-status" aria-live="polite"></span></figcaption>
+          <svg class="erase-hand" role="img" aria-label="Derselbe Text in Handschrift; darüberwischen radiert ganze Striche"></svg>
+          <button class="erase-restore" type="button" hidden>Nochmal schreiben</button>
+        </figure>
+      </div>
     </section>
 
-    <div class="floor" aria-hidden="true"><canvas class="horizon"></canvas></div>
+    <section class="play" aria-labelledby="play-title">
+      <div class="section-head">
+        <h2 id="play-title">Jeder Buchstabe ein Regler.</h2>
+        <p>Alles hier steckt auch in der App. Klicken, ziehen, wischen.</p>
+      </div>
+      <div class="play-grid" id="play"></div>
+    </section>
 
-    <section class="film" aria-label="Film: Warum nicht einfach einfügen?">
+    <section class="steps" id="ablauf" aria-labelledby="steps-title">
+      <div class="section-head">
+        <h2 id="steps-title">So geht's</h2>
+      </div>
+      <ol class="step-list">
+        <li>
+          <svg class="step-n" aria-hidden="true"></svg>
+          <div>
+            <h3>Schreiben</h3>
+            <p>Jedes Zeichen einmal in ein Kästchen: 87 Stück, mit Stift, Finger oder Maus.</p>
+          </div>
+        </li>
+        <li>
+          <svg class="step-n" aria-hidden="true"></svg>
+          <div>
+            <h3>Setzen</h3>
+            <p>Text tippen oder einfügen, Papier und Farbe wählen. Kein Buchstabe sieht zweimal gleich aus.</p>
+          </div>
+        </li>
+        <li>
+          <svg class="step-n" aria-hidden="true"></svg>
+          <div>
+            <h3>Importieren</h3>
+            <p>Auf dem iPad direkt in GoodNotes, am PC als Datei. Oder als PDF.</p>
+          </div>
+        </li>
+      </ol>
+
       <figure class="player" id="film" tabindex="-1">
         <div class="stage">
           <svg class="stage-svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
@@ -113,24 +208,84 @@
             <button type="button" data-chapter="18.4">Lösung</button>
           </span>
         </div>
-        <figcaption class="sr-only">Notizen in GoodNotes. Eingefügter Text sieht nach Tastatur aus und lässt sich nicht radieren, Abschreiben dauert. Mit Siebwrite schreibst du einmal dein Alphabet, tippst den Text und bekommst echte, radierbare Striche in deiner Schrift.</figcaption>
+        <figcaption class="film-caption">Der ganze Weg in 37 Sekunden.</figcaption>
+        <p class="sr-only">Notizen in GoodNotes. Eingefügter Text sieht nach Tastatur aus und lässt sich nicht radieren, Abschreiben dauert. Mit Siebwrite schreibst du einmal dein Alphabet, tippst den Text und bekommst echte, radierbare Striche in deiner Schrift.</p>
       </figure>
     </section>
 
-    <section class="how" aria-labelledby="how-title">
-      <h2 id="how-title">So geht's</h2>
-      <ol class="rows">
-        <li><span class="k">Schreiben</span><p>87 Zeichen, einmal.</p></li>
-        <li><span class="k">Setzen</span><p>Text tippen, Papier wählen.</p></li>
-        <li><span class="k">Importieren</span><p>GoodNotes oder PDF.</p></li>
-      </ol>
+    <section class="uses" aria-labelledby="uses-title">
+      <div class="section-head">
+        <h2 id="uses-title">Für alles, was du sonst abschreibst.</h2>
+      </div>
+      <div class="board">
+        <figure class="card card-a"><svg role="img" aria-label="Lernzettel auf kariertem Papier" data-kind="grid" data-text="Mitose: Prophase, Metaphase, Anaphase, Telophase"></svg><figcaption>Lernzettel</figcaption></figure>
+        <figure class="card card-b"><svg role="img" aria-label="Karteikarte" data-kind="index" data-text="la mer = das Meer\nle ciel = der Himmel"></svg><figcaption>Karteikarten</figcaption></figure>
+        <figure class="card card-c"><svg role="img" aria-label="Brief auf liniertem Papier" data-kind="lined" data-text="Liebe Oma, danke für das Paket! Die Plätzchen waren sofort weg."></svg><figcaption>Briefe und Karten</figcaption></figure>
+        <figure class="card card-d"><svg role="img" aria-label="Haftnotiz" data-kind="sticky" data-text="Mathe-Arbeit am Donnerstag!"></svg><figcaption>Notizen</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="mine" aria-labelledby="mine-title">
+      <div class="mine-text">
+        <h2 id="mine-title">Deine Schrift bleibt deine.</h2>
+        <p>Siebwrite hat keinen Server und kein Konto. Deine Handschrift liegt in deinem Browser. Wenn du willst, meldest du dich mit Google an, dann ist sie auf jedem Gerät da, auf dem du dich anmeldest.</p>
+        <p class="aside">Mehr dazu: <a href="datenschutz/">Datenschutz</a></p>
+      </div>
+      <svg class="stamp" viewBox="0 0 240 240" role="img" aria-label="Stempel: kostenlos, ohne Konto, ohne Server">
+        <defs>
+          <path id="stamp-ring" d="M120 120 m-86 0 a86 86 0 1 1 172 0 a86 86 0 1 1 -172 0"/>
+          <filter id="stamp-rough"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>
+        </defs>
+        <g filter="url(#stamp-rough)" fill="none" stroke="currentColor">
+          <circle cx="120" cy="120" r="112" stroke-width="5"/>
+          <circle cx="120" cy="120" r="64" stroke-width="2.5"/>
+          <text font-family="IBM Plex Mono, monospace" font-size="19" font-weight="500" letter-spacing="3.2" fill="currentColor" stroke="none"><textPath href="#stamp-ring">KOSTENLOS · OHNE KONTO · OHNE SERVER ·</textPath></text>
+          <text x="120" y="114" text-anchor="middle" font-family="Newsreader, serif" font-size="30" fill="currentColor" stroke="none">echt</text>
+          <text x="120" y="142" text-anchor="middle" font-family="Newsreader, serif" font-style="italic" font-size="22" fill="currentColor" stroke="none">von Hand</text>
+        </g>
+      </svg>
+    </section>
+
+    <section class="faq" id="fragen" aria-labelledby="faq-title">
+      <div class="section-head">
+        <h2 id="faq-title">Fragen</h2>
+      </div>
+      <div class="faq-list">
+        <details>
+          <summary>Kostet das etwas?</summary>
+          <p>Nein. Kein Abo, kein Konto, keine Werbung.</p>
+        </details>
+        <details>
+          <summary>Lässt sich das in GoodNotes wirklich radieren?</summary>
+          <p>Ja. Es sind echte Kugelschreiber-Striche, keine Bilder. Radierer und Lasso funktionieren wie bei deiner eigenen Schrift.</p>
+        </details>
+        <details>
+          <summary>Wie lange dauert das Alphabet?</summary>
+          <p>87 Zeichen, jedes einmal. Mit Stift sind das ungefähr fünf Minuten. Wer mag, schreibt später Varianten dazu, dann wirkt die Schrift lebendiger.</p>
+        </details>
+        <details>
+          <summary>Brauche ich ein iPad?</summary>
+          <p>Schreiben geht auf jedem Gerät, am schönsten mit Stift. Die .goodnotes-Datei öffnest du in GoodNotes, ohne GoodNotes nimmst du das PDF.</p>
+        </details>
+        <details>
+          <summary>Wo liegt meine Handschrift?</summary>
+          <p>Nur in deinem Browser. Meldest du dich mit Google an, zusätzlich in deinem eigenen Google Drive. Mehr unter <a href="datenschutz/">Datenschutz</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="end" aria-label="Loslegen">
+      <svg class="end-name" id="h-name" role="img" aria-label="Siebwrite in Handschrift"></svg>
+      <p>Einmal schreiben, dann nur noch tippen.</p>
+      <a class="btn" href="app/" data-cta>Alphabet schreiben</a>
     </section>
   </main>
 
   <footer class="foot">
     <span>Siebwrite, 2026</span>
+    <a href="mailto:siebwrite.kontakt@gmail.com">Kontakt</a>
+    <a href="datenschutz/">Datenschutz</a>
     <span>GoodNotes ist eine Marke ihres Inhabers.</span>
-    <a class="link" href="datenschutz/">Datenschutz</a>
   </footer>
 </body>
 </html>

@@ -1,27 +1,29 @@
-/* Graphit und Silber wie die Startseite: helles Anthrazit, eine Lichtquelle oben,
-   helle 1px-Kanten statt Leuchten, keine Farbe außer Grautönen (Rot nur für Löschen).
+/* Tinte und Papier wie die Startseite: Blauschwarz statt Grau, eine warme Lampe oben links,
+   helle 1px-Kanten, Knöpfe aus Papier mit Tintenschrift (Rot nur für Löschen).
    Die Seitenvorschau bleibt weißes Papier. */
 :root {
-  --bg: #222428;
-  --raise: #2b2d32;
-  --raise-2: #34373d;
-  --sunk: #1a1b1e;
-  --edge: rgba(255, 255, 255, 0.11);
-  --edge-hi: rgba(255, 255, 255, 0.23);
-  --text: #d5d8dd;
-  --bright: #f4f5f7;
-  --muted: #9a9fa8;
+  --bg: #0c1222;
+  --raise: #131c33;
+  --raise-2: #1b2643;
+  --sunk: #090e1b;
+  --edge: rgba(200, 214, 255, 0.11);
+  --edge-hi: rgba(222, 231, 255, 0.23);
+  --text: #d6dcea;
+  --bright: #f7f3ea;
+  --muted: #8f9bb6;
   --danger: #e5484d;
+  --paper-ink: #1e3a9b;
   /* Schreibfelder (werden per JS ins Canvas übernommen) */
-  --guide: rgba(220, 224, 230, 0.17);
-  --guide-strong: rgba(220, 224, 230, 0.45);
-  --ghost: rgba(220, 224, 230, 0.09);
-  --ink: #f4f5f7;
+  --guide: rgba(214, 224, 250, 0.17);
+  --guide-strong: rgba(214, 224, 250, 0.45);
+  --ghost: rgba(214, 224, 250, 0.09);
+  --ink: #f7f3ea;
   --serif: "Newsreader", Georgia, serif;
   --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-  --metal: linear-gradient(180deg, #f1f2f4, #b8bcc3);
-  --metal-hover: linear-gradient(180deg, #ffffff, #c9ccd2);
+  /* Papier statt Metall: Hauptknöpfe, Fortschritt, Regler */
+  --metal: linear-gradient(180deg, #fbf8f1, #ece4d3);
+  --metal-hover: linear-gradient(180deg, #ffffff, #f3ecdd);
   --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   color-scheme: dark;
 }
@@ -32,7 +34,8 @@ body {
   margin: 0;
   min-height: 100svh;
   background:
-    radial-gradient(ellipse 60% 40% at 25% -8%, rgba(255, 255, 255, 0.08), transparent 70%),
+    radial-gradient(55% 45% at 8% -6%, rgba(255, 204, 150, 0.13), transparent 70%),
+    radial-gradient(45% 45% at 104% 30%, rgba(46, 78, 190, 0.16), transparent 72%),
     var(--bg);
   background-attachment: fixed;
   color: var(--text);
@@ -72,7 +75,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   border: 1px solid var(--edge-hi); font: 500 12px/1 var(--mono);
 }
 .step[aria-current="page"] { color: var(--bright); background: var(--raise); box-shadow: inset 0 1px 0 var(--edge-hi), 0 0 0 1px var(--edge); }
-.step[aria-current="page"] .step-n { background: var(--metal); color: #111214; border-color: transparent; }
+.step[aria-current="page"] .step-n { background: var(--metal); color: var(--paper-ink); border-color: transparent; }
 
 .view { display: grid; gap: 18px; }
 
@@ -119,7 +122,7 @@ kbd {
 .btn svg { flex: none; }
 .btn-icon { width: 40px; padding: 0; }
 .btn-primary {
-  background: var(--metal); color: #111214; border-color: transparent; font-weight: 600;
+  background: var(--metal); color: var(--paper-ink); border-color: transparent; font-weight: 600;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 .btn-primary:hover:not(:disabled) { background: var(--metal-hover); border-color: transparent; }
@@ -138,7 +141,7 @@ kbd {
 .pager-label { display: grid; gap: 3px; min-width: 9.5em; }
 #page-group { color: var(--bright); font-weight: 500; line-height: 1.1; }
 /* Seite voll: der Pfeil nach rechts wird zur Hauptaktion */
-#next.nudge { background: var(--metal); color: #111214; border-color: transparent; }
+#next.nudge { background: var(--metal); color: var(--paper-ink); border-color: transparent; }
 
 /* Schreibfelder */
 .grid { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: 12px; touch-action: manipulation; }
@@ -299,7 +302,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px 
   .export {
     position: sticky; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 4;
     margin: -8px; padding: 8px; border-radius: 10px;
-    background: rgba(34, 36, 40, 0.95); border: 1px solid var(--edge); box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+    background: rgba(12, 18, 34, 0.95); border: 1px solid var(--edge); box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
     flex-wrap: nowrap;
   }
   .export .btn { flex: 1 1 0; min-width: 0; min-height: 46px; padding-inline: 12px; font-size: 14px; }
