@@ -1,5 +1,5 @@
-// Vorschaubild für Links (og.png, 1200 × 630): links „Siebwrite“ von Hand, rechts ein Blatt
-// mit dem Satz der Startseite in derselben Handschrift. Ohne Abhängigkeiten: zeichnet in einen
+// Vorschaubild für Links (og.png, 1200 × 630): Sternenhimmel wie auf der Seite, links
+// „Siebwrite“ von Hand, rechts ein Blatt mit dem Satz der Startseite in derselben Handschrift. Ohne Abhängigkeiten: zeichnet in einen
 // eigenen Puffer (doppelt so groß, dann gemittelt gegen Treppen) und schreibt das PNG selbst.
 // node tools/build-og-image.mjs
 import { writeFileSync } from 'node:fs';
@@ -14,29 +14,54 @@ const BH = H * S;
 const buf = new Float32Array(BW * BH * 3);
 
 const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-const NIGHT = hex('#0c1222');
+const NIGHT = hex('#050506');
 const PAPER = hex('#f6f1e6');
 const RULE = hex('#bccbe8');
 const MARGIN = hex('#e39a90');
 const INK = hex('#1e3a9b');
 const BRIGHT = hex('#f7f3ea');
-const LIGHT = hex('#a8bbff');
+const LIGHT = hex('#dcdde3');
 
 function blend(i, c, a) {
   for (let k = 0; k < 3; k++) buf[i + k] += (c[k] - buf[i + k]) * a;
 }
 
-// Hintergrund: Blauschwarz, warme Lampe oben links, Tintenschimmer rechts
+// Hintergrund: tiefe Nacht, Mondschein oben rechts, Dämmerung unten, Milchstraße schräg
 for (let y = 0; y < BH; y++) {
   for (let x = 0; x < BW; x++) {
     const i = (y * BW + x) * 3;
     const u = x / BW;
     const v = y / BH;
     buf.set(NIGHT, i);
-    const lamp = Math.max(0, 1 - Math.hypot((u - 0.05) / 0.6, (v + 0.1) / 0.8));
-    blend(i, [255, 204, 150], 0.2 * lamp * lamp);
-    const pool = Math.max(0, 1 - Math.hypot((u - 1.02) / 0.5, (v - 0.55) / 0.7));
-    blend(i, [46, 78, 190], 0.3 * pool * pool);
+    const moon = Math.max(0, 1 - Math.hypot((u - 0.92) / 0.5, (v + 0.15) / 0.8));
+    blend(i, [238, 238, 242], 0.12 * moon * moon);
+    const dusk = Math.max(0, 1 - Math.hypot((u - 0.5) / 0.8, (v - 1.15) / 0.45));
+    blend(i, [238, 238, 242], 0.05 * dusk * dusk);
+    // Abstand zur Linie von links unten nach rechts oben
+    const band = Math.abs(0.9 * u + 0.72 * v - 0.82) / Math.hypot(0.9, 0.72);
+    blend(i, [210, 212, 222], 0.045 * Math.exp(-((band / 0.11) ** 2)));
+  }
+}
+
+// Sterne: feste Zufallsfolge, wenige helle mit Schein, viele kleine
+let seed = 1103;
+const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const TINTS = [[255, 255, 255], [238, 240, 246], [222, 227, 240], [255, 243, 226]];
+for (let k = 0; k < 520; k++) {
+  const m = rnd() ** 3;
+  const sx = rnd() * BW;
+  const sy = rnd() * BH;
+  const r = (0.5 + m * 1.7) * S;
+  const a = 0.35 + rnd() * 0.6;
+  const tint = TINTS[Math.floor(rnd() * TINTS.length)];
+  const reach = Math.ceil(r * (m > 0.3 ? 5 : 2));
+  for (let y = Math.max(0, Math.floor(sy - reach)); y <= Math.min(BH - 1, sy + reach); y++) {
+    for (let x = Math.max(0, Math.floor(sx - reach)); x <= Math.min(BW - 1, sx + reach); x++) {
+      const d = Math.hypot(x - sx, y - sy);
+      const core = d < r ? 1 : Math.exp(-(((d - r) / (r * 0.6)) ** 2));
+      const glow = m > 0.3 ? 0.25 * Math.exp(-((d / (r * 3)) ** 2)) : 0;
+      blend((y * BW + x) * 3, tint, Math.min(1, a * Math.max(core, glow)));
+    }
   }
 }
 
@@ -123,7 +148,7 @@ function hand(text, { x, y, em, width, color, lineGap = em * 1.2, map = (px, py)
 
 hand('Siebwrite', { x: 60, y: 290, em: 172, width: 5.2, color: BRIGHT, seed: 9 });
 hand('Einmal schreiben,\ndann nur noch tippen.', { x: 68, y: 392, em: 46, width: 2.4, color: LIGHT, lineGap: 58, seed: 3 });
-hand('siebwrite.de', { x: 68, y: 556, em: 38, width: 2.1, color: [143, 155, 182], seed: 5 });
+hand('siebwrite.de', { x: 68, y: 556, em: 38, width: 2.1, color: [150, 149, 156], seed: 5 });
 hand('Tippen, und es steht\nin deiner Handschrift\nda.', { x: 84, y: FIRST, em: 55, width: 2.5, color: INK, lineGap: GAP, map: fromSheet, seed: 11 });
 
 // Auf Bildgröße mitteln, als RGB-PNG schreiben

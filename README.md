@@ -80,7 +80,8 @@ fehl, wenn ein Modul in der Import Map fehlt.
 
 | Datei | Aufgabe |
 | --- | --- |
-| `index.html`, `landing/style.css` | Startseite, Farbwelt „Tinte und Papier“ (Blauschwarz, Papier, Königsblau) |
+| `index.html`, `landing/style.css` | Startseite, Farbwelt „Sternenhimmel“ (tiefe Nacht, Mondlicht, leuchtende Handschrift; Papier bleibt hell) |
+| `landing/sky.js` | Sternenhimmel hinter allen Seiten: Sterne mit Funkeln und Tiefe beim Scrollen, Sternschnuppen, Sternbilder aus Buchstaben der Handschrift; in der App ruhig (`calm`) |
 | `landing/sheet.js` | Blatt im Hero: Getipptes schreibt ein Füller sofort von Hand, sonst Beispiele |
 | `landing/note.js` | Haftnotiz: Buchstaben des Getippten selbst schreiben; landen auf dem Blatt und beim Weg in die App als Kästchen |
 | `landing/eraser.js` | „Radier ruhig“: eingefügter Text gegen Handschrift, die sich wegradieren lässt |

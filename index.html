@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Siebwrite · Tippen, und es steht in deiner Handschrift da</title>
   <meta name="description" content="Schreib jeden Buchstaben einmal, dann steht jeder Text in deiner Handschrift: als radierbare GoodNotes-Datei oder PDF. Kostenlos, ohne Konto.">
-  <meta name="theme-color" content="#0c1222">
+  <meta name="theme-color" content="#050506">
   <meta name="color-scheme" content="dark">
   <meta property="og:title" content="Siebwrite: Tippen, und es steht in deiner Handschrift da">
   <meta property="og:description" content="Einmal das Alphabet schreiben, dann jeder Text als radierbare GoodNotes-Datei. Kostenlos, ohne Konto.">
@@ -25,38 +25,39 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="landing/style.css?v=11">
+  <link rel="stylesheet" href="landing/style.css?v=12">
   <script type="importmap">{
     "imports": {
-      "./landing/eraser.js": "./landing/eraser.js?v=11",
-      "./landing/film.js": "./landing/film.js?v=11",
-      "./landing/hand-font.js": "./landing/hand-font.js?v=11",
-      "./landing/note.js": "./landing/note.js?v=11",
-      "./landing/playground.js": "./landing/playground.js?v=11",
-      "./landing/scribble.js": "./landing/scribble.js?v=11",
-      "./landing/sheet.js": "./landing/sheet.js?v=11",
-      "./src/app.js": "./src/app.js?v=11",
-      "./src/charset.js": "./src/charset.js?v=11",
-      "./src/cloud.js": "./src/cloud.js?v=11",
-      "./src/draw.js": "./src/draw.js?v=11",
-      "./src/drive.js": "./src/drive.js?v=11",
-      "./src/geometry.js": "./src/geometry.js?v=11",
-      "./src/goodnotes/bytes.js": "./src/goodnotes/bytes.js?v=11",
-      "./src/goodnotes/lz4.js": "./src/goodnotes/lz4.js?v=11",
-      "./src/goodnotes/proto.js": "./src/goodnotes/proto.js?v=11",
-      "./src/goodnotes/template-data.js": "./src/goodnotes/template-data.js?v=11",
-      "./src/goodnotes/tpl.js": "./src/goodnotes/tpl.js?v=11",
-      "./src/goodnotes/writer.js": "./src/goodnotes/writer.js?v=11",
-      "./src/goodnotes/zip.js": "./src/goodnotes/zip.js?v=11",
-      "./src/handoff.js": "./src/handoff.js?v=11",
-      "./src/layout.js": "./src/layout.js?v=11",
-      "./src/pdf.js": "./src/pdf.js?v=11",
-      "./src/profile.js": "./src/profile.js?v=11",
-      "./src/random.js": "./src/random.js?v=11",
-      "./src/render.js": "./src/render.js?v=11",
-      "./src/save.js": "./src/save.js?v=11",
-      "./src/store.js": "./src/store.js?v=11",
-      "./src/sync.js": "./src/sync.js?v=11"
+      "./landing/eraser.js": "./landing/eraser.js?v=12",
+      "./landing/film.js": "./landing/film.js?v=12",
+      "./landing/hand-font.js": "./landing/hand-font.js?v=12",
+      "./landing/note.js": "./landing/note.js?v=12",
+      "./landing/playground.js": "./landing/playground.js?v=12",
+      "./landing/scribble.js": "./landing/scribble.js?v=12",
+      "./landing/sheet.js": "./landing/sheet.js?v=12",
+      "./landing/sky.js": "./landing/sky.js?v=12",
+      "./src/app.js": "./src/app.js?v=12",
+      "./src/charset.js": "./src/charset.js?v=12",
+      "./src/cloud.js": "./src/cloud.js?v=12",
+      "./src/draw.js": "./src/draw.js?v=12",
+      "./src/drive.js": "./src/drive.js?v=12",
+      "./src/geometry.js": "./src/geometry.js?v=12",
+      "./src/goodnotes/bytes.js": "./src/goodnotes/bytes.js?v=12",
+      "./src/goodnotes/lz4.js": "./src/goodnotes/lz4.js?v=12",
+      "./src/goodnotes/proto.js": "./src/goodnotes/proto.js?v=12",
+      "./src/goodnotes/template-data.js": "./src/goodnotes/template-data.js?v=12",
+      "./src/goodnotes/tpl.js": "./src/goodnotes/tpl.js?v=12",
+      "./src/goodnotes/writer.js": "./src/goodnotes/writer.js?v=12",
+      "./src/goodnotes/zip.js": "./src/goodnotes/zip.js?v=12",
+      "./src/handoff.js": "./src/handoff.js?v=12",
+      "./src/layout.js": "./src/layout.js?v=12",
+      "./src/pdf.js": "./src/pdf.js?v=12",
+      "./src/profile.js": "./src/profile.js?v=12",
+      "./src/random.js": "./src/random.js?v=12",
+      "./src/render.js": "./src/render.js?v=12",
+      "./src/save.js": "./src/save.js?v=12",
+      "./src/store.js": "./src/store.js?v=12",
+      "./src/sync.js": "./src/sync.js?v=12"
     }
   }</script>
   <script type="module">
@@ -66,6 +67,10 @@
     import { scribble, card } from './landing/scribble.js';
     import { film } from './landing/film.js';
     import { playground } from './landing/playground.js';
+    import { sky } from './landing/sky.js';
+
+    // Sternbilder aus Buchstaben der Handschrift, verteilt über die Seite
+    sky({ letters: [{ ch: 'S', x: 0.93, y: 0 }, { ch: 'w', x: 0.065, y: 0.36 }, { ch: 'e', x: 0.935, y: 0.68 }, { ch: 'b', x: 0.07, y: 1 }] });
 
     const $ = (s) => document.querySelector(s);
     const demo = sheet($('#sheet'), $('#type'));
@@ -231,17 +236,37 @@
         <p>Siebwrite hat keinen Server und kein Konto. Deine Handschrift liegt in deinem Browser. Wenn du willst, meldest du dich mit Google an, dann ist sie auf jedem Gerät da, auf dem du dich anmeldest.</p>
         <p class="aside">Mehr dazu: <a href="datenschutz/">Datenschutz</a></p>
       </div>
-      <svg class="stamp" viewBox="0 0 240 240" role="img" aria-label="Stempel: kostenlos, ohne Konto, ohne Server">
+      <svg class="moon" viewBox="0 0 240 240" role="img" aria-label="Mond mit der Aufschrift: echt von Hand. Um ihn kreist: kostenlos, ohne Konto, ohne Server">
         <defs>
-          <path id="stamp-ring" d="M120 120 m-86 0 a86 86 0 1 1 172 0 a86 86 0 1 1 -172 0"/>
-          <filter id="stamp-rough"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>
+          <path id="moon-ring" d="M120 120 m-99 0 a99 99 0 1 1 198 0 a99 99 0 1 1 -198 0"/>
+          <radialGradient id="moon-light" cx="0.36" cy="0.32" r="0.8">
+            <stop offset="0" stop-color="#fbf8ef"/>
+            <stop offset="0.55" stop-color="#e8e3d4"/>
+            <stop offset="1" stop-color="#a7a8ab"/>
+          </radialGradient>
+          <clipPath id="moon-clip"><circle cx="120" cy="120" r="64"/></clipPath>
+          <filter id="moon-blur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3.2"/></filter>
         </defs>
-        <g filter="url(#stamp-rough)" fill="none" stroke="currentColor">
-          <circle cx="120" cy="120" r="112" stroke-width="5"/>
-          <circle cx="120" cy="120" r="64" stroke-width="2.5"/>
-          <text font-family="IBM Plex Mono, monospace" font-size="19" font-weight="500" letter-spacing="3.2" fill="currentColor" stroke="none"><textPath href="#stamp-ring">KOSTENLOS · OHNE KONTO · OHNE SERVER ·</textPath></text>
-          <text x="120" y="114" text-anchor="middle" font-family="Newsreader, serif" font-size="30" fill="currentColor" stroke="none">echt</text>
-          <text x="120" y="142" text-anchor="middle" font-family="Newsreader, serif" font-style="italic" font-size="22" fill="currentColor" stroke="none">von Hand</text>
+        <g class="moon-face">
+          <circle cx="120" cy="120" r="64" fill="url(#moon-light)"/>
+          <g clip-path="url(#moon-clip)">
+            <g fill="#8d8f9c" opacity="0.26" filter="url(#moon-blur)">
+              <ellipse cx="94" cy="94" rx="21" ry="14"/>
+              <ellipse cx="142" cy="86" rx="13" ry="10"/>
+              <ellipse cx="154" cy="136" rx="17" ry="23"/>
+              <ellipse cx="100" cy="156" rx="12" ry="8"/>
+            </g>
+            <g fill="none" stroke="#999aa4" stroke-opacity="0.4">
+              <circle cx="78" cy="130" r="5"/>
+              <circle cx="134" cy="164" r="3.5"/>
+              <circle cx="164" cy="104" r="4"/>
+            </g>
+          </g>
+        </g>
+        <text x="120" y="117" text-anchor="middle" font-family="Newsreader, serif" font-size="28" fill="#1e3a9b">echt</text>
+        <text x="120" y="142" text-anchor="middle" font-family="Newsreader, serif" font-style="italic" font-size="20" fill="#1e3a9b">von Hand</text>
+        <g class="moon-orbit">
+          <text font-family="IBM Plex Mono, monospace" font-size="15" font-weight="500" letter-spacing="3" fill="var(--ink-light)"><textPath href="#moon-ring" textLength="606" lengthAdjust="spacing">KOSTENLOS · OHNE KONTO · OHNE SERVER ·</textPath></text>
         </g>
       </svg>
     </section>

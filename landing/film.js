@@ -180,14 +180,14 @@ const LINE = (k) => 214 + 46 * k;
 const PX = SCR.x + 46;
 const PAGE_W = SCR.w - 92;
 const INK = '#16338f';
-const BG = '#0c1222'; // wie --night der Seite
+const BG = '#050506'; // wie --night der Seite
 const SILVER = '#eef0f3';
 const MUTED = '#80858e';
 
 function build(svg) {
   const defs = el('defs', {}, svg);
   defs.innerHTML = `
-    <radialGradient id="f-sky" cx="0.12" cy="-0.1" r="0.9"><stop offset="0" stop-color="#ffcc96" stop-opacity="0.13"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="f-sky" cx="0.9" cy="-0.1" r="0.9"><stop offset="0" stop-color="#fff" stop-opacity="0.08"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
     <radialGradient id="f-lamp" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#fff" stop-opacity="0.05"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
     <linearGradient id="f-metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3c42"/><stop offset="0.45" stop-color="#1b1c20"/><stop offset="1" stop-color="#2b2d32"/></linearGradient>
     <linearGradient id="f-edge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.35"/><stop offset="0.3" stop-color="#fff" stop-opacity="0.08"/><stop offset="1" stop-color="#fff" stop-opacity="0.18"/></linearGradient>
@@ -201,6 +201,14 @@ function build(svg) {
 
   el('rect', { width: 1600, height: 900, fill: BG }, svg);
   el('rect', { width: 1600, height: 900, fill: 'url(#f-sky)' }, svg);
+  // Sterne wie auf der Seite, fest verteilt
+  let seed = 41;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const stars = el('g', { fill: '#f4f4f6' }, svg);
+  for (let i = 0; i < 150; i++) {
+    const m = rnd() ** 3;
+    el('circle', { cx: (rnd() * 1600).toFixed(1), cy: (rnd() * 900).toFixed(1), r: (0.6 + m * 1.8).toFixed(2), opacity: (0.25 + rnd() * 0.6).toFixed(2) }, stars);
+  }
   el('circle', { cx: 1200, cy: 450, r: 620, fill: 'url(#f-lamp)' }, svg);
 
   // ----- iPad (folgt der Kamera) -----
