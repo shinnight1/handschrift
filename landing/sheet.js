@@ -3,7 +3,7 @@
 // (Notizzettel, note.js) ersetzt das der Vorlage.
 
 import { Hand, measure } from './film.js';
-import { lang } from '../src/i18n.js';
+import { lang, tr } from '../src/i18n.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const W = 1000;
@@ -74,7 +74,7 @@ function pen(svg) {
 }
 
 export function sheet(root, input) {
-  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, class: 'sheet-svg', role: 'img', 'aria-label': 'Blatt Papier, auf dem der getippte Text in Handschrift erscheint' }, root);
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, class: 'sheet-svg', role: 'img', 'aria-label': tr('Blatt Papier, auf dem der getippte Text in Handschrift erscheint') }, root);
   svg.innerHTML = `<defs>
     <radialGradient id="sheet-light" cx="0.15" cy="0" r="1.1"><stop offset="0" stop-color="#fffaf0" stop-opacity="0.7"/><stop offset="1" stop-color="#d8cdb6" stop-opacity="0.25"/></radialGradient>
     <linearGradient id="sheet-nib" x1="0" x2="1"><stop offset="0" stop-color="#9aa0aa"/><stop offset="0.5" stop-color="#eef0f3"/><stop offset="1" stop-color="#a3a9b3"/></linearGradient>

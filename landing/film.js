@@ -3,7 +3,7 @@
 // Dadurch gehen Spulen, Pause und Schleife ohne Zustand, und alles bleibt gestochen scharf.
 
 import { GLYPHS } from './hand-font.js';
-import { lang } from '../src/i18n.js';
+import { lang, tr } from '../src/i18n.js';
 
 // Alle Texte des Films. Das vierte Wort des Satzes (fix ersetzt es) wird wegradiert und neu
 // geschrieben; widest ist die breiteste Fassung der ersten Zeile.
@@ -12,8 +12,8 @@ const TXT = lang === 'en' ? {
   heading: 'Biology', topic: 'Respiration',
   sent: ['Mitochondria are the powerhouses', 'of the cell.'], copy: 'Mitochondria', fix: 'engines',
   widest: 'Mitochondria are the powerhouses',
-  problem: '01 — Problem', solution: '02 — Siebwrite',
-  captions: ['Notes in GoodNotes.', 'Pasted text looks foreign.', 'Erase it? You can’t.', 'Copy it out? Takes ages.', 'Your alphabet, once.', 'Type. Your handwriting.', 'Real strokes. Erasable.'],
+  problem: '01 · Problem', solution: '02 · Siebwrite',
+  captions: ['Notes in GoodNotes.', 'Pasted text looks off.', "And it won't erase.", 'Copying takes ages.', 'First, your alphabet.', 'Then you just type.', 'Erases like your own.'],
   notes: ['Handwriting', 'Typed text'], basis: 'BASICS', field: 'TEXT',
   cells: 'abcdefghijklmnopqrstuvwxyz.,!?', total: 80,
 } : {
@@ -21,8 +21,8 @@ const TXT = lang === 'en' ? {
   heading: 'Biologie', topic: 'Zellatmung',
   sent: ['Mitochondrien sind die Kraftwerke', 'der Zelle.'], copy: 'Mitochondrien', fix: 'Energiequellen',
   widest: 'Mitochondrien sind die Energiequellen',
-  problem: '01 — Problem', solution: '02 — Siebwrite',
-  captions: ['Notizen in GoodNotes.', 'Eingefügt wirkt fremd.', 'Radieren? Geht nicht.', 'Abschreiben? Dauert.', 'Einmal dein Alphabet.', 'Tippen. Deine Schrift.', 'Echte Striche. Radierbar.'],
+  problem: '01 · Problem', solution: '02 · Siebwrite',
+  captions: ['Notizen in GoodNotes.', 'Eingefügt wirkt es fremd.', 'Radieren? Fehlanzeige.', 'Abschreiben dauert ewig.', 'Erst einmal das Alphabet.', 'Dann nur noch tippen.', 'Radierbar wie von Hand.'],
   notes: ['Handschrift', 'Tippschrift'], basis: 'BASIS', field: 'TEXT',
   cells: 'abcdefghijklmnopqrstuvwxyzäöüß', total: 87,
 };
@@ -659,7 +659,7 @@ export async function film(root) {
     track.setAttribute('aria-valuetext', label(t));
     time.textContent = label(t);
     root.classList.toggle('is-playing', playing);
-    btn.setAttribute('aria-label', playing ? 'Pause' : 'Abspielen');
+    btn.setAttribute('aria-label', playing ? tr('Pause') : tr('Abspielen'));
     bigPlay.hidden = playing || (t > 0.05 && !still && !userPaused);
     if (playing && ++frame % 2 === 0) grain.style.backgroundPosition = `${(Math.random() * 160) | 0}px ${(Math.random() * 160) | 0}px`;
   }

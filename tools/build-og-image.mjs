@@ -149,7 +149,7 @@ function hand(text, { x, y, em, width, color, lineGap = em * 1.2, map = (px, py)
 
 hand('Siebwrite', { x: 60, y: 290, em: 172, width: 5.2, color: BRIGHT, seed: 9 });
 const EN = process.argv[2] === 'en';
-hand(EN ? 'Write once,\nthen just type.' : 'Einmal schreiben,\ndann nur noch tippen.', { x: 68, y: 392, em: 46, width: 2.4, color: LIGHT, lineGap: 58, seed: 3 });
+hand(EN ? 'Five minutes of writing,\nthen you just type.' : 'Fünf Minuten schreiben,\ndanach nur noch tippen.', { x: 68, y: 392, em: 46, width: 2.4, color: LIGHT, lineGap: 58, seed: 3 });
 hand('siebwrite.de', { x: 68, y: 556, em: 38, width: 2.1, color: [150, 149, 156], seed: 5 });
 hand(EN ? 'Type, and it\nappears in your\nhandwriting.' : 'Tippen, und es steht\nin deiner Handschrift\nda.', { x: 84, y: FIRST, em: 55, width: 2.5, color: INK, lineGap: GAP, map: fromSheet, seed: 11 });
 

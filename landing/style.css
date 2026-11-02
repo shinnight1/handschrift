@@ -367,63 +367,66 @@ main > section { max-width: var(--wide); margin: 0 auto; padding: clamp(72px, 12
 .erase-restore:active { scale: 0.94; transition-duration: 0.12s; }
 @keyframes pop-in { from { opacity: 0; scale: 0.6; } }
 
-/* ---------- Jeder Buchstabe ein Regler (nach Ink & Switch) ---------- */
+/* ---------- So geht's: eine Roadmap, drei Stationen auf einem Weg ---------- */
 
-.play-grid { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: clamp(6px, 0.9vw, 12px); }
-@media (max-width: 960px) { .play-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; } }
-.toy { margin: 0; display: grid; gap: 10px; min-width: 0; }
-.toy svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 800 / 1150;
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.015)), rgba(10, 10, 12, 0.55);
-  box-shadow: var(--glass-rim), var(--glass-drop);
-  color: var(--bright);
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  transition: translate 0.5s var(--spring), scale 0.5s var(--spring), box-shadow 0.35s var(--ease), background-color 0.3s;
-}
-@media (hover: hover) {
-  .toy svg:hover { translate: 0 -3px; box-shadow: var(--glass-rim), inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 30px -10px rgba(var(--moon), 0.4), var(--glass-drop); }
-}
-.toy svg:active { scale: 0.975; transition-duration: 0.15s; }
-.toy-paper svg, .toy-paper svg:hover { background: var(--paper); color: var(--ink); }
-.toy-paper svg:hover { background: #fffaf1; }
-.toy-ink path { transition: opacity 0.2s; }
-.toy-ink path.erased { opacity: 0; }
-/* Name und Wert untereinander, wie Zähler unter den Buchstaben */
-.toy figcaption { display: grid; gap: 4px; padding-left: 2px; font: 500 10.5px/1.2 var(--mono); text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
-.toy figcaption span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.toy figcaption b { font-weight: 500; font-size: 12px; color: var(--bright); text-transform: none; letter-spacing: 0; font-variant-numeric: tabular-nums; white-space: nowrap; }
-@media (max-width: 960px) { .toy figcaption { font-size: 11.5px; } }
-
-/* ---------- So geht's ---------- */
-
-.step-list { list-style: none; margin: 0 0 clamp(48px, 8vw, 88px); padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(28px, 4vw, 56px); }
-@media (max-width: 800px) { .step-list { grid-template-columns: minmax(0, 1fr); } }
-.step-list li {
+.road {
+  --stop: 64px;
   position: relative;
+  list-style: none;
+  margin: 0 0 clamp(48px, 8vw, 88px);
+  padding: 0 34px 0 0;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 18px;
-  align-items: start;
-  padding: 26px 24px 24px;
-  border-radius: 24px;
-  background: var(--glass);
-  box-shadow: var(--glass-rim), var(--glass-drop);
-  -webkit-backdrop-filter: var(--glass-blur);
-          backdrop-filter: var(--glass-blur);
-  transition: translate 0.6s var(--spring), box-shadow 0.4s var(--ease);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(24px, 4vw, 56px);
 }
+/* Der Weg: gestrichelt wie eine Mittellinie, von der ersten Station bis zur Fahne */
+.road::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--stop) / 2);
+  right: 10px;
+  top: calc(var(--stop) / 2 - 1px);
+  border-top: 2px dashed rgba(var(--moon), 0.3);
+}
+/* Ziel: eine kleine Fahne am Ende */
+.road::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: calc(var(--stop) / 2 - 27px);
+  width: 22px;
+  height: 28px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 28'%3E%3Cpath d='M3 27V2' stroke='%23eeeef2' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M4 3h14l-3.5 4.5L18 12H4z' fill='%23eeeef2' fill-opacity='.85'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+.road li { position: relative; display: grid; gap: 8px; align-content: start; }
+.road-stop {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--stop);
+  height: var(--stop);
+  margin-bottom: 10px;
+  border-radius: 50%;
+  background: var(--glass), var(--night-2);
+  box-shadow: var(--glass-rim), 0 0 0 8px var(--night), var(--glass-drop);
+  transition: box-shadow 0.4s var(--ease);
+}
+.road .step-n { display: block; height: 40px; width: calc(40px * var(--ar, 0.6)); overflow: visible; filter: drop-shadow(0 0 8px rgba(var(--moon), 0.45)); }
+.road p { margin: 0; color: var(--text); max-width: 24em; }
+.road-time { font: 500 11px/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 @media (hover: hover) {
-  .step-list li:hover { translate: 0 -4px; box-shadow: var(--glass-rim), 0 0 40px -16px rgba(var(--moon), 0.45), var(--glass-drop); }
-  .step-list li:hover .step-n { filter: drop-shadow(0 0 12px rgba(var(--moon), 0.75)); }
+  .road li:hover .road-stop { box-shadow: var(--glass-rim), 0 0 0 8px var(--night), 0 0 28px -4px rgba(var(--moon), 0.45); }
 }
-.step-n { display: block; height: 72px; width: calc(72px * var(--ar, 0.6)); overflow: visible; margin-top: -6px; filter: drop-shadow(0 0 8px rgba(var(--moon), 0.45)); transition: filter 0.4s var(--ease); }
-.step-list p { margin: 8px 0 0; color: var(--text); }
+/* Handy: der Weg läuft senkrecht links an den Stationen entlang, Text rechts daneben */
+@media (max-width: 800px) {
+  .road { grid-template-columns: minmax(0, 1fr); gap: 30px; padding: 0 0 40px; }
+  .road::before { left: calc(var(--stop) / 2 - 1px); right: auto; top: calc(var(--stop) / 2); bottom: 30px; border-top: 0; border-left: 2px dashed rgba(var(--moon), 0.3); }
+  .road::after { right: auto; left: calc(var(--stop) / 2 - 2px); top: auto; bottom: 0; }
+  .road li { grid-template-columns: var(--stop) minmax(0, 1fr); column-gap: 18px; row-gap: 6px; }
+  .road-stop { grid-row: 1 / span 3; margin-bottom: 0; }
+  .road h3 { padding-top: 8px; }
+}
 
 /* Film: 16:9-Bühne mit Lichtkante, Steuerleiste darunter */
 .player { margin: 0; outline: none; }
@@ -691,7 +694,7 @@ main > section { max-width: var(--wide); margin: 0 auto; padding: clamp(72px, 12
 /* ---------- Licht und Bewegung (glass.js) ---------- */
 
 /* Glanzlicht unter Zeiger oder Finger auf den Glasflächen */
-.nav-app::after, .type::after, .step-list li::after, .faq details::after, .controls::after, .ctl-play::after {
+.nav-app::after, .type::after, .faq details::after, .controls::after, .ctl-play::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -703,11 +706,11 @@ main > section { max-width: var(--wide); margin: 0 auto; padding: clamp(72px, 12
 }
 .ctl-play::after, .nav-app::after { background: radial-gradient(60px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, 0.25), transparent 70%); }
 @media (hover: hover) {
-  .nav-app:hover::after, .type:hover::after, .step-list li:hover::after, .faq details:hover::after, .controls:hover::after, .ctl-play:hover::after { opacity: 1; }
+  .nav-app:hover::after, .type:hover::after, .faq details:hover::after, .controls:hover::after, .ctl-play:hover::after { opacity: 1; }
 }
 .type:focus-within::after { opacity: 1; }
 /* Lichtkante: oben links hell, unten rechts ein Gegenlicht wie bei gewölbtem Glas */
-.nav-app::before, .type::before, .step-list li::before, .faq details::before, .controls::before {
+.nav-app::before, .type::before, .faq details::before, .controls::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -728,8 +731,6 @@ main > section { max-width: var(--wide); margin: 0 auto; padding: clamp(72px, 12
   transition: opacity 0.9s var(--ease) var(--d, 0s), translate 0.9s var(--ease) var(--d, 0s), filter 0.9s var(--ease) var(--d, 0s), transform 0.35s var(--ease), box-shadow 0.4s var(--ease), background-color 0.35s, scale 0.6s var(--spring);
 }
 .lg-reveal:not(.in) { opacity: 0; translate: 0 26px; filter: blur(8px); }
-/* Schritte und Fragen behalten ihr eigenes Federn beim Darüberfahren */
-.step-list li.lg-reveal.in { transition: opacity 0.9s var(--ease) var(--d, 0s), translate 0.6s var(--spring), filter 0.9s var(--ease) var(--d, 0s), box-shadow 0.4s var(--ease); }
 @media print { .lg-reveal:not(.in) { opacity: 1; translate: none; filter: none; } }
 
 @media (prefers-reduced-motion: reduce) {
