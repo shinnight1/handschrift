@@ -281,6 +281,10 @@ kbd {
 @keyframes pop-in { from { opacity: 0; scale: 0.6; } }
 .confirm { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .foot-end { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-left: auto; }
+/* Impressum und Datenschutz: klein und leise, aber lesbar (das Gesetz verlangt „leicht erkennbar“) */
+.legal-links { display: inline-flex; gap: 12px; font: 400 12px/1 var(--mono); }
+.legal-links a { color: var(--muted); text-decoration: none; transition: color .25s; }
+.legal-links a:hover { color: var(--bright); text-decoration: underline; text-underline-offset: 3px; }
 
 /* "Weiter mit Google": Knopf von uiverse.io/Yaya12085/sharp-quail-80 (MIT, siehe THIRD_PARTY_NOTICES.md),
    auf eine Klasse statt auf alle Knöpfe bezogen. Weiß mit buntem G, wie Google es für

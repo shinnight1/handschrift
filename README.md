@@ -95,7 +95,8 @@ fehl, wenn ein Modul in der Import Map fehlt.
 | `landing/scribble.js` | Handgeschriebene Wörter, Ziffern und Zettel, die sich beim Hinscrollen schreiben |
 | `landing/film.js`, `landing/hand-font.js` | Film auf der Startseite: SVG-Szene, für jede Zeit berechnet; `Hand` schreibt Text in der Handschrift aus EMS Felix (`tools/build-hand-font.mjs`) |
 | `datenschutz/index.html` | Datenschutzerklärung (auch für den Google-Zustimmungsbildschirm) |
-| `en/index.html`, `en/app/index.html`, `en/privacy/index.html` | Englische Fassung der drei Seiten (siehe „Zwei Sprachen“) |
+| `impressum/index.html`, `en/legal/index.html` | Impressum nach § 5 DDG und § 18 Abs. 1 MStV; von jeder Seite klein im Footer verlinkt (Pflicht: „leicht erkennbar“), `noindex` und nicht in der Sitemap, damit die Anschrift nicht in Suchergebnissen steht. Der Test prüft die Links. |
+| `en/index.html`, `en/app/index.html`, `en/privacy/index.html`, `en/legal/index.html` | Englische Fassung der Seiten (siehe „Zwei Sprachen“) |
 | `og.png`, `og-en.png`, `tools/build-og-image.mjs` | Vorschaubild für geteilte Links (1200 × 630), ohne Abhängigkeiten gezeichnet: `node tools/build-og-image.mjs` (deutsch) bzw. `… en` (englisch) |
 | `sitemap.xml`, `robots.txt` | Für Suchmaschinen: alle Seiten mit ihrer Fassung in der anderen Sprache |
 | `app/index.html`, `style.css` | App und Aussehen |
