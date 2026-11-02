@@ -231,7 +231,7 @@ test('PDF hat eine Seite pro gesetzter Seite', () => {
 
 test('Jedes Modul hat in allen Seiten dieselbe Versionsnummer (sonst mischt der Browser-Cache alt und neu)', async () => {
   const files = await moduleList();
-  const pages = [['index.html', './'], ['app/index.html', '../'], ['datenschutz/index.html', '../'], ['en/index.html', '../'], ['en/app/index.html', '../../'], ['en/privacy/index.html', '../../']];
+  const pages = [['index.html', './'], ['app/index.html', '../'], ['datenschutz/index.html', '../'], ['impressum/index.html', '../'], ['en/index.html', '../'], ['en/app/index.html', '../../'], ['en/privacy/index.html', '../../'], ['en/legal/index.html', '../../']];
   for (const [page, prefix] of pages) {
     const html = readFileSync(new URL(`../${page}`, import.meta.url), 'utf8');
     const map = JSON.parse(/<script type="importmap">([\s\S]*?)<\/script>/.exec(html)[1]).imports;
@@ -330,4 +330,21 @@ test('Englische Seiten haben dieselben Elemente wie die deutschen (sonst findet 
     const html = readFileSync(new URL(`../${page}`, import.meta.url), 'utf8');
     assert.match(html, /<html lang="en">/, page);
   }
+});
+
+test('Impressum: von jeder Seite aus verlinkt, vollständig und nicht in Suchmaschinen', () => {
+  const read = (page) => readFileSync(new URL(`../${page}`, import.meta.url), 'utf8');
+  const links = {
+    'index.html': 'href="impressum/"', 'app/index.html': 'href="../impressum/"', 'datenschutz/index.html': 'href="../impressum/"',
+    'impressum/index.html': '<h1>Impressum</h1>', 'en/index.html': 'href="legal/"', 'en/app/index.html': 'href="../legal/"',
+    'en/privacy/index.html': 'href="../legal/"', 'en/legal/index.html': '<h1>Legal notice</h1>',
+  };
+  for (const [page, needle] of Object.entries(links)) assert.ok(read(page).includes(needle), `${page}: Link zum Impressum`);
+  for (const page of ['impressum/index.html', 'en/legal/index.html']) {
+    const html = read(page);
+    assert.match(html, /Louis Siebrecht<br>Auf dem Harenkamp 62<br>49586 Neuenkirchen/, `${page}: Name und ladungsfähige Anschrift`);
+    assert.match(html, /mailto:siebwrite\.kontakt@gmail\.com/, `${page}: E-Mail`);
+    assert.match(html, /<meta name="robots" content="noindex">/, `${page}: nicht in Suchergebnissen`);
+  }
+  assert.ok(!read('sitemap.xml').includes('impressum') && !read('sitemap.xml').includes('legal'), 'Impressum nicht in der Sitemap');
 });
