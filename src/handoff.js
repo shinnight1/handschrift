@@ -6,6 +6,7 @@
 
 import { CELL_CHARS, isCustomChar } from './charset.js';
 import { utf8, fromUtf8, fromBase64 } from './goodnotes/bytes.js';
+import { tr } from './i18n.js';
 
 const Q = 10000; // Koordinaten in Zehntausendsteln, so genau wie gespeichert
 const canCompress = typeof CompressionStream === 'function';
@@ -105,7 +106,7 @@ async function readHandoff(hash) {
   const m = /^#gn([01])=([A-Za-z0-9_-]+)$/.exec(hash);
   if (!m) return null;
   if (m[1] === '1' && typeof DecompressionStream !== 'function') {
-    throw new Error('Dieser Browser kann den Link nicht entpacken. Ein aktueller Browser hilft.');
+    throw new Error(tr('Dieser Browser kann den Link nicht entpacken. Ein aktueller Browser hilft.'));
   }
   let data;
   try {
@@ -113,9 +114,9 @@ async function readHandoff(hash) {
     if (m[1] === '1') bytes = await pipe(bytes, new DecompressionStream('deflate-raw'));
     data = JSON.parse(fromUtf8(bytes));
   } catch {
-    throw new Error('Der Link ist beschädigt. Am besten neu erzeugen und ganz kopieren.');
+    throw new Error(tr('Der Link ist beschädigt. Am besten neu erzeugen und ganz kopieren.'));
   }
-  if (data?.v !== 1) throw new Error('Dieser Link ist von einer anderen Version.');
+  if (data?.v !== 1) throw new Error(tr('Dieser Link ist von einer anderen Version.'));
   return {
     cells: unpackCells(data.c),
     custom: unpackCustom(data.u),

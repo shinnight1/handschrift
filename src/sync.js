@@ -8,6 +8,7 @@
 
 import { createProfile, parseProfile } from './profile.js';
 import { encodeStrokes, decodeStrokes } from './store.js';
+import { tr } from './i18n.js';
 
 const byNumber = (a, b) => Number(a) - Number(b);
 const byText = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
@@ -24,7 +25,7 @@ function serialize(profile) {
 // Liest den Text der Kopie. Wirft bei fremden oder kaputten Dateien.
 function deserialize(text) {
   const data = JSON.parse(text);
-  if (data?.app !== 'handschrift' || data.v !== 1) throw new Error('Die Kopie in Google Drive ist nicht lesbar.');
+  if (data?.app !== 'handschrift' || data.v !== 1) throw new Error(tr('Die Kopie in Google Drive ist nicht lesbar.'));
   const decode = (obj) => Object.fromEntries(Object.entries(obj ?? {}).map(([k, v]) => [k, decodeStrokes(v)]));
   return parseProfile({ app: 'handschrift', version: 1, cells: decode(data.cells), custom: decode(data.custom) });
 }

@@ -1,7 +1,8 @@
 // Vorschaubild für Links (og.png, 1200 × 630): Sternenhimmel wie auf der Seite, links
 // „Siebwrite“ von Hand, rechts ein Blatt mit dem Satz der Startseite in derselben Handschrift. Ohne Abhängigkeiten: zeichnet in einen
 // eigenen Puffer (doppelt so groß, dann gemittelt gegen Treppen) und schreibt das PNG selbst.
-// node tools/build-og-image.mjs
+// node tools/build-og-image.mjs        → og.png (deutsch)
+// node tools/build-og-image.mjs en     → og-en.png (englisch, für /en/)
 import { writeFileSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
 import { GLYPHS } from '../landing/hand-font.js';
@@ -147,9 +148,10 @@ function hand(text, { x, y, em, width, color, lineGap = em * 1.2, map = (px, py)
 }
 
 hand('Siebwrite', { x: 60, y: 290, em: 172, width: 5.2, color: BRIGHT, seed: 9 });
-hand('Einmal schreiben,\ndann nur noch tippen.', { x: 68, y: 392, em: 46, width: 2.4, color: LIGHT, lineGap: 58, seed: 3 });
+const EN = process.argv[2] === 'en';
+hand(EN ? 'Write once,\nthen just type.' : 'Einmal schreiben,\ndann nur noch tippen.', { x: 68, y: 392, em: 46, width: 2.4, color: LIGHT, lineGap: 58, seed: 3 });
 hand('siebwrite.de', { x: 68, y: 556, em: 38, width: 2.1, color: [150, 149, 156], seed: 5 });
-hand('Tippen, und es steht\nin deiner Handschrift\nda.', { x: 84, y: FIRST, em: 55, width: 2.5, color: INK, lineGap: GAP, map: fromSheet, seed: 11 });
+hand(EN ? 'Type, and it\nappears in your\nhandwriting.' : 'Tippen, und es steht\nin deiner Handschrift\nda.', { x: 84, y: FIRST, em: 55, width: 2.5, color: INK, lineGap: GAP, map: fromSheet, seed: 11 });
 
 // Auf Bildgröße mitteln, als RGB-PNG schreiben
 const raw = Buffer.alloc(H * (W * 3 + 1));
@@ -188,6 +190,6 @@ const png = Buffer.concat([
   chunk('IDAT', deflateSync(raw, { level: 9 })),
   chunk('IEND', Buffer.alloc(0)),
 ]);
-const out = new URL('../og.png', import.meta.url);
-writeFileSync(out, png);
-console.log(`og.png: ${W} × ${H}, ${Math.round(png.length / 1024)} KB`);
+const name = EN ? 'og-en.png' : 'og.png';
+writeFileSync(new URL(`../${name}`, import.meta.url), png);
+console.log(`${name}: ${W} × ${H}, ${Math.round(png.length / 1024)} KB`);

@@ -3,6 +3,7 @@
 // liegen unter `custom`, mit dem Zeichen selbst als Schlüssel.
 
 import { CELL_CHARS, SITS_ON_BASELINE, X_HEIGHT_CHARS, GUIDES, isCustomChar } from './charset.js';
+import { tr } from './i18n.js';
 
 const PROFILE_VERSION = 1;
 
@@ -22,9 +23,9 @@ function cleanStrokes(strokes) {
 function parseProfile(json) {
   const data = typeof json === 'string' ? JSON.parse(json) : json;
   if (!data || data.app !== 'handschrift' || typeof data.cells !== 'object') {
-    throw new Error('Das ist keine Handschrift-Profildatei.');
+    throw new Error(tr('Das ist keine Handschrift-Profildatei.'));
   }
-  if (data.version > PROFILE_VERSION) throw new Error('Die Profildatei ist von einer neueren Version.');
+  if (data.version > PROFILE_VERSION) throw new Error(tr('Die Profildatei ist von einer neueren Version.'));
   const cells = {};
   for (const [key, strokes] of Object.entries(data.cells)) {
     const index = Number(key);
@@ -62,6 +63,13 @@ function median(values) {
   return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
 }
 
+// Breite einer Glyphe: Umriss der Striche, oder, wenn das Profil Vorschübe kennt (fertige
+// Handschriften, presets.js), vom Ursprung bis zum Vorschub wie bei einer Schrift.
+function boxOf(strokes, advance) {
+  const box = bbox(strokes);
+  return advance == null ? box : { ...box, minX: 0, maxX: advance };
+}
+
 // Zeichen → Liste von Varianten {strokes, minX, maxX, minY, maxY, shift}.
 // shift verschiebt die Glyphe senkrecht, damit sie auf der Grundlinie sitzt.
 function glyphTable(profile, { snap = 0.8 } = {}) {
@@ -69,7 +77,7 @@ function glyphTable(profile, { snap = 0.8 } = {}) {
   for (const [key, strokes] of Object.entries(profile.cells)) {
     if (!strokes.length) continue;
     const char = CELL_CHARS[Number(key)];
-    const box = bbox(strokes);
+    const box = boxOf(strokes, profile.advance?.cells?.[key]);
     const shift = SITS_ON_BASELINE.has(char) ? -box.maxY * snap : 0;
     const variant = { char, cell: Number(key), strokes, ...box, shift };
     if (!table.has(char)) table.set(char, []);
@@ -77,7 +85,7 @@ function glyphTable(profile, { snap = 0.8 } = {}) {
   }
   // Eigene Zeichen stehen so, wie sie im Kästchen geschrieben wurden.
   for (const [char, strokes] of Object.entries(profile.custom ?? {})) {
-    if (strokes.length) table.set(char, [{ char, cell: char, strokes, ...bbox(strokes), shift: 0 }]);
+    if (strokes.length) table.set(char, [{ char, cell: char, strokes, ...boxOf(strokes, profile.advance?.custom?.[char]), shift: 0 }]);
   }
   return table;
 }

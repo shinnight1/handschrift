@@ -3,10 +3,33 @@
 // Dadurch gehen Spulen, Pause und Schleife ohne Zustand, und alles bleibt gestochen scharf.
 
 import { GLYPHS } from './hand-font.js';
+import { lang } from '../src/i18n.js';
+
+// Alle Texte des Films. Das vierte Wort des Satzes (fix ersetzt es) wird wegradiert und neu
+// geschrieben; widest ist die breiteste Fassung der ersten Zeile.
+const TXT = lang === 'en' ? {
+  chapters: ['Problem', 'Solution'],
+  heading: 'Biology', topic: 'Respiration',
+  sent: ['Mitochondria are the powerhouses', 'of the cell.'], copy: 'Mitochondria', fix: 'engines',
+  widest: 'Mitochondria are the powerhouses',
+  problem: '01 — Problem', solution: '02 — Siebwrite',
+  captions: ['Notes in GoodNotes.', 'Pasted text looks foreign.', 'Erase it? You can’t.', 'Copy it out? Takes ages.', 'Your alphabet, once.', 'Type. Your handwriting.', 'Real strokes. Erasable.'],
+  notes: ['Handwriting', 'Typed text'], basis: 'BASICS', field: 'TEXT',
+  cells: 'abcdefghijklmnopqrstuvwxyz.,!?', total: 80,
+} : {
+  chapters: ['Problem', 'Lösung'],
+  heading: 'Biologie', topic: 'Zellatmung',
+  sent: ['Mitochondrien sind die Kraftwerke', 'der Zelle.'], copy: 'Mitochondrien', fix: 'Energiequellen',
+  widest: 'Mitochondrien sind die Energiequellen',
+  problem: '01 — Problem', solution: '02 — Siebwrite',
+  captions: ['Notizen in GoodNotes.', 'Eingefügt wirkt fremd.', 'Radieren? Geht nicht.', 'Abschreiben? Dauert.', 'Einmal dein Alphabet.', 'Tippen. Deine Schrift.', 'Echte Striche. Radierbar.'],
+  notes: ['Handschrift', 'Tippschrift'], basis: 'BASIS', field: 'TEXT',
+  cells: 'abcdefghijklmnopqrstuvwxyzäöüß', total: 87,
+};
 
 const NS = 'http://www.w3.org/2000/svg';
 export const DURATION = 37;
-export const CHAPTERS = [{ at: 0, label: 'Problem' }, { at: 18.4, label: 'Lösung' }];
+export const CHAPTERS = [{ at: 0, label: TXT.chapters[0] }, { at: 18.4, label: TXT.chapters[1] }];
 export const POSTER = 27.95;
 
 // ---------- Zeit und Bewegung ----------
@@ -239,13 +262,13 @@ function build(svg) {
 
   // Inhalt der Seite
   const page = el('g', {}, screen);
-  const heading = new Hand(page, 'Biologie', { x: PX, y: LINE(0), em: 70, color: INK, width: 2.8, seed: 3 });
-  const topic = new Hand(page, 'Zellatmung', { x: PX, y: LINE(2), em: 46, color: INK, width: 2.4, seed: 11 });
-  const topicW = measure('Zellatmung', 46);
+  const heading = new Hand(page, TXT.heading, { x: PX, y: LINE(0), em: 70, color: INK, width: 2.8, seed: 3 });
+  const topic = new Hand(page, TXT.topic, { x: PX, y: LINE(2), em: 46, color: INK, width: 2.4, seed: 11 });
+  const topicW = measure(TXT.topic, 46);
   const underline = el('path', { d: `M${PX - 2} ${LINE(2) + 9} C${PX + topicW * 0.4} ${LINE(2) + 12} ${PX + topicW * 0.7} ${LINE(2) + 6} ${PX + topicW + 8} ${LINE(2) + 8}`, fill: 'none', stroke: INK, 'stroke-width': 2.2, 'stroke-linecap': 'round', pathLength: 1, 'stroke-dasharray': '1 2', 'stroke-dashoffset': 1 }, page);
 
   // Eingefügter Text: Textfeld mit Systemschrift
-  const SENT = ['Mitochondrien sind die Kraftwerke', 'der Zelle.'];
+  const SENT = TXT.sent;
   const box = el('g', {}, page);
   const boxInner = el('g', {}, box);
   const typed = SENT.map((s, i) => el('text', { x: PX, y: LINE(4) + i * 46 - 2, 'font-family': '"Helvetica Neue", Helvetica, Arial, sans-serif', 'font-size': 25, fill: '#1d1d1f' }, boxInner));
@@ -259,13 +282,13 @@ function build(svg) {
   const boxCx = PX - 12 + boxW / 2, boxCy = LINE(4) + 16;
 
   // Abschreiben von Hand: mühsam, wird nie fertig
-  const copy = new Hand(page, 'Mitochondrien', { x: PX, y: LINE(7), em: 44, color: INK, width: 2.4, seed: 5 });
+  const copy = new Hand(page, TXT.copy, { x: PX, y: LINE(7), em: 44, color: INK, width: 2.4, seed: 5 });
 
   // Ergebnis aus Siebwrite: gleiche Stelle, echte Striche
-  const bodyEm = Math.min(44, PAGE_W / measure('Mitochondrien sind die Energiequellen', 1));
+  const bodyEm = Math.min(44, PAGE_W / measure(TXT.widest, 1));
   const result = new Hand(page, `${SENT[0]}\n${SENT[1]}`, { x: PX, y: LINE(4), em: bodyEm, color: INK, width: 2.3, seed: 21 });
   const kraft = result.word(3);
-  const fix = new Hand(page, 'Energiequellen', { x: kraft.x0, y: LINE(4), em: bodyEm, color: INK, width: 2.3, seed: 33 });
+  const fix = new Hand(page, TXT.fix, { x: kraft.x0, y: LINE(4), em: bodyEm, color: INK, width: 2.3, seed: 33 });
 
   const dim = el('rect', { x: SCR.x, y: SCR.y, width: SCR.w, height: SCR.h, fill: BG, opacity: 0 }, screen);
 
@@ -319,13 +342,13 @@ function build(svg) {
     };
   }
   const captions = [
-    caption('01 — Problem', 'Notizen in GoodNotes.', 0.45, 3.95),
-    caption('01 — Problem', 'Eingefügt wirkt fremd.', 4.15, 9.3),
-    caption('01 — Problem', 'Radieren? Geht nicht.', 9.5, 14.4),
-    caption('01 — Problem', 'Abschreiben? Dauert.', 14.6, 18.35),
-    caption('02 — Siebwrite', 'Einmal dein Alphabet.', 19.0, 23.4),
-    caption('02 — Siebwrite', 'Tippen. Deine Schrift.', 23.6, 28.3),
-    caption('02 — Siebwrite', 'Echte Striche. Radierbar.', 28.45, 31.45),
+    caption(TXT.problem, TXT.captions[0], 0.45, 3.95),
+    caption(TXT.problem, TXT.captions[1], 4.15, 9.3),
+    caption(TXT.problem, TXT.captions[2], 9.5, 14.4),
+    caption(TXT.problem, TXT.captions[3], 14.6, 18.35),
+    caption(TXT.solution, TXT.captions[4], 19.0, 23.4),
+    caption(TXT.solution, TXT.captions[5], 23.6, 28.3),
+    caption(TXT.solution, TXT.captions[6], 28.45, 31.45),
   ];
 
   // ⌘ und V
@@ -341,7 +364,7 @@ function build(svg) {
   });
 
   // Beschriftungen mit Haarlinie ins iPad
-  const notes = [['Handschrift', LINE(2) - 12, 6.0], ['Tippschrift', LINE(4) - 8, 6.45]].map(([label, py, at]) => {
+  const notes = [[TXT.notes[0], LINE(2) - 12, 6.0], [TXT.notes[1], LINE(4) - 8, 6.45]].map(([label, py, at]) => {
     const g = el('g', {}, hud);
     const ln = el('path', { fill: 'none', stroke: 'rgba(238,240,243,0.55)', 'stroke-width': 1.2, pathLength: 1, 'stroke-dasharray': '1 2' }, g);
     const dot = el('circle', { r: 3.5, fill: SILVER }, g);
@@ -366,7 +389,7 @@ function build(svg) {
   // Alphabet-Raster wie in der App
   const grid = el('g', {}, hud);
   const CELL = { w: 64, h: 60, gap: 8 };
-  const cells = [...'abcdefghijklmnopqrstuvwxyzäöüß'].map((ch, i) => {
+  const cells = [...TXT.cells].map((ch, i) => {
     const cx = 110 + (i % 10) * (CELL.w + CELL.gap), cy = 330 + Math.floor(i / 10) * (CELL.h + CELL.gap);
     const g = el('g', {}, grid);
     const rect = el('rect', { x: cx, y: cy, width: CELL.w, height: CELL.h, rx: 7, fill: '#131417', stroke: 'rgba(255,255,255,0.08)' }, g);
@@ -377,7 +400,7 @@ function build(svg) {
     return { g, rect, glyph, i };
   });
   const countLabel = el('text', { x: 110, y: 572, 'font-family': '"IBM Plex Mono", monospace', 'font-size': 15, 'letter-spacing': 3, fill: MUTED }, grid);
-  countLabel.textContent = 'BASIS';
+  countLabel.textContent = TXT.basis;
   const count = el('text', { x: 110, y: 640, 'font-family': 'Newsreader, Georgia, serif', 'font-size': 64, fill: SILVER }, grid);
   const countBar = el('rect', { x: 110, y: 662, height: 3, width: 0, fill: SILVER }, grid);
   el('rect', { x: 110, y: 662, height: 3, width: 712, fill: 'rgba(255,255,255,0.08)' }, grid);
@@ -387,7 +410,7 @@ function build(svg) {
   el('rect', { x: 110, y: 340, width: 690, height: 176, rx: 10, fill: '#08090a', stroke: 'rgba(255,255,255,0.1)' }, field);
   el('line', { x1: 120, x2: 790, y1: 340.6, y2: 340.6, stroke: 'rgba(255,255,255,0.05)' }, field);
   const fieldLabel = el('text', { x: 134, y: 378, 'font-family': '"IBM Plex Mono", monospace', 'font-size': 14, 'letter-spacing': 3, fill: MUTED }, field);
-  fieldLabel.textContent = 'TEXT';
+  fieldLabel.textContent = TXT.field;
   const lines = SENT.map((_, i) => el('text', { x: 134, y: 432 + i * 44, 'font-family': '"IBM Plex Sans", sans-serif', 'font-size': 29, fill: SILVER }, field));
   const caret = el('rect', { width: 2, height: 32, fill: SILVER }, field);
   const flow = el('path', { fill: 'none', stroke: 'rgba(238,240,243,0.6)', 'stroke-width': 1.4, pathLength: 1, 'stroke-dasharray': '1 2' }, hud);
@@ -531,10 +554,10 @@ function build(svg) {
       c.glyph.draw(wp);
       set(c.rect, 'stroke', wp >= 1 ? 'rgba(255,255,255,0.24)' : 'rgba(255,255,255,0.08)');
     }
-    const n87 = Math.round(87 * ease.inOut(span(t, 19.45, 22.95)));
-    const ct = `${n87}/87`;
+    const n87 = Math.round(TXT.total * ease.inOut(span(t, 19.45, 22.95)));
+    const ct = `${n87}/${TXT.total}`;
     if (count.textContent !== ct) count.textContent = ct;
-    set(countBar, 'width', (712 * n87) / 87);
+    set(countBar, 'width', (712 * n87) / TXT.total);
 
     const fIn = ease.expo(span(t, 23.55, 24.3));
     fade(field, fIn * (1 - ease.inOut(span(t, 27.9, 28.3))));

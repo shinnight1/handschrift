@@ -10,6 +10,18 @@ const INKS = {
   grau: { label: 'Bleistift', rgb: [0.33, 0.33, 0.36] },
 };
 
+// Farbe: Name aus INKS oder eine eigene als "#rrggbb" (Farbwähler „+“ in der App).
+const isCustomInk = (ink) => typeof ink === 'string' && /^#[0-9a-f]{6}$/i.test(ink);
+
+// Farbe als [r, g, b] von 0 bis 1, wie PDF und GoodNotes sie wollen.
+function inkRgb(ink) {
+  if (INKS[ink]) return INKS[ink].rgb;
+  if (isCustomInk(ink)) return [1, 3, 5].map((i) => parseInt(ink.slice(i, i + 2), 16) / 255);
+  return INKS.schwarz.rgb;
+}
+
+const inkHex = (ink) => `#${inkRgb(ink).map((v) => Math.round(v * 255).toString(16).padStart(2, '0')).join('')}`;
+
 const PAPERS = { blank: 'Blanko', lined: 'Liniert', grid: 'Kariert' };
 
 const PAPER_LINE = [0.72, 0.8, 0.9];
@@ -96,4 +108,4 @@ function pagesToGoodNotes(pages, { format, paper = 'blank', ink = INKS.schwarz.r
   });
 }
 
-export { INKS, PAPERS, drawPage, pagesToPdf, pagesToGoodNotes };
+export { INKS, PAPERS, isCustomInk, inkRgb, inkHex, drawPage, pagesToPdf, pagesToGoodNotes };

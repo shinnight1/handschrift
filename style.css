@@ -84,6 +84,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .word { font: 500 22px/1 var(--serif); color: var(--bright); text-decoration: none; letter-spacing: -0.01em; transition: text-shadow 0.4s var(--ease); }
 .word:hover { text-shadow: 0 0 18px rgba(238, 238, 242, 0.55); }
+/* Sprache wechseln: leise, rechts im Kopf */
+.top-end { display: flex; align-items: center; gap: 6px; }
+.lang {
+  display: inline-grid; place-items: center; min-width: 40px; height: 36px; padding: 0 10px; border-radius: 999px;
+  font: 500 12px/1 var(--mono); letter-spacing: 0.08em; color: var(--muted); text-decoration: none;
+  transition: background-color .25s, color .25s;
+}
+.lang:hover { color: var(--bright); background-color: rgba(255, 255, 255, 0.06); }
 .steps { position: relative; display: flex; gap: 2px; }
 .step {
   position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px 8px 8px; border-radius: 999px;
@@ -200,6 +208,10 @@ kbd {
 .chip-action:active { scale: 0.95; transition-duration: .12s; }
 .chip-action svg { transition: rotate .5s var(--spring); }
 .chip-action:hover svg { rotate: -12deg; }
+/* Fertige Handschrift: fehlende Zeichen lassen sich dort nicht nachschreiben */
+.chip-action.is-static { cursor: default; }
+.chip-action.is-static svg { display: none; }
+.chip-action.is-static:hover { background-color: transparent; box-shadow: inset 0 1px 0 rgba(255, 160, 162, 0.22), inset 0 0 0 1px rgba(229, 72, 77, 0.3); }
 
 .pager { display: flex; align-items: center; gap: 10px; }
 .pager-label { display: grid; gap: 3px; min-width: 9.5em; }
@@ -369,7 +381,54 @@ textarea:focus { outline: none; background-color: rgba(0, 0, 0, 0.62); box-shado
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.45), inset 0 -2px 4px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.12), 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 .swatches label:has(input:checked) .swatch { animation: pop-in .5s var(--spring); }
+.swatches { flex-wrap: wrap; }
+/* „+“: Farbfeld des Browsers liegt unsichtbar über dem Regenbogenring, ein Tipp öffnet es
+   direkt. Beim Ziehen zeigt der Ring innen die Farbe, die gerade in der Vorschau steht. */
+.swatch-add { position: relative; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; transition: scale .5s var(--spring), box-shadow .45s var(--spring); }
+.swatch-add:hover { scale: 1.08; }
+.swatch-add:active { scale: 0.92; transition-duration: .12s; }
+.swatches .swatch-add input[type="color"] {
+  position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; border-radius: 50%;
+  opacity: 0; cursor: pointer; pointer-events: auto;
+}
+.swatch-plus {
+  background: conic-gradient(from 200deg, #e5484d, #f5a524, #e5d85a, #3fb950, #2f81f7, #8957e5, #e5484d);
+  display: grid; place-items: center;
+}
+.swatch-plus::after {
+  content: ""; width: 16px; height: 16px; border-radius: 50%; background: var(--pick, var(--raise-2));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  /* Plus als zwei Balken, damit es ohne Schrift scharf bleibt */
+  background-image: linear-gradient(var(--bright), var(--bright)), linear-gradient(var(--bright), var(--bright));
+  background-size: 8px 1.6px, 1.6px 8px; background-position: center; background-repeat: no-repeat;
+}
+.swatch-add.is-picking { box-shadow: 0 0 0 1.5px var(--bright), 0 0 18px -4px rgba(255, 255, 255, 0.5); }
+.swatch-add.is-picking .swatch-plus::after { background-image: none; }
+.swatch-add:has(input:focus-visible) { outline: 2px solid var(--bright); outline-offset: 1px; }
 .span-2 { grid-column: 1 / -1; }
+
+/* Handschrift: eigene oder eine der fünf fertigen. Jede Karte zeigt ihren Namen in der
+   eigenen Schrift, darunter klein der Name. */
+.hands { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.hand {
+  position: relative; display: grid; grid-template-rows: 34px auto; align-items: center; justify-items: center; gap: 4px;
+  min-width: 0; padding: 10px 8px 8px; border-radius: 16px; cursor: pointer; color: var(--text);
+  background: rgba(0, 0, 0, 0.32); box-shadow: var(--well);
+  transition: background-color .25s, box-shadow .4s var(--spring), color .25s, scale .5s var(--spring);
+}
+.hand:hover { color: var(--bright); background-color: rgba(255, 255, 255, 0.04); }
+.hand:active { scale: 0.96; transition-duration: .12s; }
+.hand input { position: absolute; opacity: 0; pointer-events: none; }
+.hand:has(input:checked) { color: var(--bright); background: var(--glass-hi); box-shadow: var(--glass-rim), 0 0 0 1.5px var(--bright), 0 0 20px -6px rgba(255, 255, 255, 0.45); }
+.hand:has(input:focus-visible) { outline: 2px solid var(--bright); outline-offset: 2px; }
+.hand-sample { width: 100%; height: 34px; overflow: visible; }
+.hand-name { font: 500 11px/1.2 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hand:has(input:checked) .hand-name { color: var(--text); }
+/* Ohne Probe (eigene Schrift noch leer, fertige laden noch): der Name steht groß in der Mitte */
+.hand:not(.has-sample) { grid-template-rows: 34px; }
+.hand:not(.has-sample) .hand-sample { display: none; }
+.hand:not(.has-sample) .hand-name { font: 500 14px/1.2 var(--sans); letter-spacing: 0; text-transform: none; }
+@media (max-width: 420px) { .hands { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* Schieberegler: Rinne mit leuchtender Füllung bis zum Griff (--fill setzt app.js); der Griff
    ist eine Glasperle, die beim Anfassen größer wird */
@@ -456,7 +515,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px 
 .gn-result[data-state="error"] { color: #f0a3a5; box-shadow: inset 0 1px 0 rgba(255, 160, 162, 0.22), inset 0 0 0 1px rgba(229, 72, 77, 0.3); }
 
 .empty { display: grid; gap: 10px; justify-items: start; padding: 48px 0; max-width: 36em; animation: rise .6s var(--ease) both; }
-.empty .btn { margin-top: 14px; }
+.empty-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
 
 /* Meldung: Glaskapsel, die von unten hereinfedert */
 .toast {

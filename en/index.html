@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Siebwrite · Type, and it appears in your handwriting</title>
+  <meta name="description" content="Write each letter once, then any text appears in your own handwriting: as an erasable GoodNotes file or a PDF. Free, no account.">
+  <meta name="theme-color" content="#050506">
+  <meta name="color-scheme" content="dark">
+  <meta property="og:title" content="Siebwrite: Type, and it appears in your handwriting">
+  <meta property="og:description" content="Write the alphabet once, then any text becomes an erasable GoodNotes file. Free, no account.">
+  <meta property="og:url" content="https://siebwrite.de/en/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="de_DE">
+  <link rel="canonical" href="https://siebwrite.de/en/">
+  <link rel="alternate" hreflang="de" href="https://siebwrite.de/">
+  <link rel="alternate" hreflang="en" href="https://siebwrite.de/en/">
+  <link rel="alternate" hreflang="x-default" href="https://siebwrite.de/en/">
+  <meta property="og:image" content="https://siebwrite.de/og-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Siebwrite: a sheet of paper with the sentence “Type, and it appears in your handwriting.” in handwriting">
+  <meta name="twitter:card" content="summary_large_image">
+  <script>
+    // Links aus dem Artifact und alte Lesezeichen zeigen noch auf die Startseite: weiter in die App
+    if (/^#(gn|schreiben|setzen|write|compose)/.test(location.hash)) location.replace('app/' + location.hash);
+  </script>
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="../landing/style.css?v=14">
+  <script type="importmap">{
+    "imports": {
+      "../landing/eraser.js": "../landing/eraser.js?v=14",
+      "../landing/film.js": "../landing/film.js?v=14",
+      "../landing/glass.js": "../landing/glass.js?v=14",
+      "../landing/hand-font.js": "../landing/hand-font.js?v=14",
+      "../landing/note.js": "../landing/note.js?v=14",
+      "../landing/playground.js": "../landing/playground.js?v=14",
+      "../landing/scribble.js": "../landing/scribble.js?v=14",
+      "../landing/sheet.js": "../landing/sheet.js?v=14",
+      "../landing/sky.js": "../landing/sky.js?v=14",
+      "../src/app.js": "../src/app.js?v=14",
+      "../src/charset.js": "../src/charset.js?v=14",
+      "../src/cloud.js": "../src/cloud.js?v=14",
+      "../src/draw.js": "../src/draw.js?v=14",
+      "../src/drive.js": "../src/drive.js?v=14",
+      "../src/geometry.js": "../src/geometry.js?v=14",
+      "../src/goodnotes/bytes.js": "../src/goodnotes/bytes.js?v=14",
+      "../src/goodnotes/lz4.js": "../src/goodnotes/lz4.js?v=14",
+      "../src/goodnotes/proto.js": "../src/goodnotes/proto.js?v=14",
+      "../src/goodnotes/template-data.js": "../src/goodnotes/template-data.js?v=14",
+      "../src/goodnotes/tpl.js": "../src/goodnotes/tpl.js?v=14",
+      "../src/goodnotes/writer.js": "../src/goodnotes/writer.js?v=14",
+      "../src/goodnotes/zip.js": "../src/goodnotes/zip.js?v=14",
+      "../src/handoff.js": "../src/handoff.js?v=14",
+      "../src/i18n.js": "../src/i18n.js?v=14",
+      "../src/layout.js": "../src/layout.js?v=14",
+      "../src/pdf.js": "../src/pdf.js?v=14",
+      "../src/presets-data.js": "../src/presets-data.js?v=14",
+      "../src/presets.js": "../src/presets.js?v=14",
+      "../src/profile.js": "../src/profile.js?v=14",
+      "../src/random.js": "../src/random.js?v=14",
+      "../src/render.js": "../src/render.js?v=14",
+      "../src/save.js": "../src/save.js?v=14",
+      "../src/store.js": "../src/store.js?v=14",
+      "../src/sync.js": "../src/sync.js?v=14"
+    }
+  }</script>
+  <script type="module">
+    import { sheet } from '../landing/sheet.js';
+    import { note } from '../landing/note.js';
+    import { eraser } from '../landing/eraser.js';
+    import { scribble, card } from '../landing/scribble.js';
+    import { film } from '../landing/film.js';
+    import { playground } from '../landing/playground.js';
+    import { sky } from '../landing/sky.js';
+    import { glass } from '../landing/glass.js';
+
+    // Sternbilder aus Buchstaben der Handschrift, verteilt über die Seite
+    sky({ letters: [{ ch: 'S', x: 0.93, y: 0 }, { ch: 'w', x: 0.065, y: 0.36 }, { ch: 'e', x: 0.935, y: 0.68 }, { ch: 'b', x: 0.07, y: 1 }] });
+
+    const $ = (s) => document.querySelector(s);
+    const demo = sheet($('#sheet'), $('#type'));
+    const pad = note($('#note'), { clear: $('#note-clear'), title: $('#note-title'), count: $('#note-count'), label: $('#note-done'), onGlyph: (ch, g) => demo.setGlyph(ch, g) });
+    // Wer etwas tippt, schreibt dessen Buchstaben selbst: am besten den eigenen Namen
+    let asked = 0;
+    $('#type').addEventListener('input', () => { clearTimeout(asked); asked = setTimeout(() => pad.ask($('#type').value), 400); });
+    eraser($('#erase'));
+    playground($('#play'), { onGlyph: (ch, g) => demo.setGlyph(ch, g) });
+    film($('#film'));
+
+    scribble($('#h-deiner'), 'your', { em: 100, width: 6.5, color: 'var(--ink-light)', seed: 2, delay: 350 });
+    scribble($('#h-ruhig'), 'away.', { em: 100, width: 6.5, color: 'var(--ink-light)', seed: 6 });
+    document.querySelectorAll('.step-n').forEach((svg, i) => scribble(svg, String(i + 1), { em: 100, width: 6, color: 'var(--bright)', seed: 20 + i, delay: i * 180 }));
+    document.querySelectorAll('.card svg').forEach((svg, i) => card(svg, svg.dataset.text.replace(/\\n/g, '\n'), svg.dataset.kind, { delay: i * 220, seed: 30 + i }));
+    scribble($('#h-name'), 'Siebwrite', { em: 250, width: 5, color: 'var(--bright)', seed: 9 });
+
+    // Glas: Kopf wird beim Scrollen zur Kapsel, Abschnitte tauchen beim Hinscrollen auf
+    glass({
+      header: 'header.bar',
+      reveal: '.hero-text > *, .desk, .section-head, .erase-panel, .toy, .step-list li, .player, .board .card, .mine-text, .moon, .faq-list details, .end',
+    });
+
+    // Wer schon geschrieben hat, kommt direkt weiter
+    try {
+      const n = Object.keys(JSON.parse(localStorage.getItem('handschrift.profile.v1'))?.cells ?? {}).length;
+      if (n > 1) document.querySelectorAll('[data-cta]').forEach((a) => { a.textContent = 'Keep writing'; });
+    } catch { /* noch nichts gespeichert */ }
+  </script>
+</head>
+<body>
+  <header class="bar">
+    <a class="word" href="./">Siebwrite</a>
+    <nav class="nav" aria-label="Page">
+      <a href="#radieren">Erasing</a>
+      <a href="#ablauf">How it works</a>
+      <a href="#fragen">Questions</a>
+      <a class="nav-lang" href="../" hreflang="de" lang="de" title="Deutsch">DE</a>
+      <a class="nav-app" href="app/">Open app</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-text">
+        <h1>Type, and it appears in <span class="hw"><span class="sr-only">your</span><svg id="h-deiner" aria-hidden="true"></svg></span> handwriting.</h1>
+        <p class="lead">Write the alphabet once, and any text becomes real, erasable handwriting in GoodNotes.</p>
+        <div class="cta">
+          <a class="btn" href="app/" data-cta>Write your alphabet</a>
+          <span class="aside">Free · no account</span>
+        </div>
+        <p class="aside cta-more">No time? <a href="app/?hand=cursive#compose">Pick one of five ready-made handwritings</a></p>
+      </div>
+
+      <div class="desk">
+        <div class="sheet" id="sheet"></div>
+        <label class="type">
+          <span class="type-label">Type something</span>
+          <input id="type" type="text" maxlength="180" autocomplete="off" spellcheck="false" placeholder="e.g. your name" enterkeyhint="done">
+        </label>
+
+        <figure class="note">
+          <figcaption class="note-head">
+            <span id="note-title">Write the e</span>
+            <span class="note-count" id="note-count" hidden></span>
+            <button class="note-clear" id="note-clear" type="button" hidden>Again</button>
+          </figcaption>
+          <canvas id="note" aria-label="Sticky note: write an e on the line"></canvas>
+          <p class="note-done" id="note-done" hidden>Now it’s in every word.</p>
+        </figure>
+      </div>
+    </section>
+
+    <section class="erase" id="radieren" aria-labelledby="erase-title">
+      <div class="section-head">
+        <h2 id="erase-title">Erase <span class="hw"><span class="sr-only">away.</span><svg id="h-ruhig" aria-hidden="true"></svg></span></h2>
+        <p>Pasted text looks like a keyboard and won’t budge. Siebwrite writes real strokes, and GoodNotes treats them like your own.</p>
+      </div>
+      <div class="erase-pair" id="erase">
+        <figure class="erase-panel">
+          <figcaption><span class="tag">Pasted</span><span class="tag-note">can’t be erased</span></figcaption>
+          <svg class="erase-typed" role="img" aria-label="Pasted text in Arial on lined paper"></svg>
+        </figure>
+        <figure class="erase-panel">
+          <figcaption><span class="tag tag-ink">Siebwrite</span><span class="erase-status" aria-live="polite"></span></figcaption>
+          <svg class="erase-hand" role="img" aria-label="The same text in handwriting; swiping over it erases whole strokes"></svg>
+          <button class="erase-restore" type="button" hidden>Write it again</button>
+        </figure>
+      </div>
+    </section>
+
+    <section class="play" aria-labelledby="play-title">
+      <div class="section-head">
+        <h2 id="play-title">Every letter is a control.</h2>
+        <p>All of this is in the app too. Click, drag, swipe.</p>
+      </div>
+      <div class="play-grid" id="play"></div>
+    </section>
+
+    <section class="steps" id="ablauf" aria-labelledby="steps-title">
+      <div class="section-head">
+        <h2 id="steps-title">How it works</h2>
+      </div>
+      <ol class="step-list">
+        <li>
+          <svg class="step-n" aria-hidden="true"></svg>
+          <div>
+            <h3>Write</h3>
+            <p>Each character once, in its own box: 80 of them, with a pen, finger or mouse.</p>
+          </div>
+        </li>
+        <li>
+          <svg class="step-n" aria-hidden="true"></svg>
+          <div>
+            <h3>Compose</h3>
+            <p>Type or paste your text, pick paper and color. No letter looks the same twice.</p>
+          </div>
+        </li>
+        <li>
+          <svg class="step-n" aria-hidden="true"></svg>
+          <div>
+            <h3>Import</h3>
+            <p>Straight into GoodNotes on the iPad, as a file on a computer. Or as a PDF.</p>
+          </div>
+        </li>
+      </ol>
+
+      <figure class="player" id="film" tabindex="-1">
+        <div class="stage">
+          <svg class="stage-svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+          <div class="grain" aria-hidden="true"></div>
+          <button class="big-play" type="button" aria-label="Play film" hidden>
+            <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><path d="M9 5.5v17l14-8.5z" fill="currentColor"/></svg>
+          </button>
+        </div>
+        <div class="controls">
+          <button class="ctl-play" type="button" aria-label="Play">
+            <svg class="i-play" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4l8.6-5.2z" fill="currentColor"/></svg>
+            <svg class="i-pause" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h2.8v10H4zM9.2 3H12v10H9.2z" fill="currentColor"/></svg>
+          </button>
+          <span class="ctl-time">0:00</span>
+          <div class="ctl-track" role="slider" tabindex="0" aria-label="Position in the film" aria-valuemin="0" aria-valuemax="37" aria-valuenow="0">
+            <div class="ctl-rail"><div class="ctl-fill"></div></div>
+            <span class="ctl-mark" style="left: 49.7%"></span>
+          </div>
+          <span class="ctl-chapters">
+            <button type="button" data-chapter="0">Problem</button>
+            <button type="button" data-chapter="18.4">Solution</button>
+          </span>
+        </div>
+        <figcaption class="film-caption">The whole thing in 37 seconds.</figcaption>
+        <p class="sr-only">Notes in GoodNotes. Pasted text looks like a keyboard and can’t be erased, copying it out by hand takes ages. With Siebwrite you write your alphabet once, type the text and get real, erasable strokes in your handwriting.</p>
+      </figure>
+    </section>
+
+    <section class="uses" aria-labelledby="uses-title">
+      <div class="section-head">
+        <h2 id="uses-title">For everything you’d otherwise copy out by hand.</h2>
+      </div>
+      <div class="board">
+        <figure class="card card-a"><svg role="img" aria-label="Study notes on squared paper" data-kind="grid" data-text="Mitosis: prophase, metaphase, anaphase, telophase"></svg><figcaption>Study notes</figcaption></figure>
+        <figure class="card card-b"><svg role="img" aria-label="Flashcard" data-kind="index" data-text="la mer = the sea\nle ciel = the sky"></svg><figcaption>Flashcards</figcaption></figure>
+        <figure class="card card-c"><svg role="img" aria-label="Letter on lined paper" data-kind="lined" data-text="Dear Grandma, thanks for the parcel! The cookies were gone at once."></svg><figcaption>Letters and cards</figcaption></figure>
+        <figure class="card card-d"><svg role="img" aria-label="Sticky note" data-kind="sticky" data-text="Math test on Thursday!"></svg><figcaption>Notes</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="mine" aria-labelledby="mine-title">
+      <div class="mine-text">
+        <h2 id="mine-title">Your handwriting stays yours.</h2>
+        <p>Siebwrite has no server and no account. Your handwriting lives in your browser. If you like, sign in with Google and it’s there on every device where you sign in.</p>
+        <p class="aside">More: <a href="privacy/">Privacy</a></p>
+      </div>
+      <svg class="moon" viewBox="0 0 240 240" role="img" aria-label="Moon reading: real, by hand. Circling it: free, no account, no server">
+        <defs>
+          <path id="moon-ring" d="M120 120 m-99 0 a99 99 0 1 1 198 0 a99 99 0 1 1 -198 0"/>
+          <radialGradient id="moon-light" cx="0.36" cy="0.32" r="0.8">
+            <stop offset="0" stop-color="#fbf8ef"/>
+            <stop offset="0.55" stop-color="#e8e3d4"/>
+            <stop offset="1" stop-color="#a7a8ab"/>
+          </radialGradient>
+          <clipPath id="moon-clip"><circle cx="120" cy="120" r="64"/></clipPath>
+          <filter id="moon-blur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3.2"/></filter>
+        </defs>
+        <g class="moon-face">
+          <circle cx="120" cy="120" r="64" fill="url(#moon-light)"/>
+          <g clip-path="url(#moon-clip)">
+            <g fill="#8d8f9c" opacity="0.26" filter="url(#moon-blur)">
+              <ellipse cx="94" cy="94" rx="21" ry="14"/>
+              <ellipse cx="142" cy="86" rx="13" ry="10"/>
+              <ellipse cx="154" cy="136" rx="17" ry="23"/>
+              <ellipse cx="100" cy="156" rx="12" ry="8"/>
+            </g>
+            <g fill="none" stroke="#999aa4" stroke-opacity="0.4">
+              <circle cx="78" cy="130" r="5"/>
+              <circle cx="134" cy="164" r="3.5"/>
+              <circle cx="164" cy="104" r="4"/>
+            </g>
+          </g>
+        </g>
+        <text x="120" y="117" text-anchor="middle" font-family="Newsreader, serif" font-size="28" fill="#1e3a9b">real</text>
+        <text x="120" y="142" text-anchor="middle" font-family="Newsreader, serif" font-style="italic" font-size="20" fill="#1e3a9b">by hand</text>
+        <g class="moon-orbit">
+          <text font-family="IBM Plex Mono, monospace" font-size="15" font-weight="500" letter-spacing="3" fill="var(--ink-light)"><textPath href="#moon-ring" textLength="606" lengthAdjust="spacing">FREE · NO ACCOUNT · NO SERVER ·</textPath></text>
+        </g>
+      </svg>
+    </section>
+
+    <section class="faq" id="fragen" aria-labelledby="faq-title">
+      <div class="section-head">
+        <h2 id="faq-title">Questions</h2>
+      </div>
+      <div class="faq-list">
+        <details>
+          <summary>Does it cost anything?</summary>
+          <p>No. No subscription, no account, no ads.</p>
+        </details>
+        <details>
+          <summary>Can I really erase it in GoodNotes?</summary>
+          <p>Yes. They are real ballpoint strokes, not images. The eraser and the lasso work just like on your own handwriting.</p>
+        </details>
+        <details>
+          <summary>How long does the alphabet take?</summary>
+          <p>80 characters, each once. With a pen that’s about five minutes. If you like, add variants later to make your handwriting look more alive.</p>
+        </details>
+        <details>
+          <summary>Is it only for German?</summary>
+          <p>No. The English version skips the German umlauts (ä, ö, ü, ß); you can still write them later if you need them. The ready-made handwritings also include accented letters such as é, ñ and ç.</p>
+        </details>
+        <details>
+          <summary>Are there ready-made handwritings?</summary>
+          <p>Yes, five: Cursive, Elegant, Quill, Print and Playful. Every character comes in several slightly different variants, and in GoodNotes they’re just as erasable as your own handwriting. <a href="app/?hand=cursive#compose">Try one now</a></p>
+        </details>
+        <details>
+          <summary>Can I use any color?</summary>
+          <p>Yes. Besides black, ballpoint blue, ink and pencil, the + in the app opens a color picker for any other color. It applies to the preview, the PDF and GoodNotes.</p>
+        </details>
+        <details>
+          <summary>Do I need an iPad?</summary>
+          <p>Writing works on any device, best with a pen. Open the .goodnotes file in GoodNotes; without GoodNotes, use the PDF.</p>
+        </details>
+        <details>
+          <summary>Where is my handwriting stored?</summary>
+          <p>Only in your browser. If you sign in with Google, also in your own Google Drive. More under <a href="privacy/">Privacy</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="end" aria-label="Get started">
+      <svg class="end-name" id="h-name" role="img" aria-label="Siebwrite in handwriting"></svg>
+      <p>Write once, then just type.</p>
+      <a class="btn" href="app/" data-cta>Write your alphabet</a>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>Siebwrite, 2026</span>
+    <a href="mailto:siebwrite.kontakt@gmail.com">Contact</a>
+    <a href="privacy/">Privacy</a>
+    <span>GoodNotes is a trademark of its owner.</span>
+  </footer>
+</body>
+</html>

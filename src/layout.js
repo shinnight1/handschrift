@@ -17,6 +17,7 @@ const DEFAULTS = {
   xHeightMm: 3.2,
   lineSpacingMm: 9,
   letterSpacing: 0.18, // Abstand zwischen Buchstaben, Anteil der x-Höhe
+  minGap: 0.02, // kleinster Abstand; fertige Handschriften setzen nach Vorschub und dürfen enger
   wordSpacing: 0.9, // Wortabstand, Anteil der x-Höhe
   natural: 0.5, // 0 = gleichmäßig, 1 = sehr unruhig
   penWidthMm: 0.35,
@@ -95,7 +96,7 @@ function layoutText(text, table, options = {}) {
         rot: (n * 2.2 * r.gauss() * Math.PI) / 180,
         dy: n * 0.05 * xhPt * r.gauss(),
         width: (variant.maxX - variant.minX) * s * f,
-        gap: xhPt * Math.max(0.02, o.letterSpacing + n * 0.05 * r.gauss()),
+        gap: xhPt * Math.max(o.minGap, o.letterSpacing + n * 0.05 * r.gauss()),
       };
     });
   }

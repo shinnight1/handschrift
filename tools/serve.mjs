@@ -14,6 +14,9 @@ const TYPES = {
   '.css': 'text/css; charset=utf-8',
   '.svg': 'image/svg+xml',
   '.json': 'application/json',
+  '.png': 'image/png',
+  '.xml': 'application/xml; charset=utf-8',
+  '.txt': 'text/plain; charset=utf-8',
   '.md': 'text/plain; charset=utf-8',
 };
 

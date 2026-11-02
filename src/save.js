@@ -1,6 +1,8 @@
 // Dateien an die Person geben: auf Touch-Geräten über das Teilen-Menü (dort
 // steht GoodNotes zur Wahl), sonst als normaler Download.
 
+import { tr } from './i18n.js';
+
 const MIME = {
   pdf: 'application/pdf',
   json: 'application/json',
@@ -20,7 +22,7 @@ async function saveFiles(list) {
       await navigator.share({ files });
       return 'shared';
     } catch (e) {
-      if (e?.name === 'AbortError') throw { code: 'declined', message: 'Abgebrochen.' };
+      if (e?.name === 'AbortError') throw { code: 'declined', message: tr('Abgebrochen.') };
       // sonst normal herunterladen
     }
   }

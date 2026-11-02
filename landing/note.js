@@ -8,6 +8,7 @@ import { GUIDES, CELL_CHARS } from '../src/charset.js';
 import { simplify, smooth, round4 } from '../src/geometry.js';
 import { encodeStrokes } from '../src/store.js';
 import { GLYPHS } from './hand-font.js';
+import { tr } from '../src/i18n.js';
 
 const PROFILE_KEY = 'handschrift.profile.v1';
 const FONT_XHEIGHT = 440; // x-Höhe der Vorlage in Font-Einheiten (1000 je em)
@@ -71,12 +72,12 @@ export function note(canvas, { onGlyph, clear, title, count, label }) {
   function show() {
     const left = want.filter((c) => !written.has(c));
     const all = want.length > 1;
-    title.textContent = current ? `Schreib ein ${current}` : 'Fertig';
+    title.textContent = current ? tr('Schreib ein {char}', { char: current }) : tr('Fertig');
     count.textContent = all ? `${want.length - left.length + (current ? 1 : 0)}/${want.length}` : '';
     count.hidden = !all || !current;
     clear.hidden = !strokes.length;
     label.hidden = written.size === 0;
-    label.textContent = !current && all ? 'Alles in deiner Schrift.' : written.size === 1 && !all ? 'Steckt jetzt in jedem Wort.' : 'Schon auf dem Blatt.';
+    label.textContent = !current && all ? tr('Alles in deiner Schrift.') : written.size === 1 && !all ? tr('Steckt jetzt in jedem Wort.') : tr('Schon auf dem Blatt.');
     paint();
   }
 

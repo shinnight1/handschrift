@@ -4,20 +4,21 @@
 // Startseite von Ink & Switch, wo jeder Buchstabe des Namens eine eigene Zeichnung ist.
 
 import { GLYPHS } from './hand-font.js';
+import { lang, tr } from '../src/i18n.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const SCALE = 1.25;
 const VB = { x: -400, y: -1000, w: 800, h: 1150 };
 const XLINE = -440 * SCALE; // x-Höhe der Vorlage
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const de = (v, digits) => v.toLocaleString('de-DE', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+const de = (v, digits) => v.toLocaleString(lang === 'en' ? 'en-US' : 'de-DE', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
 // Wie src/render.js, als CSS-Farbe
 const INKS = [
-  ['Kuli-Blau', 'rgb(20, 51, 148)'],
-  ['Tinte', 'rgb(13, 31, 97)'],
-  ['Schwarz', 'rgb(26, 26, 31)'],
-  ['Bleistift', 'rgb(84, 84, 92)'],
+  [tr('Kuli-Blau'), 'rgb(20, 51, 148)'],
+  [tr('Tinte'), 'rgb(13, 31, 97)'],
+  [tr('Schwarz'), 'rgb(26, 26, 31)'],
+  [tr('Bleistift'), 'rgb(84, 84, 92)'],
 ];
 
 const el = (tag, attrs, parent) => {
@@ -140,7 +141,7 @@ function onDrag(svg, fn, { start, end } = {}) {
 export function playground(grid, { onGlyph } = {}) {
   // S: jede Variante anders
   {
-    const t = tile(grid, { ch: 'S', name: 'Varianten', value: '#1', hint: 'Klicken: neue Variante' });
+    const t = tile(grid, { ch: 'S', name: tr('Varianten'), value: '#1', hint: tr('Klicken: neue Variante') });
     let seed = 1;
     draw(t.g, strokes('S', { seed, jitter: 1 }));
     onTap(t.svg, () => {
@@ -152,7 +153,7 @@ export function playground(grid, { onGlyph } = {}) {
 
   // i: den Punkt wegziehen, er federt zurück
   {
-    const t = tile(grid, { ch: 'i', name: 'i-Punkt', value: '0', touch: 'none', hint: 'Den Punkt wegziehen' });
+    const t = tile(grid, { ch: 'i', name: tr('i-Punkt'), value: '0', touch: 'none', hint: tr('Den Punkt wegziehen') });
     const [stem, dot] = strokes('i', { jitter: 0.3, seed: 2 });
     el('path', { d: pathD(stem) }, t.g);
     const dg = el('g', {}, t.g);
@@ -183,7 +184,7 @@ export function playground(grid, { onGlyph } = {}) {
 
   // e: Schwankung aufziehen
   {
-    const t = tile(grid, { ch: 'e', name: 'Schwankung', value: '25 %', hint: 'Waagerecht ziehen: mehr oder weniger Schwankung' });
+    const t = tile(grid, { ch: 'e', name: tr('Schwankung'), value: '25 %', hint: tr('Waagerecht ziehen: mehr oder weniger Schwankung') });
     t.svg.style.cursor = 'ew-resize';
     const set = (n) => { draw(t.g, strokes('e', { seed: 5, jitter: n * 3 })); t.out.textContent = `${Math.round(n * 100)} %`; };
     set(0.25);
@@ -193,7 +194,7 @@ export function playground(grid, { onGlyph } = {}) {
   // b: Papier wechseln
   {
     const papers = ['Liniert', 'Kariert', 'Leer'];
-    const t = tile(grid, { ch: 'b', name: 'Papier', value: papers[0], paper: true, hint: 'Klicken: anderes Papier' });
+    const t = tile(grid, { ch: 'b', name: tr('Papier'), value: tr(papers[0]), paper: true, hint: tr('Klicken: anderes Papier') });
     let i = 0;
     const paper = () => {
       t.back.replaceChildren();
@@ -203,7 +204,7 @@ export function playground(grid, { onGlyph } = {}) {
         for (let y = 150 - 150 * 8; y < VB.y + VB.h; y += 150) line(VB.x, y, VB.x + VB.w, y);
         for (let x = -375; x < VB.x + VB.w; x += 150) line(x, VB.y, x, VB.y + VB.h);
       }
-      t.out.textContent = papers[i];
+      t.out.textContent = tr(papers[i]);
     };
     paper();
     draw(t.g, strokes('b', { seed: 3, jitter: 0.4 }));
@@ -212,7 +213,7 @@ export function playground(grid, { onGlyph } = {}) {
 
   // w: Strichstärke
   {
-    const t = tile(grid, { ch: 'w', name: 'Strich', value: '0,35 mm', hint: 'Waagerecht ziehen: dünner oder dicker' });
+    const t = tile(grid, { ch: 'w', name: tr('Strich'), value: `${de(0.35, 2)} mm`, hint: tr('Waagerecht ziehen: dünner oder dicker') });
     t.svg.style.cursor = 'ew-resize';
     draw(t.g, strokes('w', { seed: 4, jitter: 0.4 }));
     const set = (mm) => { t.g.setAttribute('stroke-width', (mm * 90).toFixed(1)); t.out.textContent = `${de(mm, 2)} mm`; };
@@ -222,7 +223,7 @@ export function playground(grid, { onGlyph } = {}) {
 
   // r: wegradieren, kommt nach einer Pause zurück
   {
-    const t = tile(grid, { ch: 'r', name: 'Radierbar', value: '0 weg', hint: 'Drüberwischen: radieren' });
+    const t = tile(grid, { ch: 'r', name: tr('Radierbar'), value: tr('{n} weg', { n: 0 }), hint: tr('Drüberwischen: radieren') });
     t.svg.style.cursor = 'cell';
     const segs = [];
     for (const pts of strokes('r', { seed: 6, jitter: 0.4 })) {
@@ -240,9 +241,9 @@ export function playground(grid, { onGlyph } = {}) {
         }
         if (s.gone) n++;
       }
-      t.out.textContent = `${n} weg`;
+      t.out.textContent = tr('{n} weg', { n });
       clearTimeout(back);
-      back = setTimeout(() => { for (const s of segs) { s.gone = false; s.node.classList.remove('erased'); } t.out.textContent = '0 weg'; }, 1800);
+      back = setTimeout(() => { for (const s of segs) { s.gone = false; s.node.classList.remove('erased'); } t.out.textContent = tr('{n} weg', { n: 0 }); }, 1800);
     };
     onDrag(t.svg, rub);
     t.svg.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse' && !e.buttons) { const p = toSvg(t.svg, e); rub(p.x, p.y); } });
@@ -250,7 +251,7 @@ export function playground(grid, { onGlyph } = {}) {
 
   // i: Größe
   {
-    const t = tile(grid, { ch: 'i', name: 'Größe', value: '3,2 mm', touch: 'none', hint: 'Senkrecht ziehen: größer oder kleiner' });
+    const t = tile(grid, { ch: 'i', name: tr('Größe'), value: `${de(3.2, 1)} mm`, touch: 'none', hint: tr('Senkrecht ziehen: größer oder kleiner') });
     t.svg.style.cursor = 'ns-resize';
     const set = (mm) => { draw(t.g, strokes('i', { seed: 7, jitter: 0.3, size: mm / 3.2 })); t.out.textContent = `${de(mm, 1)} mm`; };
     set(3.2);
@@ -259,7 +260,7 @@ export function playground(grid, { onGlyph } = {}) {
 
   // t: Tinte
   {
-    const t = tile(grid, { ch: 't', name: 'Tinte', value: INKS[0][0], paper: true, hint: 'Klicken: andere Farbe' });
+    const t = tile(grid, { ch: 't', name: tr('Tinte'), value: INKS[0][0], paper: true, hint: tr('Klicken: andere Farbe') });
     let i = 0;
     const set = (animate) => {
       t.g.setAttribute('stroke', INKS[i][1]);
@@ -273,7 +274,7 @@ export function playground(grid, { onGlyph } = {}) {
 
   // e: selbst schreiben, landet auch auf dem Blatt oben
   {
-    const t = tile(grid, { ch: 'e', name: 'Deins', value: 'schreib', touch: 'none', hint: 'Selbst ein e schreiben' });
+    const t = tile(grid, { ch: 'e', name: tr('Deins'), value: tr('schreib'), touch: 'none', hint: tr('Selbst ein e schreiben') });
     t.svg.style.cursor = 'crosshair';
     el('line', { x1: VB.x, x2: VB.x + VB.w, y1: 0, y2: 0, stroke: 'currentColor', 'stroke-width': 5, opacity: 0.35 }, t.back);
     el('line', { x1: VB.x, x2: VB.x + VB.w, y1: XLINE, y2: XLINE, stroke: 'currentColor', 'stroke-width': 4, opacity: 0.22, 'stroke-dasharray': '40 30' }, t.back);
@@ -304,7 +305,7 @@ export function playground(grid, { onGlyph } = {}) {
           const maxX = Math.max(...lines.flat().map(([x]) => x));
           const glyph = [Math.round((maxX - minX) / SCALE + 90), lines.map((s) => s.flatMap(([x, y]) => [Math.round((x - minX) / SCALE + 30), Math.round(y / SCALE)]))];
           onGlyph?.('e', glyph);
-          t.out.textContent = 'dein e';
+          t.out.textContent = tr('dein e');
           lines = [];
         }, 900);
       },
