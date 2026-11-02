@@ -186,12 +186,8 @@ function updateProgress() {
   // Ausblenden nur, solange in den Zusatz-Durchgängen noch nichts steht.
   $('more-passes').hidden = !basisDone || (extrasOn && hasExtraCells());
   $('more-passes').textContent = extrasOn ? tr('Zusatz-Durchgänge ausblenden') : tr('+ {n} Durchgänge für mehr Abwechslung', { n: EXTRA_PASSES });
-  // Wer noch nicht fertig ist, kann sofort mit einer fertigen Handschrift loslegen.
-  $('use-preset').hidden = basisDone;
   $('undo').disabled = grid.undoStack.length === 0;
   $('clear-area').hidden = filledCount(store.profile) === 0; // Nichts da, nichts zu löschen
-  // Leer und nicht angemeldet: vielleicht liegt die Handschrift schon in Google Drive.
-  $('cloud-restore').hidden = !cloud.available || cloud.on || filledCount(store.profile) > 0;
   updateTips(n);
 }
 
@@ -222,7 +218,6 @@ $('tips-close').addEventListener('click', () => { writeJson(TIPS_KEY, 'closed');
 
 $('grid').addEventListener('pagechange', updatePageInfo);
 $('grid').addEventListener('change', () => { updateProgress(); updatePageInfo(); ownChanged(); cloud.changed(); });
-$('cloud-restore').addEventListener('click', () => cloud.open());
 $('grid').addEventListener('pendetected', () => { $('pen-chip').hidden = false; });
 $('prev').addEventListener('click', () => grid.goTo(grid.page - 1));
 $('next').addEventListener('click', () => grid.goTo(grid.page + 1));
@@ -241,10 +236,6 @@ $('more-passes').addEventListener('click', () => {
 // Wer gerade eben selbst geschrieben hat, will beim Setzen die eigene Schrift sehen.
 $('to-compose').addEventListener('click', () => {
   if (filledCount(store.profile) && settings.hand !== 'own') chooseHand('own');
-});
-$('use-preset').addEventListener('click', () => {
-  chooseHand(presetById(settings.hand) ? settings.hand : PRESETS[0].id);
-  location.hash = `#${HASH.setzen}`;
 });
 
 // Tasten: Strg/Cmd+Z macht rückgängig, Pfeile blättern. Nicht beim Tippen im Textfeld.

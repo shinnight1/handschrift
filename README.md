@@ -15,7 +15,6 @@ weiter ankommen. Englisch unter `/en/` (App `/en/app/`, Datenschutz `/en/privacy
 1. **Schreiben:** Jedes Kästchen zeigt ein Zeichen. Auf die Grundlinie schreiben. Nach dem ersten
    Durchgang (87 Zeichen) geht Setzen schon, weitere Varianten machen die Schrift lebendiger.
    Wer noch mehr Abwechslung will, schaltet „+ 5 Durchgänge“ dazu: noch fünfmal alles, freiwillig.
-   Keine Zeit? „Fertige Handschrift nehmen“ springt mit einer der fünf fertigen zum Setzen.
 2. **Setzen:** Oben die Handschrift wählen: „Meine“ oder eine der fünf fertigen (Schreibschrift,
    Elegant, Feder, Druckschrift, Verspielt). Text eintippen, Format, Papier, Farbe und Abstände
    einstellen; das `+` hinter den Farben öffnet das Farbfeld des Browsers für jede andere Farbe
@@ -91,7 +90,6 @@ fehl, wenn ein Modul in der Import Map fehlt.
 | `landing/sheet.js` | Blatt im Hero: Getipptes schreibt ein Füller sofort von Hand, sonst Beispiele |
 | `landing/note.js` | Haftnotiz: Buchstaben des Getippten selbst schreiben; landen auf dem Blatt und beim Weg in die App als Kästchen |
 | `landing/eraser.js` | „Radier ruhig“: eingefügter Text gegen Handschrift, die sich wegradieren lässt |
-| `landing/playground.js` | „Jeder Buchstabe ein Regler“: Siebwrite als neun Spielzeuge für die Einstellungen der App (angeregt von inkandswitch.com) |
 | `landing/scribble.js` | Handgeschriebene Wörter, Ziffern und Zettel, die sich beim Hinscrollen schreiben |
 | `landing/film.js`, `landing/hand-font.js` | Film auf der Startseite: SVG-Szene, für jede Zeit berechnet; `Hand` schreibt Text in der Handschrift aus EMS Felix (`tools/build-hand-font.mjs`) |
 | `datenschutz/index.html` | Datenschutzerklärung (auch für den Google-Zustimmungsbildschirm) |

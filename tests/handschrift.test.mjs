@@ -316,9 +316,11 @@ test('Englisch: jeder übersetzbare Text hat eine Übersetzung', () => {
   // Texte, die erst zur Laufzeit gewählt werden
   for (const g of CELL_GROUPS) if (!/^Zusatz /.test(g)) keys.add(g);
   for (const ink of Object.values(INKS)) keys.add(ink.label);
-  for (const k of ['Schreibschrift', 'Elegant', 'Feder', 'Druckschrift', 'Verspielt', 'Liniert', 'Kariert', 'Leer', 'Eigene Zeichen']) keys.add(k);
+  for (const k of ['Schreibschrift', 'Elegant', 'Feder', 'Druckschrift', 'Verspielt', 'Eigene Zeichen']) keys.add(k);
   const missing = [...keys].filter((k) => !(k in EN));
   assert.deepEqual(missing, [], 'fehlende Übersetzungen in src/i18n.js');
+  const unused = Object.keys(EN).filter((k) => !keys.has(k));
+  assert.deepEqual(unused, [], 'Übersetzungen, die niemand mehr braucht');
   assert.ok(keys.size > 100, `${keys.size} Texte gefunden`);
 });
 

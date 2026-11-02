@@ -10,7 +10,7 @@
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Flächen, über die das Licht wandert (siehe ::after in den Stylesheets)
-const SHINE = '.btn, .nav-app, .type, .step-list li, .faq details, .ctl-play, .big-play, .controls, .panel, .tips, .dialog, .toast, .erase-restore';
+const SHINE = '.btn, .nav-app, .type, .faq details, .ctl-play, .big-play, .controls, .panel, .tips, .dialog, .toast, .erase-restore';
 
 export function glass({ header = '', reveal = '', pop = [] } = {}) {
   document.documentElement.classList.add('lg');
