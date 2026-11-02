@@ -93,6 +93,9 @@ fehl, wenn ein Modul in der Import Map fehlt.
 | `landing/scribble.js` | Handgeschriebene Wörter, Ziffern und Zettel, die sich beim Hinscrollen schreiben |
 | `landing/film.js`, `landing/hand-font.js` | Film auf der Startseite: SVG-Szene, für jede Zeit berechnet; `Hand` schreibt Text in der Handschrift aus EMS Felix (`tools/build-hand-font.mjs`) |
 | `datenschutz/index.html` | Datenschutzerklärung (auch für den Google-Zustimmungsbildschirm) |
+| `goodnotes-text-in-handschrift/`, `handschrift-als-schriftart/` (englisch unter `en/goodnotes-text-to-handwriting/`, `en/handwriting-font/`) | Ratgeber für die häufigsten Suchanfragen: Anleitung mit Vergleich der Wege, Schriftart oder echte Striche. Fakten zu fremden Angeboten mit Stand und Quelle |
+| `llms.txt`, `sitemap.xml`, `robots.txt` | Für Suchmaschinen und KI-Crawler. Neue Seiten in die Sitemap (mit `hreflang`) und in `tools/version.mjs` eintragen |
+| `tools/structured-data.mjs` | Zieht die FAQ in den strukturierten Daten (JSON-LD) aus den sichtbaren Fragen nach: nach jeder geänderten Frage `node tools/structured-data.mjs`. `tests/seo.test.mjs` prüft das, dazu Canonical, Sitemap und hreflang |
 | `impressum/index.html`, `en/legal/index.html` | Impressum nach § 5 DDG und § 18 Abs. 1 MStV; von jeder Seite klein im Footer verlinkt (Pflicht: „leicht erkennbar“), `noindex` und nicht in der Sitemap, damit die Anschrift nicht in Suchergebnissen steht. Der Test prüft die Links. |
 | `en/index.html`, `en/app/index.html`, `en/privacy/index.html`, `en/legal/index.html` | Englische Fassung der Seiten (siehe „Zwei Sprachen“) |
 | `og.png`, `og-en.png`, `tools/build-og-image.mjs` | Vorschaubild für geteilte Links (1200 × 630), ohne Abhängigkeiten gezeichnet: `node tools/build-og-image.mjs` (deutsch) bzw. `… en` (englisch) |

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Siebwrite · Tippen, und es steht in deiner Handschrift da</title>
-  <meta name="description" content="Schreib jeden Buchstaben einmal. Danach steht jeder Text in deiner Handschrift da, als radierbare GoodNotes-Datei oder als PDF. Kostenlos und ohne Konto.">
+  <title>Text in eigene Handschrift umwandeln, radierbar in GoodNotes · Siebwrite</title>
+  <meta name="description" content="Getippten Text in deine eigene Handschrift umwandeln: Alphabet einmal schreiben, dann wird jeder Text zur radierbaren GoodNotes-Datei oder zum PDF. Kostenlos, ohne Anmeldung.">
   <meta name="theme-color" content="#050506">
   <meta name="color-scheme" content="dark">
   <meta property="og:title" content="Siebwrite: Tippen, und es steht in deiner Handschrift da">
@@ -25,6 +25,140 @@
   <script>
     // Links aus dem Artifact und alte Lesezeichen zeigen noch auf die Startseite: weiter in die App
     if (/^#(gn|schreiben|setzen|write|compose)/.test(location.hash)) location.replace('app/' + location.hash);
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://siebwrite.de/#website",
+        "url": "https://siebwrite.de/",
+        "name": "Siebwrite",
+        "inLanguage": [
+          "de",
+          "en"
+        ]
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://siebwrite.de/#app",
+        "name": "Siebwrite",
+        "url": "https://siebwrite.de/app/",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web browser (iPadOS, iOS, Android, Windows, macOS)",
+        "browserRequirements": "Requires JavaScript",
+        "inLanguage": [
+          "de",
+          "en"
+        ],
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "EUR"
+        },
+        "screenshot": "https://siebwrite.de/og.png",
+        "description": "Wandelt getippten Text in die eigene Handschrift um. Man schreibt jedes Zeichen einmal im Browser, danach wird jeder Text zur radierbaren GoodNotes-Datei mit echten Stiftstrichen oder zum PDF.",
+        "featureList": [
+          "Eigene Handschrift einmal erfassen (87 Zeichen, mit Stift, Finger oder Maus)",
+          "Text tippen oder einfügen, Papier, Farbe und Größe wählen",
+          "Jeder Buchstabe leicht anders, wie beim echten Schreiben",
+          "Export als .goodnotes-Datei mit echten, radierbaren Strichen",
+          "Export als PDF mit Vektorstrichen",
+          "Fünf fertige Handschriften",
+          "Ohne Konto; Abgleich über Google Drive freiwillig"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://siebwrite.de/#faq",
+        "inLanguage": "de",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Kann GoodNotes selbst Text in Handschrift umwandeln?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Nein. GoodNotes wandelt Handschrift in Text um und glättet mit „Restyle“ unordentliche Schrift, aber getippten Text macht es nicht zu deiner Handschrift (Stand November 2026). Genau das macht Siebwrite. So geht's Schritt für Schritt"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Kostet das etwas?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Nein. Kein Abo, keine Werbung, kein Wasserzeichen und keine Grenze, wie viele Seiten du exportierst."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Lässt sich das in GoodNotes wirklich radieren?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Ja, wirklich. In der Datei stecken Kugelschreiber-Striche, keine Bilder. Radierer und Lasso gehen deshalb genauso wie bei allem, was du selbst schreibst."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Ist das eine Schriftart?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Nein. Eine Schriftart sieht bei jedem e gleich aus und landet in GoodNotes als Textfeld. Siebwrite zeichnet jeden Buchstaben ein bisschen anders und liefert echte Striche, die du radieren und mit dem Lasso verschieben kannst. Schriftart oder Striche: der Unterschied"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Kann ich kopierten Text einfügen?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Ja. Alles, was du kopieren kannst, geht: aus Word, von einer Website, aus deinen Notizen oder einem Chatbot. Lange Texte verteilt Siebwrite von selbst auf mehrere Seiten."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Wie lange dauert das Alphabet?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Mit Stift etwa fünf Minuten, es sind 87 Zeichen. Später kannst du Varianten dazuschreiben, dann wirkt die Schrift lebendiger. Musst du aber nicht."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Gibt es fertige Handschriften?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Fünf: Schreibschrift, Elegant, Feder, Druckschrift und Verspielt. Gebaut sind sie aus freien Schriften, jedes Zeichen gibt es mehrmals in leicht anderer Form. In GoodNotes radierst du sie wie deine eigene Schrift. Gleich ausprobieren"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Kann ich jede Farbe nehmen?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Jede. Neben den vier festen Farben gibt es in der App ein +, damit suchst du dir die übrigen aus. Die Farbe gilt auch fürs PDF und für GoodNotes."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Brauche ich ein iPad?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Nein. Schreiben geht auf jedem Gerät, mit Stift wird es am schönsten. Die .goodnotes-Datei öffnest du in GoodNotes, und wer GoodNotes nicht hat, nimmt das PDF."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Wo liegt meine Handschrift?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "In deinem Browser. Wenn du dich mit Google anmeldest, auch in deinem eigenen Google Drive. Mehr dazu unter Datenschutz."
+            }
+          }
+        ]
+      }
+    ]
+  }
   </script>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -123,11 +257,12 @@
   <main>
     <section class="hero">
       <div class="hero-text">
+        <p class="kicker">Text in Handschrift umwandeln · für GoodNotes und PDF</p>
         <h1>Tippen, und es steht in <span class="hw"><span class="sr-only">deiner</span><svg id="h-deiner" aria-hidden="true"></svg></span> Handschrift da.</h1>
         <p class="lead">Du schreibst einmal das Alphabet. Danach wird alles, was du tippst, zu Handschrift, die du in GoodNotes radieren kannst.</p>
         <div class="cta">
           <a class="btn" href="app/" data-cta>Alphabet schreiben</a>
-          <span class="aside">Kostenlos · ohne Konto</span>
+          <span class="aside">Kostenlos · ohne Konto · ohne Wasserzeichen</span>
         </div>
         <p class="aside cta-more">Keine Zeit? <a href="app/?hand=cursive#setzen">Nimm erst mal eine von fünf fertigen Handschriften</a></p>
       </div>
@@ -279,12 +414,24 @@
       </div>
       <div class="faq-list">
         <details>
+          <summary>Kann GoodNotes selbst Text in Handschrift umwandeln?</summary>
+          <p>Nein. GoodNotes wandelt Handschrift in Text um und glättet mit „Restyle“ unordentliche Schrift, aber getippten Text macht es nicht zu deiner Handschrift (Stand November 2026). Genau das macht Siebwrite. <a href="goodnotes-text-in-handschrift/">So geht's Schritt für Schritt</a></p>
+        </details>
+        <details>
           <summary>Kostet das etwas?</summary>
-          <p>Nein. Es gibt weder ein Abo noch Werbung.</p>
+          <p>Nein. Kein Abo, keine Werbung, kein Wasserzeichen und keine Grenze, wie viele Seiten du exportierst.</p>
         </details>
         <details>
           <summary>Lässt sich das in GoodNotes wirklich radieren?</summary>
           <p>Ja, wirklich. In der Datei stecken Kugelschreiber-Striche, keine Bilder. Radierer und Lasso gehen deshalb genauso wie bei allem, was du selbst schreibst.</p>
+        </details>
+        <details>
+          <summary>Ist das eine Schriftart?</summary>
+          <p>Nein. Eine Schriftart sieht bei jedem e gleich aus und landet in GoodNotes als Textfeld. Siebwrite zeichnet jeden Buchstaben ein bisschen anders und liefert echte Striche, die du radieren und mit dem Lasso verschieben kannst. <a href="handschrift-als-schriftart/">Schriftart oder Striche: der Unterschied</a></p>
+        </details>
+        <details>
+          <summary>Kann ich kopierten Text einfügen?</summary>
+          <p>Ja. Alles, was du kopieren kannst, geht: aus Word, von einer Website, aus deinen Notizen oder einem Chatbot. Lange Texte verteilt Siebwrite von selbst auf mehrere Seiten.</p>
         </details>
         <details>
           <summary>Wie lange dauert das Alphabet?</summary>
@@ -321,6 +468,8 @@
     <a href="mailto:siebwrite.kontakt@gmail.com">Kontakt</a>
     <a href="datenschutz/">Datenschutz</a>
     <a href="impressum/">Impressum</a>
+    <a href="goodnotes-text-in-handschrift/">Text in GoodNotes in Handschrift</a>
+    <a href="handschrift-als-schriftart/">Handschrift als Schriftart</a>
     <span>GoodNotes ist eine Marke ihres Inhabers.</span>
   </footer>
 </body>

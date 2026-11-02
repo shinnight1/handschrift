@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Siebwrite · Type, and it appears in your handwriting</title>
-  <meta name="description" content="Write each letter once, and any text shows up in your own handwriting, as an erasable GoodNotes file or a PDF. Free, and no account needed.">
+  <title>Convert Text to Your Own Handwriting, Erasable in GoodNotes · Siebwrite</title>
+  <meta name="description" content="Turn typed text into your own handwriting: write the alphabet once, then any text becomes an erasable GoodNotes file or a PDF. Free, no sign-up.">
   <meta name="theme-color" content="#050506">
   <meta name="color-scheme" content="dark">
   <meta property="og:title" content="Siebwrite: Type, and it appears in your handwriting">
@@ -25,6 +25,148 @@
   <script>
     // Links aus dem Artifact und alte Lesezeichen zeigen noch auf die Startseite: weiter in die App
     if (/^#(gn|schreiben|setzen|write|compose)/.test(location.hash)) location.replace('app/' + location.hash);
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://siebwrite.de/#website",
+        "url": "https://siebwrite.de/",
+        "name": "Siebwrite",
+        "inLanguage": [
+          "de",
+          "en"
+        ]
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://siebwrite.de/#app",
+        "name": "Siebwrite",
+        "url": "https://siebwrite.de/en/app/",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web browser (iPadOS, iOS, Android, Windows, macOS)",
+        "browserRequirements": "Requires JavaScript",
+        "inLanguage": [
+          "de",
+          "en"
+        ],
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "EUR"
+        },
+        "screenshot": "https://siebwrite.de/og-en.png",
+        "description": "Turns typed text into your own handwriting. Write each character once in the browser; after that, any text becomes an erasable GoodNotes file with real pen strokes, or a PDF.",
+        "featureList": [
+          "Capture your own handwriting once (87 characters, with stylus, finger or mouse)",
+          "Type or paste any text, choose paper, color and size",
+          "Every letter varies slightly, like real writing",
+          "Export as a .goodnotes file with real, erasable strokes",
+          "Export as a PDF with vector strokes",
+          "Five ready-made handwritings",
+          "No account; optional sync via Google Drive"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://siebwrite.de/en/#faq",
+        "inLanguage": "en",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Can GoodNotes turn typed text into handwriting by itself?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. GoodNotes converts handwriting to text and tidies messy writing with Restyle, but it doesn't turn typed text into your handwriting (as of November 2026). That's exactly what Siebwrite does. Step-by-step guide"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does it cost anything?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. No subscription, no ads, no watermark and no limit on how many pages you export."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I really erase it in GoodNotes?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, really. The file contains ballpoint strokes, not pictures, so the eraser and the lasso work the same as on anything you write yourself."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is it a font?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. A font looks the same every time a letter repeats and ends up in GoodNotes as a text box. Siebwrite draws each letter a little differently and gives you real strokes you can erase and move with the lasso. Font or strokes: the difference"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I paste text I copied?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Anything you can copy works: from Word, a website, your notes or a chatbot. Long texts are spread across several pages automatically."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How long does the alphabet take?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "About five minutes with a pen, for 80 characters. You can add variants later so it looks more natural, but you don't have to."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is it only for German?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The English version leaves out the German umlauts (ä, ö, ü, ß), though you can still add them later. The ready-made handwritings also have accented letters like é, ñ and ç."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are there ready-made handwritings?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Five: Cursive, Elegant, Quill, Print and Playful. They're built from free single-line fonts, and each character comes in a few slightly different shapes. In GoodNotes they erase like your own handwriting. Try one now"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use any color?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Any color. Next to the four fixed ones, the + in the app opens a color picker. Your pick shows up in the PDF and in GoodNotes too."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need an iPad?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Not at all. Writing works on any device, and a pen makes it nicer. You open the .goodnotes file in GoodNotes. Don't have GoodNotes? Use the PDF."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where is my handwriting stored?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "In your browser. If you sign in with Google, also in your own Google Drive. More under Privacy."
+            }
+          }
+        ]
+      }
+    ]
+  }
   </script>
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -123,11 +265,12 @@
   <main>
     <section class="hero">
       <div class="hero-text">
+        <p class="kicker">Text to handwriting · for GoodNotes and PDF</p>
         <h1>Type, and it appears in <span class="hw"><span class="sr-only">your</span><svg id="h-deiner" aria-hidden="true"></svg></span> handwriting.</h1>
         <p class="lead">Write the alphabet once. After that, whatever you type turns into handwriting you can erase in GoodNotes.</p>
         <div class="cta">
           <a class="btn" href="app/" data-cta>Write your alphabet</a>
-          <span class="aside">Free · no account</span>
+          <span class="aside">Free · no account · no watermark</span>
         </div>
         <p class="aside cta-more">No time? <a href="app/?hand=cursive#compose">Start with one of five ready-made handwritings</a></p>
       </div>
@@ -279,12 +422,24 @@
       </div>
       <div class="faq-list">
         <details>
+          <summary>Can GoodNotes turn typed text into handwriting by itself?</summary>
+          <p>No. GoodNotes converts handwriting to text and tidies messy writing with Restyle, but it doesn't turn typed text into your handwriting (as of November 2026). That's exactly what Siebwrite does. <a href="goodnotes-text-to-handwriting/">Step-by-step guide</a></p>
+        </details>
+        <details>
           <summary>Does it cost anything?</summary>
-          <p>No. There's no subscription and there are no ads.</p>
+          <p>No. No subscription, no ads, no watermark and no limit on how many pages you export.</p>
         </details>
         <details>
           <summary>Can I really erase it in GoodNotes?</summary>
           <p>Yes, really. The file contains ballpoint strokes, not pictures, so the eraser and the lasso work the same as on anything you write yourself.</p>
+        </details>
+        <details>
+          <summary>Is it a font?</summary>
+          <p>No. A font looks the same every time a letter repeats and ends up in GoodNotes as a text box. Siebwrite draws each letter a little differently and gives you real strokes you can erase and move with the lasso. <a href="handwriting-font/">Font or strokes: the difference</a></p>
+        </details>
+        <details>
+          <summary>Can I paste text I copied?</summary>
+          <p>Yes. Anything you can copy works: from Word, a website, your notes or a chatbot. Long texts are spread across several pages automatically.</p>
         </details>
         <details>
           <summary>How long does the alphabet take?</summary>
@@ -325,6 +480,8 @@
     <a href="mailto:siebwrite.kontakt@gmail.com">Contact</a>
     <a href="privacy/">Privacy</a>
     <a href="legal/">Legal notice</a>
+    <a href="goodnotes-text-to-handwriting/">GoodNotes text to handwriting</a>
+    <a href="handwriting-font/">Handwriting as a font</a>
     <span>GoodNotes is a trademark of its owner.</span>
   </footer>
 </body>

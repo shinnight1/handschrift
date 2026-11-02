@@ -8,7 +8,8 @@ import { join, relative, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const PAGES = ['index.html', 'app/index.html', 'datenschutz/index.html', 'impressum/index.html', 'en/index.html', 'en/app/index.html', 'en/privacy/index.html', 'en/legal/index.html'];
+const PAGES = ['index.html', 'app/index.html', 'datenschutz/index.html', 'impressum/index.html', 'en/index.html', 'en/app/index.html', 'en/privacy/index.html', 'en/legal/index.html',
+  'goodnotes-text-in-handschrift/index.html', 'handschrift-als-schriftart/index.html', 'en/goodnotes-text-to-handwriting/index.html', 'en/handwriting-font/index.html'];
 
 async function modules(dir) {
   const out = [];

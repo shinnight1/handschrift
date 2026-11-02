@@ -340,6 +340,8 @@ test('Impressum: von jeder Seite aus verlinkt, vollständig und nicht in Suchmas
     'index.html': 'href="impressum/"', 'app/index.html': 'href="../impressum/"', 'datenschutz/index.html': 'href="../impressum/"',
     'impressum/index.html': '<h1>Impressum</h1>', 'en/index.html': 'href="legal/"', 'en/app/index.html': 'href="../legal/"',
     'en/privacy/index.html': 'href="../legal/"', 'en/legal/index.html': '<h1>Legal notice</h1>',
+    'goodnotes-text-in-handschrift/index.html': 'href="../impressum/"', 'handschrift-als-schriftart/index.html': 'href="../impressum/"',
+    'en/goodnotes-text-to-handwriting/index.html': 'href="../legal/"', 'en/handwriting-font/index.html': 'href="../legal/"',
   };
   for (const [page, needle] of Object.entries(links)) assert.ok(read(page).includes(needle), `${page}: Link zum Impressum`);
   for (const page of ['impressum/index.html', 'en/legal/index.html']) {

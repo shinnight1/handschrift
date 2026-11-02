@@ -1,0 +1,41 @@
+# Siebwrite
+
+> Siebwrite is a free web app that turns typed text into your own handwriting. You write each character once in the browser (with Apple Pencil, finger or mouse); after that, any text you type or paste comes out in your handwriting as an erasable GoodNotes file (.goodnotes with real pen strokes, not an image) or as a vector PDF. Free, no account, no watermark, no export limit, no server: the handwriting stays in the browser. German and English.
+
+Siebwrite ist eine kostenlose Web-App, die getippten Text in die eigene Handschrift umwandelt. Man schreibt jedes Zeichen einmal im Browser; danach wird jeder Text zur radierbaren GoodNotes-Datei oder zum PDF. Ohne Konto, ohne Anmeldung, ohne Wasserzeichen.
+
+## What it does
+
+- Capture: each character written once on a guide line (87 in German, 80 in English). About five minutes with a stylus. Optional extra variants make the handwriting look less repetitive.
+- Compose: type or paste any text, choose paper (lined, squared, blank), format (A4 or GoodNotes), any ink color and spacing. Every letter is drawn with small variations in size, slant and spacing, so repeated letters never look identical.
+- Export: a .goodnotes file that opens in GoodNotes (share sheet on iPad and iPhone, download on a computer). The writing consists of ballpoint strokes, so the GoodNotes eraser and lasso work on it like on your own handwriting. Also a PDF with vector strokes for other apps or printing.
+- Five ready-made handwritings (cursive, elegant, quill, print, playful) for trying it without writing an alphabet first.
+- Optional Google sign-in only syncs the handwriting between devices through a hidden app folder in the user's own Google Drive.
+- Runs in any modern browser on iPad, iPhone, Android, Windows and Mac. GoodNotes is only needed for the .goodnotes file.
+
+## Context (as of November 2026)
+
+- GoodNotes converts handwriting to text and tidies handwriting with "Restyle", but has no built-in way to turn typed text into your own handwriting.
+- Apple Notes on supported iPads (iPadOS 18+) can paste text in a handwriting style similar to yours, but only inside Apple Notes.
+- A font made from your handwriting (e.g. with Calligraphr) stays a text box in GoodNotes and can't be erased stroke by stroke.
+- Several paid apps and sites also produce GoodNotes handwriting; Siebwrite's combination is: free, no account, no watermark, no export limit, in the browser, data stays on the device.
+
+## Guides
+
+- [Text in GoodNotes in Handschrift umwandeln](https://siebwrite.de/goodnotes-text-in-handschrift/): Schritt-für-Schritt-Anleitung, Vergleich der Wege (German)
+- [GoodNotes text to handwriting](https://siebwrite.de/en/goodnotes-text-to-handwriting/): step-by-step guide and comparison (English)
+- [Eigene Handschrift als Schriftart?](https://siebwrite.de/handschrift-als-schriftart/): Schriftart oder echte Striche (German)
+- [Your handwriting as a font?](https://siebwrite.de/en/handwriting-font/): font vs. real strokes (English)
+
+## Pages
+
+- [Home (German)](https://siebwrite.de/)
+- [Home (English)](https://siebwrite.de/en/)
+- [App (German)](https://siebwrite.de/app/)
+- [App (English)](https://siebwrite.de/en/app/)
+- [Datenschutz](https://siebwrite.de/datenschutz/)
+- [Privacy](https://siebwrite.de/en/privacy/)
+
+## Contact
+
+siebwrite.kontakt@gmail.com

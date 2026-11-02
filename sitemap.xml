@@ -2,33 +2,67 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://siebwrite.de/</loc>
+    <lastmod>2026-11-02</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://siebwrite.de/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://siebwrite.de/en/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://siebwrite.de/en/"/>
   </url>
   <url>
     <loc>https://siebwrite.de/en/</loc>
+    <lastmod>2026-11-02</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://siebwrite.de/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://siebwrite.de/en/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://siebwrite.de/en/"/>
   </url>
   <url>
+    <loc>https://siebwrite.de/goodnotes-text-in-handschrift/</loc>
+    <lastmod>2026-11-02</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://siebwrite.de/goodnotes-text-in-handschrift/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://siebwrite.de/en/goodnotes-text-to-handwriting/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://siebwrite.de/en/goodnotes-text-to-handwriting/"/>
+  </url>
+  <url>
+    <loc>https://siebwrite.de/en/goodnotes-text-to-handwriting/</loc>
+    <lastmod>2026-11-02</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://siebwrite.de/goodnotes-text-in-handschrift/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://siebwrite.de/en/goodnotes-text-to-handwriting/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://siebwrite.de/en/goodnotes-text-to-handwriting/"/>
+  </url>
+  <url>
+    <loc>https://siebwrite.de/handschrift-als-schriftart/</loc>
+    <lastmod>2026-11-02</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://siebwrite.de/handschrift-als-schriftart/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://siebwrite.de/en/handwriting-font/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://siebwrite.de/en/handwriting-font/"/>
+  </url>
+  <url>
+    <loc>https://siebwrite.de/en/handwriting-font/</loc>
+    <lastmod>2026-11-02</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://siebwrite.de/handschrift-als-schriftart/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://siebwrite.de/en/handwriting-font/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://siebwrite.de/en/handwriting-font/"/>
+  </url>
+  <url>
     <loc>https://siebwrite.de/app/</loc>
+    <lastmod>2026-11-02</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://siebwrite.de/app/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://siebwrite.de/en/app/"/>
   </url>
   <url>
     <loc>https://siebwrite.de/en/app/</loc>
+    <lastmod>2026-11-02</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://siebwrite.de/app/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://siebwrite.de/en/app/"/>
   </url>
   <url>
     <loc>https://siebwrite.de/datenschutz/</loc>
+    <lastmod>2026-11-02</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://siebwrite.de/datenschutz/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://siebwrite.de/en/privacy/"/>
   </url>
   <url>
     <loc>https://siebwrite.de/en/privacy/</loc>
+    <lastmod>2026-11-02</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://siebwrite.de/datenschutz/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://siebwrite.de/en/privacy/"/>
   </url>
