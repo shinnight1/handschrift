@@ -102,14 +102,11 @@ const EN = {
 
   // Google Drive
   'Nicht gespeichert: Speicher gesperrt': 'Not saved: storage blocked',
-  'Im Browser gespeichert': 'Saved in the browser',
-  'Im Browser': 'In the browser',
   'Gleiche ab': 'Syncing',
   'Gleiche gleich ab': 'Syncing shortly',
   'Nicht abgeglichen': 'Not synced',
   'Auf allen Geräten': 'On all your devices',
   'Mit Google anmelden': 'Sign in with Google',
-  'Abgleichen': 'Sync',
   'Angemeldet': 'Signed in',
   'Abgemeldet': 'Signed out',
   'Abgeglichen': 'Synced',

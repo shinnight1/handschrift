@@ -106,11 +106,13 @@ async function call(token, url, init = {}) {
   return res;
 }
 
-// Name und Adresse des Kontos, für die Anzeige und als Hinweis bei der nächsten Anmeldung.
+// Name, Adresse und Profilbild des Kontos, für die Anzeige oben rechts und als Hinweis bei
+// der nächsten Anmeldung. Das Bild kommt klein (s64), für scharfe Ränder doppelt so groß.
 async function whoAmI(token) {
-  const res = await call(token, `${API}/about?fields=user(displayName,emailAddress)`);
+  const res = await call(token, `${API}/about?fields=user(displayName,emailAddress,photoLink)`);
   const { user } = await res.json();
-  return { email: user?.emailAddress ?? '', name: user?.displayName ?? '' };
+  const photo = (user?.photoLink ?? '').replace(/=sd+(-c)?$/, '=s128-c');
+  return { email: user?.emailAddress ?? '', name: user?.displayName ?? '', photo };
 }
 
 /**

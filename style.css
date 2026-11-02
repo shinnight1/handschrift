@@ -92,6 +92,49 @@ button, input, select, textarea { font: inherit; color: inherit; }
   transition: background-color .25s, color .25s;
 }
 .lang:hover { color: var(--bright); background-color: rgba(255, 255, 255, 0.06); }
+
+/* Konto ganz rechts im Kopf: abgemeldet ein kleiner weißer Google-Knopf, angemeldet das
+   Profilbild. Der Punkt am Bild zeigt den Abgleich: pulsiert, solange etwas aussteht, rot
+   bei Fehlern, sonst keiner. */
+.account {
+  position: relative; display: inline-grid; place-items: center; flex: none; height: 36px; padding: 0;
+  border: 0; border-radius: 999px; background: none; color: inherit; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: scale .45s var(--spring);
+}
+.account:active { scale: 0.94; transition-duration: .12s; }
+.account.is-on .account-signin, .account:not(.is-on) .account-face { display: none; }
+.account-signin {
+  display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px 0 10px; border-radius: 999px;
+  background: #fff; color: #3c3b3b; font: 600 13px/1 var(--sans); white-space: nowrap;
+  box-shadow: inset 0 1px 0 #fff, 0 6px 18px -8px rgba(255, 255, 255, 0.35); transition: box-shadow .35s var(--ease);
+}
+.account-signin svg { width: 18px; height: 18px; flex: none; }
+.account:hover .account-signin { box-shadow: inset 0 1px 0 #fff, 0 8px 24px -6px rgba(255, 255, 255, 0.5); }
+@media (max-width: 560px) {
+  .account-label { display: none; }
+  .account-signin { width: 36px; padding: 0; justify-content: center; }
+}
+/* Schmal passt der Kopf nicht in eine Reihe: oben Name und Konto in der Ecke, darunter Schritte und Sprache */
+@media (max-width: 520px) {
+  .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; row-gap: 8px; }
+  .top-end { display: contents; }
+  .account { grid-area: 1 / 2; }
+  .steps { grid-area: 2 / 1; }
+  .lang { grid-area: 2 / 2; }
+}
+.account-face {
+  position: relative; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+  background: var(--glass-hi); box-shadow: var(--glass-rim), 0 0 0 1px rgba(255, 255, 255, 0.14);
+  color: var(--bright); font: 500 15px/1 var(--sans); transition: box-shadow .35s var(--ease);
+}
+.account-face img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.account:hover .account-face { box-shadow: var(--glass-rim), 0 0 0 1px rgba(255, 255, 255, 0.35), 0 0 18px -4px rgba(255, 255, 255, 0.45); }
+.account .account-face::after {
+  content: ""; position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border-radius: 50%;
+  box-shadow: 0 0 0 2px #0b0b0d; opacity: 0; scale: 0.4; transition: opacity .3s, scale .45s var(--spring);
+}
+.account[data-state="pending"] .account-face::after { opacity: 1; scale: 1; background: var(--text); animation: pulse 1.2s ease-in-out infinite; }
+.account[data-state="error"] .account-face::after { opacity: 1; scale: 1; background: var(--danger); }
 .steps { position: relative; display: flex; gap: 2px; }
 .step {
   position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px 8px 8px; border-radius: 999px;
@@ -273,7 +316,6 @@ kbd {
 .file-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; margin-left: -12px; }
 .status { display: inline-flex; align-items: center; gap: 8px; font: 400 12px/1 var(--mono); color: var(--muted); }
 .status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--edge-hi); transition: background-color .4s, box-shadow .4s; }
-.status[data-state="saved"]::before { background: var(--text); animation: pop-in .5s var(--spring); }
 .status[data-state="error"]::before { background: var(--danger); box-shadow: 0 0 10px rgba(229, 72, 77, 0.7); }
 .status[data-state="cloud"]::before { background: var(--bright); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.14), 0 0 10px rgba(255, 255, 255, 0.5); }
 .status[data-state="pending"]::before { background: transparent; box-shadow: inset 0 0 0 1px var(--text); animation: pulse 1.2s ease-in-out infinite; }
@@ -314,7 +356,6 @@ kbd {
 .btn-google:hover:not(:disabled) { scale: 1.03; box-shadow: inset 0 1px 0 #fff, 0 10px 28px -8px rgba(255, 255, 255, 0.45); }
 .btn-google:active:not(:disabled) { scale: 0.96; transition-duration: .12s; }
 .btn-google:disabled { opacity: 0.5; cursor: default; }
-.btn:not(.btn-google) > svg[viewBox="0 0 256 262"] { display: none; } /* G nur im Google-Knopf */
 
 /* Fenster (Google Drive): schweres Glas, das aus der Tiefe auftaucht */
 .dialog {
@@ -328,6 +369,14 @@ kbd {
 .dialog[open]::backdrop { animation: fade-in .35s var(--ease); }
 @keyframes dialog-in { from { opacity: 0; scale: 0.9; translate: 0 14px; filter: blur(6px); } }
 @keyframes fade-in { from { opacity: 0; } }
+/* Angemeldet: Bild, Name, Adresse und Stand des Abgleichs */
+.account-card { display: flex; align-items: center; gap: 14px; margin: 2px 0 20px; }
+.account-card .account-face { width: 52px; height: 52px; font-size: 20px; }
+.account-who { display: grid; gap: 4px; min-width: 0; }
+.account-who b { font-size: 16px; }
+.account-who #cloud-email { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-who #cloud-email:empty { display: none; }
+.account-who .status { margin-top: 4px; }
 .dialog h2 { margin: 0 0 12px; font: 400 26px/1.1 var(--serif); color: var(--bright); letter-spacing: -0.01em; }
 .dialog p { margin: 0 0 10px; text-wrap: pretty; }
 .dialog b { color: var(--bright); font-weight: 500; }

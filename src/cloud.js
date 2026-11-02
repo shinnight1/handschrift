@@ -1,5 +1,6 @@
-// "Mit Google sichern": Knopf und Status unten, Fenster zum Anmelden, Abgleich
-// nach jeder Änderung. Die Handschrift bleibt zuerst im Browser; Google Drive
+// "Mit Google anmelden": oben rechts der Anmeldeknopf oder, angemeldet, das Profilbild
+// mit einem Punkt für den Abgleich; ein Fenster zum An- und Abmelden; Abgleich nach jeder
+// Änderung. Die Handschrift bleibt zuerst im Browser; Google Drive
 // ist eine zusätzliche Kopie (Regeln in sync.js, Google in drive.js).
 
 import { configured, prepare, requestToken, revoke, whoAmI, appFile } from './drive.js';
@@ -23,7 +24,7 @@ function readState() {
  * @param {() => void} hooks.onChange  nach An- und Abmelden
  */
 function createCloud(hooks) {
-  let state = readState(); // {on, email, name, token, expires, base, fileId, syncedAt}
+  let state = readState(); // {on, email, name, photo, token, expires, base, fileId, syncedAt}
   let local = 'idle'; // Speichern im Browser: 'idle' | 'saved' | 'error'
   let busy = false;
   let again = false;
@@ -34,25 +35,48 @@ function createCloud(hooks) {
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* egal */ } };
   const hasToken = () => Boolean(state.token) && state.expires - 60000 > Date.now();
 
-  function render() {
-    const status = $('sync-status');
-    const btn = $('cloud-btn');
-    let text;
-    let dot;
-    if (local === 'error') { text = tr('Nicht gespeichert: Speicher gesperrt'); dot = 'error'; }
-    else if (!state.on) { text = local === 'saved' ? tr('Im Browser gespeichert') : tr('Im Browser'); dot = local; }
-    else if (busy) { text = tr('Gleiche ab'); dot = 'pending'; }
-    else if (error) { text = error; dot = 'error'; }
-    else if (dirty) { text = hasToken() ? tr('Gleiche gleich ab') : tr('Nicht abgeglichen'); dot = 'pending'; }
-    else { text = tr('Auf allen Geräten'); dot = 'cloud'; }
-    status.textContent = text;
-    status.dataset.state = dot;
+  // Abgleich in Worten und als Punkt: am Profilbild und im Fenster
+  function status() {
+    if (busy) return [tr('Gleiche ab'), 'pending'];
+    if (error) return [error, 'error'];
+    if (dirty) return [hasToken() ? tr('Gleiche gleich ab') : tr('Nicht abgeglichen'), 'pending'];
+    return [tr('Auf allen Geräten'), 'cloud'];
+  }
 
-    // Nicht angemeldet: der weiße Google-Knopf, danach ein ruhiger Knopf wie die übrigen.
+  // Profilbild von Google, sonst der erste Buchstabe des Namens
+  function face(img, initial) {
+    const who = state.name || state.email || 'G';
+    initial.textContent = who.trim()[0]?.toUpperCase() ?? 'G';
+    if (!state.photo) { img.hidden = true; return; }
+    if (img.getAttribute('src') !== state.photo) {
+      img.hidden = true;
+      img.onload = () => { img.hidden = false; };
+      img.onerror = () => { img.hidden = true; };
+      img.src = state.photo;
+    }
+  }
+
+  function render() {
+    const btn = $('cloud-btn');
     btn.hidden = !configured();
-    btn.disabled = busy;
-    btn.className = state.on ? 'btn btn-quiet' : 'btn-google';
-    $('cloud-btn-label').textContent = !state.on ? tr('Mit Google anmelden') : hasToken() && !error ? 'Google' : tr('Abgleichen');
+    btn.classList.toggle('is-on', Boolean(state.on));
+    if (!state.on) {
+      btn.removeAttribute('title');
+      btn.setAttribute('aria-label', tr('Mit Google anmelden'));
+      return;
+    }
+    const [text, dot] = status();
+    const who = state.name || state.email || tr('dein Google-Konto');
+    btn.dataset.state = dot;
+    btn.title = `${who} · ${text}`;
+    btn.setAttribute('aria-label', `${who}: ${text}`);
+    face($('cloud-pic'), $('cloud-initial'));
+    if ($('cloud-dialog').open) renderDialog();
+  }
+
+  // Name, Adresse und Bild des Kontos; fehlt bei Anmeldungen von vor dem Profilbild
+  async function refreshWho() {
+    try { Object.assign(state, await whoAmI(state.token)); save(); render(); } catch { /* nur Anzeige */ }
   }
 
   // Nach jeder Änderung am Profil (Strich, Laden, Löschen, Link).
@@ -106,6 +130,7 @@ function createCloud(hooks) {
       try {
         Object.assign(state, await requestToken(state.email));
         save();
+        if (!state.photo) refreshWho();
       } catch (e) {
         hooks.toast(e.code === 'blocked' ? tr('Das Google-Fenster wurde blockiert. Pop-ups erlauben.') : e.message);
         return null;
@@ -125,7 +150,13 @@ function createCloud(hooks) {
     $('cloud-sync-now').hidden = !on;
     $('cloud-disconnect').hidden = !on;
     $('cloud-sync-now').disabled = busy;
-    if (on) $('cloud-email').textContent = state.email || tr('dein Google-Konto');
+    if (!on) return;
+    const [text, dot] = status();
+    $('cloud-name').textContent = state.name || state.email || tr('dein Google-Konto');
+    $('cloud-email').textContent = state.name ? state.email : '';
+    $('cloud-state').textContent = text;
+    $('cloud-state').dataset.state = dot;
+    face($('cloud-account-pic'), $('cloud-account-initial'));
   }
 
   function open() {
@@ -172,10 +203,7 @@ function createCloud(hooks) {
     hooks.toast(tr('Abgemeldet'));
   }
 
-  $('cloud-btn').addEventListener('click', () => {
-    if (state.on && (!hasToken() || error)) syncNow();
-    else open();
-  });
+  $('cloud-btn').addEventListener('click', open);
   $('cloud-connect').addEventListener('click', connect);
   $('cloud-sync-now').addEventListener('click', async () => {
     const res = await syncNow();
@@ -194,16 +222,21 @@ function createCloud(hooks) {
     get on() { return Boolean(state.on); },
     open,
     changed,
-    // Ergebnis vom Speichern im Browser (store.js)
-    localStatus(s) { local = s; render(); },
+    // Ergebnis vom Speichern im Browser (store.js); nur ein Fehler wird gemeldet
+    localStatus(s) {
+      if (s === 'error' && local !== 'error') hooks.toast(tr('Nicht gespeichert: Speicher gesperrt'));
+      local = s;
+    },
     start() {
       render();
       if (!configured() || !state.on) return;
       // Schon verbunden: Google vorladen, damit "Abgleichen" das Fenster sofort öffnen kann.
       prepare().catch(() => {});
       dirty = fingerprint(hooks.getProfile()) !== state.base;
-      if (hasToken()) sync();
-      else render();
+      if (hasToken()) {
+        sync();
+        if (!state.photo) refreshWho();
+      } else render();
     },
   };
 }

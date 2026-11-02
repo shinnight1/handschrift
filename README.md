@@ -109,7 +109,7 @@ fehl, wenn ein Modul in der Import Map fehlt.
 | `src/handoff.js` | Mitnehmen-Link |
 | `src/sync.js` | Abgleich-Regeln: wer gewinnt, was hoch- und was runterkommt |
 | `src/drive.js` | Google-Anmeldung (Token) und die Datei im App-Ordner von Google Drive |
-| `src/cloud.js` | Knopf, Status und Fenster „Mit Google anmelden“, Abgleich nach Änderungen |
+| `src/cloud.js` | Konto oben rechts (Anmeldeknopf oder Profilbild mit Punkt für den Abgleich), Fenster zum An- und Abmelden, Abgleich nach Änderungen |
 | `src/save.js` | Teilen-Menü oder Download |
 | `src/goodnotes/*` | `.goodnotes`-Writer |
 

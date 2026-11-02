@@ -41,7 +41,7 @@ const VIEW_OF = { schreiben: 'schreiben', setzen: 'setzen', write: 'schreiben', 
 const OPTIONAL = new Set(lang === 'en' ? [...'äöüßÄÖÜ'] : []);
 const REQUIRED = FIRST_PASS.map((_, i) => i).filter((i) => !OPTIONAL.has(FIRST_PASS[i]));
 
-// Status unten zeigt cloud.js: Browser und, wenn angemeldet, Google Drive.
+// Kann der Browser nicht speichern, meldet cloud.js das einmal.
 const store = new ProfileStore({ onStatus: (state) => cloud.localStatus(state) });
 
 // ---------- Hilfen ----------
