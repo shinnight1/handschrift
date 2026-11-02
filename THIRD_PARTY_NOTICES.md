@@ -84,5 +84,61 @@ SOFTWARE.
 
 Einstrich-Schrift von Sheldon B. Michaels, abgeleitet von Felipa (Fontstage), als SVG-Font
 umgewandelt von Windell H. Oskay (Evil Mad Scientist), verteilt im npm-Paket `hersheytext`.
-Lizenz: SIL Open Font License 1.1, https://openfontlicense.org. Die Glyphen werden mit
-`tools/build-hand-font.mjs` nur ins JS-Format übertragen, nicht verändert.
+Lizenz: SIL Open Font License 1.1, Text in `licenses/OFL-1.1.txt` (https://openfontlicense.org).
+Die Glyphen werden mit `tools/build-hand-font.mjs` nur ins JS-Format übertragen, nicht verändert.
+
+## Fertige Handschriften (`src/presets-data.js`)
+
+Die fünf fertigen Handschriften entstehen mit `tools/build-presets.mjs` aus Einstrich-SVG-Schriften
+des npm-Pakets `hersheytext` (Version 2.0.0, Ordner `svg_fonts`). Dabei werden die Glyphen
+verändert: auf die Kästchenhöhe skaliert, Kurven in Geraden zerlegt, vereinfacht, bei
+Schreibschrift und Elegant Ober- und Unterlängen gestaucht, zu breite Ränder gekürzt; in der App
+kommen leicht verzogene Varianten dazu und ein aus zwei S gebautes „§“. Die veränderten Daten
+stehen unter derselben Lizenz wie ihre Vorlage. Die Namen in der App (Schreibschrift, Elegant,
+Feder, Druckschrift, Verspielt) sind eigene; Namen der Vorlagen werden nicht verwendet.
+
+| In der App | Vorlage | Herkunft | Lizenz |
+| --- | --- | --- | --- |
+| Schreibschrift (`cursive`) | Hershey Script 1-stroke | Dr. A. V. Hershey; SVG von Windell H. Oskay | Hershey-Bedingungen, unten |
+| Elegant (`elegant`) | EMS Allure | Sheldon B. Michaels nach Allura (Rob Leuschke, TypeSETit; Copyright 2010 The Allura Project Authors); SVG von Windell H. Oskay | SIL OFL 1.1 |
+| Feder (`quill`) | EMS Felix | Sheldon B. Michaels nach Felipa (Copyright (c) 2011 Fontstage, Reserved Font Name „Felipa“); SVG von Windell H. Oskay | SIL OFL 1.1 |
+| Druckschrift (`print`) | EMS Tech | Sheldon B. Michaels nach Architects Daughter (Copyright (c) 2010, Kimberly Geswein); SVG von Windell H. Oskay | SIL OFL 1.1 |
+| Verspielt (`playful`) | EMS Elfin | Sheldon B. Michaels nach Mountains of Christmas (Crystal Kluge, Tart Workshop); SVG von Windell H. Oskay | SIL OFL 1.1 laut Schrift; Google führt die Vorlage unter Apache 2.0 (`licenses/Apache-2.0.txt`) |
+
+Lizenztexte: `licenses/OFL-1.1.txt` (SIL Open Font License 1.1) und `licenses/Apache-2.0.txt`.
+
+Für die Hershey-Schrift gelten diese Bedingungen (unverändert aus der Schriftdatei):
+
+```
+The Hershey Fonts are a set of vector fonts with a liberal license.
+
+USE RESTRICTION:
+    This distribution of the Hershey Fonts may be used by anyone for
+    any purpose, commercial or otherwise, providing that:
+        1. The following acknowledgements must be distributed with
+            the font data:
+            - The Hershey Fonts were originally created by Dr.
+                A. V. Hershey while working at the U. S.
+                National Bureau of Standards.
+            - The format of the Font data in this distribution
+                was originally created by
+                    James Hurt
+                    Cognition, Inc.
+                    900 Technology Park Drive
+                    Billerica, MA 01821
+                    (mit-eddie!ci-dandelion!hurt)
+        2. The font data in this distribution may be converted into
+            any other format *EXCEPT* the format distributed by
+            the U.S. NTIS where each point is described
+            in eight bytes as "xxx yyy:", where xxx and yyy are
+            the coordinate values as ASCII numbers.
+```
+
+Hershey Script 1-stroke wurde 2011 von Windell H. Oskay (www.evilmadscientist.com) aufbereitet und
+2019 in SVG umgewandelt, nach emergent.unpythonic.net/software/hershey über „Hershey Fonts in SVG“
+von Marty McGuire (http://www.thingiverse.com/thing:6168).
+
+## hersheytext — https://github.com/techninja/hersheytextjs
+
+Aus dem Paket stammen nur die Schriftdateien (Lizenzen oben), kein Code. Das Paket selbst steht
+unter der MIT-Lizenz, Copyright (c) 2014 James T.

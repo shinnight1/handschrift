@@ -4,6 +4,7 @@
 
 import { configured, prepare, requestToken, revoke, whoAmI, appFile } from './drive.js';
 import { syncProfile, fingerprint } from './sync.js';
+import { tr } from './i18n.js';
 
 const KEY = 'handschrift.google.v1';
 const DELAY = 2000; // nach der letzten Änderung, damit nicht jeder Strich hochgeladen wird
@@ -38,12 +39,12 @@ function createCloud(hooks) {
     const btn = $('cloud-btn');
     let text;
     let dot;
-    if (local === 'error') { text = 'Nicht gespeichert: Speicher gesperrt'; dot = 'error'; }
-    else if (!state.on) { text = local === 'saved' ? 'Im Browser gespeichert' : 'Im Browser'; dot = local; }
-    else if (busy) { text = 'Gleiche ab'; dot = 'pending'; }
+    if (local === 'error') { text = tr('Nicht gespeichert: Speicher gesperrt'); dot = 'error'; }
+    else if (!state.on) { text = local === 'saved' ? tr('Im Browser gespeichert') : tr('Im Browser'); dot = local; }
+    else if (busy) { text = tr('Gleiche ab'); dot = 'pending'; }
     else if (error) { text = error; dot = 'error'; }
-    else if (dirty) { text = hasToken() ? 'Gleiche gleich ab' : 'Nicht abgeglichen'; dot = 'pending'; }
-    else { text = 'Auf allen Geräten'; dot = 'cloud'; }
+    else if (dirty) { text = hasToken() ? tr('Gleiche gleich ab') : tr('Nicht abgeglichen'); dot = 'pending'; }
+    else { text = tr('Auf allen Geräten'); dot = 'cloud'; }
     status.textContent = text;
     status.dataset.state = dot;
 
@@ -51,7 +52,7 @@ function createCloud(hooks) {
     btn.hidden = !configured();
     btn.disabled = busy;
     btn.className = state.on ? 'btn btn-quiet' : 'btn-google';
-    $('cloud-btn-label').textContent = !state.on ? 'Mit Google anmelden' : hasToken() && !error ? 'Google' : 'Abgleichen';
+    $('cloud-btn-label').textContent = !state.on ? tr('Mit Google anmelden') : hasToken() && !error ? 'Google' : tr('Abgleichen');
   }
 
   // Nach jeder Änderung am Profil (Strich, Laden, Löschen, Link).
@@ -87,7 +88,7 @@ function createCloud(hooks) {
       save();
     } catch (e) {
       if (e.code === 'auth') { state.token = null; save(); }
-      else error = e.code === 'denied' ? 'Kein Zugriff bei Google' : 'Google nicht erreichbar';
+      else error = e.code === 'denied' ? tr('Kein Zugriff bei Google') : tr('Google nicht erreichbar');
       result = null;
     } finally {
       busy = false;
@@ -106,7 +107,7 @@ function createCloud(hooks) {
         Object.assign(state, await requestToken(state.email));
         save();
       } catch (e) {
-        hooks.toast(e.code === 'blocked' ? 'Das Google-Fenster wurde blockiert. Pop-ups erlauben.' : e.message);
+        hooks.toast(e.code === 'blocked' ? tr('Das Google-Fenster wurde blockiert. Pop-ups erlauben.') : e.message);
         return null;
       }
     }
@@ -117,14 +118,14 @@ function createCloud(hooks) {
 
   function renderDialog() {
     const on = Boolean(state.on);
-    $('cloud-title').textContent = on ? 'Angemeldet' : 'Mit Google anmelden';
+    $('cloud-title').textContent = on ? tr('Angemeldet') : tr('Mit Google anmelden');
     $('cloud-intro').hidden = on;
     $('cloud-account').hidden = !on;
     $('cloud-connect').hidden = on;
     $('cloud-sync-now').hidden = !on;
     $('cloud-disconnect').hidden = !on;
     $('cloud-sync-now').disabled = busy;
-    if (on) $('cloud-email').textContent = state.email || 'dein Google-Konto';
+    if (on) $('cloud-email').textContent = state.email || tr('dein Google-Konto');
   }
 
   function open() {
@@ -146,7 +147,7 @@ function createCloud(hooks) {
       token = await requestToken();
     } catch (e) {
       $('cloud-dialog').close(); // sonst liegt die Meldung hinter dem Fenster
-      hooks.toast(e.code === 'blocked' ? 'Das Google-Fenster wurde blockiert. Pop-ups erlauben.' : e.message);
+      hooks.toast(e.code === 'blocked' ? tr('Das Google-Fenster wurde blockiert. Pop-ups erlauben.') : e.message);
       return;
     }
     $('cloud-dialog').close();
@@ -156,7 +157,7 @@ function createCloud(hooks) {
     save();
     hooks.onChange();
     const res = await sync();
-    if (res?.action === 'upload' || res?.action === 'same') hooks.toast('Angemeldet');
+    if (res?.action === 'upload' || res?.action === 'same') hooks.toast(tr('Angemeldet'));
   }
 
   function disconnect() {
@@ -168,7 +169,7 @@ function createCloud(hooks) {
     $('cloud-dialog').close();
     render();
     hooks.onChange();
-    hooks.toast('Abgemeldet');
+    hooks.toast(tr('Abgemeldet'));
   }
 
   $('cloud-btn').addEventListener('click', () => {
@@ -178,7 +179,7 @@ function createCloud(hooks) {
   $('cloud-connect').addEventListener('click', connect);
   $('cloud-sync-now').addEventListener('click', async () => {
     const res = await syncNow();
-    if (res) hooks.toast(res.action === 'same' ? 'Alles schon gleich' : 'Abgeglichen');
+    if (res) hooks.toast(res.action === 'same' ? tr('Alles schon gleich') : tr('Abgeglichen'));
   });
   $('cloud-disconnect').addEventListener('click', disconnect);
   $('cloud-close').addEventListener('click', () => $('cloud-dialog').close());

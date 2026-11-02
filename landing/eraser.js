@@ -3,9 +3,10 @@
 // weg wie der Strich-Radierer in GoodNotes. Auf dem Handy waagerecht wischen, senkrecht scrollt.
 
 import { Hand } from './film.js';
+import { lang, tr } from '../src/i18n.js';
 
 const NS = 'http://www.w3.org/2000/svg';
-const LINES = ['Zellatmung:', 'Glucose + Sauerstoff', 'wird zu Energie.'];
+const LINES = lang === 'en' ? ['Respiration:', 'glucose + oxygen', 'turns into energy.'] : ['Zellatmung:', 'Glucose + Sauerstoff', 'wird zu Energie.'];
 const W = 620;
 const H = 400;
 const FIRST = 124; // erste Grundlinie
@@ -55,7 +56,7 @@ export function eraser(root) {
     ink.replaceChildren();
     gone = 0;
     restore.hidden = true;
-    status.textContent = 'Wisch über die Handschrift.';
+    status.textContent = tr('Wisch über die Handschrift.');
     hand = new Hand(ink, LINES.join('\n'), { x: LEFT, y: FIRST, em: 64, color: '#1e3a9b', width: 2.9, lineGap: GAP, seed: 4, jitter: 0.9, gap: 0.3 });
     if (still || !animated) { hand.draw(animated ? 1 : 0); return; }
     const start = performance.now();
@@ -91,7 +92,7 @@ export function eraser(root) {
     }
     if (gone) {
       restore.hidden = false;
-      status.textContent = gone >= hand.paths.length ? 'Alles weg. Genau wie in GoodNotes.' : `${gone} ${gone === 1 ? 'Strich' : 'Striche'} wegradiert.`;
+      status.textContent = gone >= hand.paths.length ? tr('Alles weg. Genau wie in GoodNotes.') : tr(gone === 1 ? '{n} Strich wegradiert.' : '{n} Striche wegradiert.', { n: gone });
     }
   }
 

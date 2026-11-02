@@ -2,19 +2,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { CELL_CHARS, FIRST_PASS, BASE_CELLS, EXTRA_PASSES, isCustomChar } from '../src/charset.js';
+import { CELL_CHARS, CELL_GROUPS, FIRST_PASS, BASE_CELLS, EXTRA_PASSES, isCustomChar } from '../src/charset.js';
 import { round4 } from '../src/geometry.js';
 import { glyphTable, parseProfile, createProfile } from '../src/profile.js';
 import { serialize, deserialize, fingerprint, mergeProfiles, syncProfile } from '../src/sync.js';
 import { layoutText, FORMATS } from '../src/layout.js';
-import { pagesToGoodNotes, pagesToPdf, INKS } from '../src/render.js';
+import { pagesToGoodNotes, pagesToPdf, INKS, inkRgb, inkHex, isCustomInk } from '../src/render.js';
+import { PRESETS, presetById, loadFonts, presetProfile } from '../src/presets.js';
+import { lang, tr, EN } from '../src/i18n.js';
 import { readStoredZip } from '../src/goodnotes/zip.js';
 import { appleLz4Compress, appleLz4Decompress } from '../src/goodnotes/lz4.js';
 import { encodeBallpoint, ballpointFromTpl } from '../src/goodnotes/tpl.js';
 import { decodeRecords } from '../src/goodnotes/proto.js';
 import { handoffLink, readHandoff, packCells, unpackCells } from '../src/handoff.js';
 import { encodeStrokes, decodeStrokes } from '../src/store.js';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { moduleList } from '../tools/version.mjs';
 
 // Erfundene Handschrift: jedes Kästchen 1–3 krumme Striche mit 4 Nachkommastellen.
@@ -227,14 +229,105 @@ test('PDF hat eine Seite pro gesetzter Seite', () => {
   assert.ok(pdf.trimEnd().endsWith('%%EOF'));
 });
 
-test('Jedes Modul hat in beiden Seiten dieselbe Versionsnummer (sonst mischt der Browser-Cache alt und neu)', async () => {
+test('Jedes Modul hat in allen Seiten dieselbe Versionsnummer (sonst mischt der Browser-Cache alt und neu)', async () => {
   const files = await moduleList();
-  for (const [page, prefix] of [['index.html', './'], ['app/index.html', '../']]) {
+  const pages = [['index.html', './'], ['app/index.html', '../'], ['datenschutz/index.html', '../'], ['en/index.html', '../'], ['en/app/index.html', '../../'], ['en/privacy/index.html', '../../']];
+  for (const [page, prefix] of pages) {
     const html = readFileSync(new URL(`../${page}`, import.meta.url), 'utf8');
     const map = JSON.parse(/<script type="importmap">([\s\S]*?)<\/script>/.exec(html)[1]).imports;
     const versions = new Set([...html.matchAll(/\?v=(\d+)/g)].map((m) => m[1]));
     assert.equal(versions.size, 1, `${page}: eine Version überall (node tools/version.mjs)`);
     const expected = files.map((f) => prefix + f.split('\\').join('/')); // Windows liefert Pfade mit "\"
     assert.deepEqual(Object.keys(map).sort(), expected.sort(), `${page}: alle Module in der Import Map`);
+  }
+});
+
+// ---------- Fertige Handschriften, Farben, Englisch ----------
+
+test('Fertige Handschriften: jede hat alle Zeichen, mehrere Varianten und setzt ohne Lücken', async () => {
+  const fonts = await loadFonts();
+  assert.deepEqual(PRESETS.map((p) => p.id), ['cursive', 'elegant', 'quill', 'print', 'playful']);
+  for (const preset of PRESETS) {
+    const profile = presetProfile(preset.id, fonts);
+    for (let i = 0; i < FIRST_PASS.length; i++) assert.ok(profile.cells[i]?.length, `${preset.id}: ${FIRST_PASS[i]}`);
+    const table = glyphTable(profile, { snap: 0 });
+    // Varianten unterscheiden sich, sonst sähe jedes e gleich aus
+    const [a, b] = table.get('e');
+    assert.notDeepEqual(a.strokes, b.strokes, `${preset.id}: Varianten verschieden`);
+    assert.equal(table.get('e').length, 4, 'häufige Buchstaben vierfach');
+    // Akzente und Zeichen außerhalb der festen Liste kommen aus der Schrift selbst
+    const text = 'Liebe Oma, Grüße! Café, señor, garçon: 100 $ + 5 € (ca. 37 %) #1 * § @ & ?';
+    const layout = layoutText(text, table, { format: FORMATS.a4, letterSpacing: 0.18 + preset.spacing, minGap: -0.06 });
+    assert.deepEqual(layout.missing, [], `${preset.id}: nichts fehlt`);
+    // Wie die eigene Schrift: echte Striche in der .goodnotes-Datei
+    const [file] = pagesToGoodNotes(layout.pages, { format: 'standard', paper: 'lined', ink: inkRgb('#c2185b'), layout });
+    const entries = readStoredZip(file);
+    const notes = [...entries.keys()].find((n) => n.startsWith('notes/'));
+    assert.equal(decodeRecords(entries.get(notes)).length, layout.pages[0].strokes.length * 2);
+  }
+  // Gleiche Eingabe, gleiche Handschrift (zwischengespeichert und reproduzierbar)
+  assert.equal(presetProfile('quill', fonts), presetProfile('quill', fonts));
+  assert.equal(presetProfile('gibtsnicht', fonts), null);
+  assert.equal(presetById('print').id, 'print');
+  assert.equal(presetById('own'), null);
+});
+
+test('Fertige Handschriften setzen nach Vorschub: Schreibschrift berührt sich, Druckschrift nicht', async () => {
+  const fonts = await loadFonts();
+  const width = (id, word) => {
+    const preset = presetById(id);
+    const table = glyphTable(presetProfile(id, fonts), { snap: 0 });
+    const layout = layoutText(word, table, { format: FORMATS.a4, natural: 0, letterSpacing: 0.18 + preset.spacing, minGap: -0.06 });
+    const xs = layout.pages[0].strokes.flatMap((s) => s.points.map(([x]) => x));
+    return Math.max(...xs) - Math.min(...xs);
+  };
+  // Doppelt so viele Buchstaben sind etwa doppelt so breit: Abstand kommt aus der Schrift
+  for (const preset of PRESETS) {
+    const ratio = width(preset.id, 'mmmmmmmm') / width(preset.id, 'mmmm');
+    assert.ok(ratio > 1.8 && ratio < 2.2, `${preset.id}: ${ratio.toFixed(2)}`);
+  }
+});
+
+test('Eigene Farben: #rrggbb geht in Vorschau, PDF und GoodNotes, Unsinn fällt auf Schwarz', () => {
+  assert.ok(isCustomInk('#C2185B') && isCustomInk('#000000'));
+  assert.ok(!isCustomInk('blau') && !isCustomInk('#fff') && !isCustomInk('red') && !isCustomInk(null));
+  assert.deepEqual(inkRgb('#ff8000'), [1, 128 / 255, 0]);
+  assert.deepEqual(inkRgb('blau'), INKS.blau.rgb);
+  assert.deepEqual(inkRgb('quatsch'), INKS.schwarz.rgb);
+  assert.equal(inkHex('#c2185b'), '#c2185b');
+  assert.equal(inkHex('schwarz'), '#1a1a1f');
+  const layout = setText(fakeCells(FIRST_PASS.length), 'Farbe');
+  const pdf = new TextDecoder('latin1').decode(pagesToPdf(layout.pages, { paper: 'blank', ink: inkRgb('#ff8000'), layout }));
+  assert.match(pdf, /1 0\.50* 0 RG/, 'Strichfarbe im PDF');
+});
+
+test('Englisch: jeder übersetzbare Text hat eine Übersetzung', () => {
+  assert.equal(lang, 'de', 'ohne Browser deutsch');
+  assert.equal(tr('Seite {a} von {b}', { a: 2, b: 5 }), 'Seite 2 von 5');
+  const keys = new Set();
+  for (const dir of ['src', 'landing']) {
+    for (const name of readdirSync(new URL(`../${dir}/`, import.meta.url))) {
+      if (!name.endsWith('.js') || name === 'i18n.js') continue;
+      const code = readFileSync(new URL(`../${dir}/${name}`, import.meta.url), 'utf8');
+      for (const m of code.matchAll(/\btr\(\s*(['"])((?:(?!\1)[^\\]|\\.)*)\1/g)) keys.add(m[2]);
+      for (const m of code.matchAll(/\btr\(\s*\w+ === 1 \? '([^']+)' : '([^']+)'/g)) { keys.add(m[1]); keys.add(m[2]); }
+    }
+  }
+  // Texte, die erst zur Laufzeit gewählt werden
+  for (const g of CELL_GROUPS) if (!/^Zusatz /.test(g)) keys.add(g);
+  for (const ink of Object.values(INKS)) keys.add(ink.label);
+  for (const k of ['Schreibschrift', 'Elegant', 'Feder', 'Druckschrift', 'Verspielt', 'Liniert', 'Kariert', 'Leer', 'Eigene Zeichen']) keys.add(k);
+  const missing = [...keys].filter((k) => !(k in EN));
+  assert.deepEqual(missing, [], 'fehlende Übersetzungen in src/i18n.js');
+  assert.ok(keys.size > 100, `${keys.size} Texte gefunden`);
+});
+
+test('Englische Seiten haben dieselben Elemente wie die deutschen (sonst findet app.js sie nicht)', () => {
+  const ids = (page) => [...readFileSync(new URL(`../${page}`, import.meta.url), 'utf8').matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]).sort();
+  assert.deepEqual(ids('en/app/index.html'), ids('app/index.html'));
+  assert.deepEqual(ids('en/index.html'), ids('index.html'));
+  for (const page of ['en/index.html', 'en/app/index.html', 'en/privacy/index.html']) {
+    const html = readFileSync(new URL(`../${page}`, import.meta.url), 'utf8');
+    assert.match(html, /<html lang="en">/, page);
   }
 });

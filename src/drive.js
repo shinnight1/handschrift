@@ -4,6 +4,8 @@
 // "drive.appdata" sieht nur den eigenen Ordner der App, keine anderen Dateien.
 // Neue Tokens gibt Google nur nach einem Tipp heraus (Anmeldefenster).
 
+import { tr } from './i18n.js';
+
 // OAuth-Client-ID aus der Google Cloud Console, Projekt "siebwrite" (öffentlich, kein Geheimnis).
 // Erlaubte Adressen dort: https://siebwrite.de, https://www.siebwrite.de, http://localhost:5190.
 // Leer: Die Google-Knöpfe bleiben ausgeblendet.
@@ -39,7 +41,7 @@ function loadGis() {
     s.onerror = () => {
       gisPromise = null;
       s.remove();
-      reject(new DriveError('load', 'Google ließ sich nicht laden. Ist das Netz da?'));
+      reject(new DriveError('load', tr('Google ließ sich nicht laden. Ist das Netz da?')));
     };
     document.head.append(s);
   });
@@ -58,16 +60,16 @@ function prepare() {
         const p = pending;
         pending = null;
         if (!p) return;
-        if (resp.error) p.reject(new DriveError('denied', 'Google hat die Anmeldung abgelehnt.'));
+        if (resp.error) p.reject(new DriveError('denied', tr('Google hat die Anmeldung abgelehnt.')));
         else if (!google.accounts.oauth2.hasGrantedAllScopes(resp, SCOPE)) {
-          p.reject(new DriveError('denied', 'Ohne den Zugriff geht die Anmeldung nicht.'));
+          p.reject(new DriveError('denied', tr('Ohne den Zugriff geht die Anmeldung nicht.')));
         } else p.resolve({ token: resp.access_token, expires: Date.now() + (Number(resp.expires_in) || 3600) * 1000 });
       },
       error_callback: (err) => {
         const p = pending;
         pending = null;
-        if (err?.type === 'popup_failed_to_open') p?.reject(new DriveError('blocked', 'Das Google-Fenster wurde blockiert.'));
-        else p?.reject(new DriveError('closed', 'Anmeldung abgebrochen.'));
+        if (err?.type === 'popup_failed_to_open') p?.reject(new DriveError('blocked', tr('Das Google-Fenster wurde blockiert.')));
+        else p?.reject(new DriveError('closed', tr('Anmeldung abgebrochen.')));
       },
     });
   });
@@ -79,8 +81,8 @@ function prepare() {
  * @param {string} [email]  bekanntes Konto: Google fragt dann nicht nach der Auswahl
  */
 function requestToken(email) {
-  if (!tokenClient) return Promise.reject(new DriveError('load', 'Google ist noch nicht geladen.'));
-  pending?.reject(new DriveError('closed', 'Anmeldung abgebrochen.'));
+  if (!tokenClient) return Promise.reject(new DriveError('load', tr('Google ist noch nicht geladen.')));
+  pending?.reject(new DriveError('closed', tr('Anmeldung abgebrochen.')));
   return new Promise((resolve, reject) => {
     pending = { resolve, reject };
     tokenClient.requestAccessToken(email ? { prompt: '', login_hint: email } : { prompt: 'select_account' });
@@ -96,11 +98,11 @@ async function call(token, url, init = {}) {
   try {
     res = await fetch(url, { ...init, headers: { ...init.headers, Authorization: `Bearer ${token}` } });
   } catch {
-    throw new DriveError('net', 'Google Drive nicht erreichbar.');
+    throw new DriveError('net', tr('Google Drive nicht erreichbar.'));
   }
-  if (res.status === 401) throw new DriveError('auth', 'Anmeldung abgelaufen.');
-  if (res.status === 403) throw new DriveError('denied', 'Google Drive verweigert den Zugriff.');
-  if (!res.ok) throw new DriveError('net', `Google Drive meldet Fehler ${res.status}.`);
+  if (res.status === 401) throw new DriveError('auth', tr('Anmeldung abgelaufen.'));
+  if (res.status === 403) throw new DriveError('denied', tr('Google Drive verweigert den Zugriff.'));
+  if (!res.ok) throw new DriveError('net', tr('Google Drive meldet Fehler {status}.', { status: res.status }));
   return res;
 }
 

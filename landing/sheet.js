@@ -3,6 +3,7 @@
 // (Notizzettel, note.js) ersetzt das der Vorlage.
 
 import { Hand, measure } from './film.js';
+import { lang } from '../src/i18n.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const W = 1000;
@@ -16,7 +17,11 @@ const EM = 74;
 const SPEED = 1700; // Einheiten pro Sekunde
 const INK = '#1e3a9b';
 
-const EXAMPLES = [
+const EXAMPLES = lang === 'en' ? [
+  'Bio: Mitochondria are the powerhouses of the cell.',
+  'Dear Grandma, thanks for the parcel! The cookies were gone on the first evening.',
+  'Vocab: la mer = the sea, le ciel = the sky',
+] : [
   'Bio: Die Mitochondrien sind die Kraftwerke der Zelle.',
   'Liebe Oma, danke für das Paket! Die Plätzchen waren am ersten Abend weg.',
   'Vokabeln: la mer = das Meer, le ciel = der Himmel',

@@ -6,6 +6,7 @@
 
 import { BOX_ASPECT, GUIDES, fromTop, toGlyphY } from './charset.js';
 import { simplify, smooth, round4 } from './geometry.js';
+import { tr } from './i18n.js';
 
 const SIMPLIFY_EPS = 0.002;
 
@@ -100,14 +101,14 @@ class DrawingGrid {
       const clear = document.createElement('button');
       clear.type = 'button';
       clear.className = 'cell-clear';
-      clear.setAttribute('aria-label', `Kästchen ${p + 1} (${char}) leeren`);
-      clear.title = 'Feld leeren';
+      clear.setAttribute('aria-label', tr('Kästchen {n} ({char}) leeren', { n: p + 1, char }));
+      clear.title = tr('Feld leeren');
       clear.textContent = '×';
       clear.addEventListener('click', () => this.clearCell(key));
       head.append(label, num, clear);
       const canvas = document.createElement('canvas');
       canvas.className = 'cell-canvas';
-      canvas.setAttribute('aria-label', `Schreibfeld für ${char}`);
+      canvas.setAttribute('aria-label', tr('Schreibfeld für {char}', { char }));
       el.append(head, canvas);
       this.root.append(el);
       this.cells.set(key, { el, canvas, ctx: canvas.getContext('2d'), char });
