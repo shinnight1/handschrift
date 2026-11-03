@@ -13,7 +13,9 @@ import { lang, tr, EN } from '../src/i18n.js';
 import { readStoredZip } from '../src/goodnotes/zip.js';
 import { appleLz4Compress, appleLz4Decompress } from '../src/goodnotes/lz4.js';
 import { encodeBallpoint, ballpointFromTpl } from '../src/goodnotes/tpl.js';
-import { decodeRecords } from '../src/goodnotes/proto.js';
+import { decodeRecords, decodeMessage, first, ProtoWriter } from '../src/goodnotes/proto.js';
+import { ATTACHMENT_UUID, BUILTIN_PAPER } from '../src/goodnotes/writer.js';
+import { TEMPLATE_FILES } from '../src/goodnotes/template-data.js';
 import { handoffLink, readHandoff, packCells, unpackCells } from '../src/handoff.js';
 import { encodeStrokes, decodeStrokes } from '../src/store.js';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -219,6 +221,53 @@ test('.goodnotes-Datei: vollständiges ZIP mit einem Strich-Paar pro Strich', ()
     const bg = entries.get([...entries.keys()].find((n) => n.startsWith('attachments/')));
     assert.equal(new TextDecoder().decode(bg.subarray(0, 5)), '%PDF-');
   }
+});
+
+test('Protobuf: Ereignisse der Vorlage lassen sich byte-genau neu schreiben', () => {
+  const events = new Uint8Array(Buffer.from(TEMPLATE_FILES['index.events.pb'], 'base64'));
+  for (const rec of decodeRecords(events)) {
+    assert.deepEqual(new ProtoWriter().fields(decodeMessage(rec)).result(), rec);
+  }
+});
+
+test('.goodnotes-Datei: Papier aus unserem PDF, nicht Goodnotes\' eingebautes Punktraster', () => {
+  const latin1 = (b) => new TextDecoder('latin1').decode(b);
+  const str = (fields, n) => (first(fields, n) ? new TextDecoder().decode(first(fields, n)) : undefined);
+  const layout = setText(fakeCells(), 'Liniert soll liniert bleiben');
+  const attachments = new Set();
+  for (const format of ['standard', 'a4']) {
+    for (const paper of ['lined', 'grid', 'blank']) {
+      const [file] = pagesToGoodNotes(layout.pages, { format, paper, ink: INKS.blau.rgb, layout });
+      const entries = readStoredZip(file);
+      const name = [...entries.keys()].find((n) => n.startsWith('attachments/'));
+      const id = name.slice('attachments/'.length);
+      const bg = entries.get(name);
+      attachments.add(id);
+      assert.notEqual(id, ATTACHMENT_UUID, 'eigene Anhang-UUID');
+      assert.ok(entries.has(`search/${id}`));
+      // Nirgends mehr die alte UUID oder der Name der eingebauten Vorlage
+      for (const [entry, bytes] of entries) {
+        if (entry.startsWith('attachments/') || entry === 'thumbnail.jpg') continue;
+        assert.ok(!latin1(bytes).includes(ATTACHMENT_UUID), `${entry}: alte Anhang-UUID`);
+        assert.ok(!latin1(bytes).includes(BUILTIN_PAPER), `${entry}: Name des Punktpapiers`);
+      }
+      assert.ok(latin1(entries.get('index.attachments.pb')).includes(`attachments/${id}`));
+      assert.ok(latin1(entries.get('index.search.pb')).includes(`search/${id}`));
+      // Ereignisse: Anhang mit echter Größe, Seitenpapier zeigt auf unseren Anhang
+      const events = decodeRecords(entries.get('index.events.pb')).map(decodeMessage);
+      const inner = (n) => events.filter((r) => first(r, n)).map((r) => decodeMessage(first(r, n)));
+      const added = inner(6).find((m) => str(m, 1) === id);
+      assert.equal(first(added, 5), BigInt(bg.length));
+      const papers = inner(2).filter((m) => str(m, 4) === id);
+      assert.equal(papers.length, 1);
+      assert.equal(first(papers[0], 9), undefined);
+      // Unser PDF trägt das gewählte Papier: Linien nur bei liniert und kariert
+      const lines = (latin1(bg).match(/ l S/g) ?? []).length;
+      if (paper === 'blank') assert.equal(lines, 0);
+      else assert.ok(lines > 10, `${format}/${paper}: ${lines} Linien`);
+    }
+  }
+  assert.equal(attachments.size, 6, 'jede Datei eine neue Anhang-UUID');
 });
 
 test('PDF hat eine Seite pro gesetzter Seite', () => {

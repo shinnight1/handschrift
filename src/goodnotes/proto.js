@@ -43,6 +43,24 @@ class ProtoWriter {
     return this;
   }
 
+  fixed64f(field, value) {
+    this.key(field, 1);
+    this.w.f64(value);
+    return this;
+  }
+
+  // Felder aus decodeMessage unverändert zurückschreiben.
+  fields(list) {
+    for (const { field, wire, value } of list) {
+      if (wire === 0) this.varint(field, value);
+      else if (wire === 2) this.bytes(field, value);
+      else if (wire === 5) this.fixed32f(field, value);
+      else if (wire === 1) this.fixed64f(field, value);
+      else throw new Error(`Wire-Typ ${wire} nicht unterstützt`);
+    }
+    return this;
+  }
+
   result() { return this.w.result(); }
 
   // Längenpräfix (varint) + Nachricht. Die Streams in .goodnotes sind Folgen davon.

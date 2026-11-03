@@ -155,6 +155,9 @@ Nicht dokumentiert; der Aufbau folgt InkLift (siehe `THIRD_PARTY_NOTICES.md`).
   Protobuf-Datensätze, pro Strich ein Kopf- und ein Inhaltsdatensatz.
 - Die Punkte eines Strichs stecken als TPL-Abbild (`vuA(v)A(S(uu))A(S(uuuu))vA(f)`, Kugelschreiber)
   in einem Apple-LZ4-Rahmen (`bv41` … `bv4$`).
-- Indizes, Ereignisprotokoll und Seitenhintergrund (ein PDF mit den Papierlinien) kommen aus einer
-  geprüften Ein-Seiten-Vorlage. Für A4 wird nur die Seitengröße im Ereignisprotokoll umgeschrieben;
-  das ist ungetestet, deshalb „Beta“.
+- Indizes und Ereignisprotokoll kommen aus einer geprüften Ein-Seiten-Vorlage. Für A4 wird die
+  Seitengröße im Ereignisprotokoll umgeschrieben; das ist ungetestet, deshalb „Beta“.
+- Der Seitenhintergrund ist ein eigenes PDF mit den Papierlinien (liniert, kariert, blanko). Die
+  Vorlage stammt aus einem Heft auf Goodnotes' eingebautem Punktpapier; mit dessen Namen an der Seite
+  zeigt Goodnotes sein Punktraster statt unseres PDFs. Deshalb fällt der Vorlagenname weg, der Anhang
+  bekommt pro Datei eine eigene UUID und seine echte Größe im Ereignisprotokoll.
