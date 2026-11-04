@@ -108,4 +108,4 @@ function pagesToGoodNotes(pages, { format, paper = 'blank', ink = INKS.schwarz.r
   });
 }
 
-export { INKS, PAPERS, isCustomInk, inkRgb, inkHex, drawPage, pagesToPdf, pagesToGoodNotes };
+export { INKS, PAPERS, PAPER_LINE, isCustomInk, inkRgb, inkHex, paperLines, drawPage, pagesToPdf, pagesToGoodNotes };

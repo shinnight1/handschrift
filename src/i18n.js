@@ -64,6 +64,7 @@ const EN = {
   'Dieser Browser kann den Link nicht entpacken. Ein aktueller Browser hilft.': "This browser can't open the link. An up-to-date one can.",
   'Bisherige Handschrift ersetzt': 'Previous handwriting replaced',
   'Handschrift übernommen ({n} Felder). Sie ersetzt die bisherige auf diesem Gerät.': 'Handwriting received ({n} cells). It replaces the previous one on this device.',
+  'Text aus dem Link übernommen': 'Text taken from the link',
   'Der Link ließ sich nicht lesen.': 'The link could not be read.',
   'Das ist keine Handschrift-Profildatei.': 'This is not a handwriting profile file.',
   'Die Profildatei ist von einer neueren Version.': 'The profile file is from a newer version.',
