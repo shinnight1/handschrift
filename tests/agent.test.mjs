@@ -205,6 +205,8 @@ test('MCP-Server: Handshake, Werkzeuge, Aufrufe und Fehler nach Protokoll', asyn
 // ---------- Paket zum Herunterladen ----------
 
 test('ZIP zum Herunterladen ist aktuell (sonst node tools/build-agent.mjs) und läuft entpackt', async () => {
+  // Ohne .nojekyll macht GitHub Pages aus agent/SKILL.md (Kopfzeilen!) eine HTML-Seite, und der Link auf /ki/ geht ins Leere.
+  assert.ok(existsSync(join(ROOT, '.nojekyll')), '.nojekyll fehlt');
   const built = await buildAgentZip();
   assert.ok(Buffer.from(built).equals(readFileSync(join(ROOT, ZIP_PATH))), `${ZIP_PATH} ist veraltet: node tools/build-agent.mjs`);
   const dir = tempDir();
