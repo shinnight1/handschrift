@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mit KI in deiner Handschrift schreiben: ChatGPT, Claude und GoodNotes · Siebwrite</title>
+  <meta name="description" content="So schreiben ChatGPT, Claude und andere KI-Assistenten Text in deine Handschrift für GoodNotes: per Link mit jedem Chatbot oder als fertige .goodnotes-Datei mit dem Siebwrite-Skill.">
+  <meta name="theme-color" content="#050506">
+  <meta name="color-scheme" content="dark">
+  <meta property="og:title" content="Mit KI in deiner Handschrift schreiben">
+  <meta property="og:description" content="So schreiben ChatGPT, Claude und andere KI-Assistenten Text in deine Handschrift für GoodNotes: per Link mit jedem Chatbot oder als fertige .goodnotes-Datei mit dem Siebwrite-Skill.">
+  <meta property="og:url" content="https://siebwrite.de/ki/">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="de_DE">
+  <meta property="og:image" content="https://siebwrite.de/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://siebwrite.de/ki/">
+  <link rel="alternate" hreflang="de" href="https://siebwrite.de/ki/">
+  <link rel="alternate" hreflang="en" href="https://siebwrite.de/en/ai/">
+  <link rel="alternate" hreflang="x-default" href="https://siebwrite.de/en/ai/">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "@id": "https://siebwrite.de/ki/#article",
+        "headline": "Mit KI in deiner Handschrift schreiben",
+        "description": "So schreiben ChatGPT, Claude und andere KI-Assistenten Text in deine Handschrift für GoodNotes: per Link mit jedem Chatbot oder als fertige .goodnotes-Datei mit dem Siebwrite-Skill.",
+        "inLanguage": "de",
+        "datePublished": "2026-11-04",
+        "dateModified": "2026-11-04",
+        "mainEntityOfPage": "https://siebwrite.de/ki/",
+        "image": "https://siebwrite.de/og.png",
+        "author": {
+          "@type": "Organization",
+          "name": "Siebwrite",
+          "url": "https://siebwrite.de/"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Siebwrite",
+          "url": "https://siebwrite.de/"
+        },
+        "about": {
+          "@type": "WebApplication",
+          "name": "Siebwrite",
+          "url": "https://siebwrite.de/app/",
+          "applicationCategory": "UtilitiesApplication",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+          }
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Siebwrite",
+            "item": "https://siebwrite.de/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Mit KI",
+            "item": "https://siebwrite.de/ki/"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="../landing/style.css?v=19">
+  <script type="importmap">{
+    "imports": {
+      "../landing/eraser.js": "../landing/eraser.js?v=19",
+      "../landing/film.js": "../landing/film.js?v=19",
+      "../landing/glass.js": "../landing/glass.js?v=19",
+      "../landing/hand-font.js": "../landing/hand-font.js?v=19",
+      "../landing/note.js": "../landing/note.js?v=19",
+      "../landing/scribble.js": "../landing/scribble.js?v=19",
+      "../landing/sheet.js": "../landing/sheet.js?v=19",
+      "../landing/sky.js": "../landing/sky.js?v=19",
+      "../src/app.js": "../src/app.js?v=19",
+      "../src/charset.js": "../src/charset.js?v=19",
+      "../src/cloud.js": "../src/cloud.js?v=19",
+      "../src/compose.js": "../src/compose.js?v=19",
+      "../src/draw.js": "../src/draw.js?v=19",
+      "../src/drive.js": "../src/drive.js?v=19",
+      "../src/geometry.js": "../src/geometry.js?v=19",
+      "../src/goodnotes/bytes.js": "../src/goodnotes/bytes.js?v=19",
+      "../src/goodnotes/lz4.js": "../src/goodnotes/lz4.js?v=19",
+      "../src/goodnotes/proto.js": "../src/goodnotes/proto.js?v=19",
+      "../src/goodnotes/template-data.js": "../src/goodnotes/template-data.js?v=19",
+      "../src/goodnotes/tpl.js": "../src/goodnotes/tpl.js?v=19",
+      "../src/goodnotes/writer.js": "../src/goodnotes/writer.js?v=19",
+      "../src/goodnotes/zip.js": "../src/goodnotes/zip.js?v=19",
+      "../src/handoff.js": "../src/handoff.js?v=19",
+      "../src/i18n.js": "../src/i18n.js?v=19",
+      "../src/layout.js": "../src/layout.js?v=19",
+      "../src/pdf.js": "../src/pdf.js?v=19",
+      "../src/presets-data.js": "../src/presets-data.js?v=19",
+      "../src/presets.js": "../src/presets.js?v=19",
+      "../src/profile.js": "../src/profile.js?v=19",
+      "../src/random.js": "../src/random.js?v=19",
+      "../src/render.js": "../src/render.js?v=19",
+      "../src/save.js": "../src/save.js?v=19",
+      "../src/store.js": "../src/store.js?v=19",
+      "../src/sync.js": "../src/sync.js?v=19",
+      "../src/textlink.js": "../src/textlink.js?v=19"
+    }
+  }</script>
+  <script type="module">
+    import { sky } from '../landing/sky.js';
+    import { glass } from '../landing/glass.js';
+    sky();
+    glass({ header: 'header.bar' });
+  </script>
+</head>
+<body>
+  <header class="bar">
+    <a class="word" href="../">Siebwrite</a>
+    <nav class="nav" aria-label="Seite"><a class="nav-lang" href="../en/ai/" hreflang="en" lang="en" title="English">EN</a><a class="nav-app" href="../app/">App öffnen</a></nav>
+  </header>
+
+  <main class="guide">
+    <p class="crumbs"><a href="../">Siebwrite</a> / Mit KI</p>
+    <h1>Mit KI in deiner Handschrift schreiben</h1>
+    <p class="date">Stand: 4. November 2026</p>
+
+    <div class="answer">
+      <b>Kurz gesagt</b>
+      <p>Jeder Chatbot kann dir einen Siebwrite-Link geben. Du öffnest ihn, der Text steht in deiner Handschrift da, und mit einem Tipp ist er in GoodNotes. Claude und andere KI-Agenten, die Code ausführen, machen mit dem Siebwrite-Skill gleich die fertige .goodnotes-Datei.</p>
+    </div>
+
+    <h2>Mit jedem Chatbot: per Link</h2>
+    <p>Schreib deine Bitte an ChatGPT, Claude, Gemini oder einen anderen Chatbot wie immer und häng diesen Satz an:</p>
+    <div class="copy-box">
+      <pre id="prompt-link">Gib mir das Ergebnis als Siebwrite-Link: https://siebwrite.de/app/#text= und direkt dahinter der Text, URL-kodiert (Leerzeichen als %20, Zeilenumbrüche als %0A, &amp; als %26). Nur reiner Text, kein Markdown.</pre>
+      <button class="btn btn-small" type="button" data-copy="prompt-link">Kopieren</button>
+    </div>
+    <p>Öffne den Link am besten auf dem iPad. Siebwrite zeigt den Text in der Handschrift, die du in diesem Browser geschrieben hast. Ein Tipp auf „Als GoodNotes importieren“, und die Seite liegt in GoodNotes, radierbar wie deine eigene Schrift.</p>
+    <p>Für eine bestimmte Optik hängt der Chatbot noch etwas an: <code>&amp;hand=cursive</code> für eine fertige Handschrift (oder <code>elegant</code>, <code>quill</code>, <code>print</code>, <code>playful</code>), <code>&amp;paper=grid</code> für kariert, <code>&amp;ink=schwarz</code> für schwarze Tinte. Der Text steht hinter dem #, und diesen Teil schickt dein Browser an keinen Server.</p>
+
+    <h2>Mit Claude: gleich als Datei</h2>
+    <p>Claude kann mit Skills eigene Werkzeuge ausführen. Mit dem Siebwrite-Skill macht Claude aus seiner Antwort direkt eine .goodnotes-Datei oder ein PDF, ohne Browser dazwischen.</p>
+    <ol class="howto">
+      <li><strong>Skill herunterladen:</strong> <a href="../agent/siebwrite-skill.zip" download>siebwrite-skill.zip</a> (260 KB).</li>
+      <li><strong>In Claude hochladen.</strong> In den Einstellungen von Claude die ZIP-Datei als Skill hinzufügen. Skills laufen nur, wenn Claude Code ausführen darf.</li>
+      <li><strong>Schreiben lassen,</strong> zum Beispiel: „Fass das Kapitel als Lernzettel zusammen und mach daraus eine GoodNotes-Seite in Schreibschrift.“ Claude gibt dir die Datei zum Herunterladen.</li>
+    </ol>
+    <p>Für deine eigene Handschrift tippst du in der <a href="../app/">App</a> unten auf „Sichern“ und gibst die Datei Handschrift-Profil.json mit in den Chat. Sie liegt dann beim KI-Anbieter, wie jede Datei, die du dort hochlädst. Ohne die Datei nimmt Claude eine der fünf fertigen Handschriften oder gibt dir einen Link.</p>
+
+    <h2>Für Entwickler: Kommandozeile und MCP</h2>
+    <p>Im selben Paket steckt ein Programm für Node.js ab Version 18, ohne Installation und ohne Netz:</p>
+    <pre>node siebwrite/agent/siebwrite.mjs --text "Liebe Oma, …" --hand cursive</pre>
+    <p>Mit <code>mcp</code> dahinter läuft es als MCP-Server, etwa für Claude Desktop, Claude Code, Cursor oder Codex. Die Werkzeuge heißen <code>create_handwriting</code> (speichert .goodnotes-Dateien oder ein PDF) und <code>handwriting_link</code> (der Link von oben).</p>
+    <pre>{
+  "mcpServers": {
+    "siebwrite": {
+      "command": "node",
+      "args": ["/Pfad/zu/siebwrite/agent/siebwrite.mjs", "mcp"],
+      "env": { "SIEBWRITE_PROFILE": "/Pfad/zu/Handschrift-Profil.json" }
+    }
+  }
+}</pre>
+    <p>Alle Optionen zeigt <code>--help</code>, den Rest die <a href="../agent/SKILL.md">Anleitung für Agenten</a>.</p>
+
+    <div class="guide-cta">
+      <p>Noch keine Handschrift gespeichert? Fünf Minuten Alphabet, danach kann jede KI in deiner Schrift schreiben.</p>
+      <a class="btn" href="../app/">Alphabet schreiben</a>
+      <span class="aside">Kostenlos · ohne Konto · ohne Wasserzeichen</span>
+    </div>
+    <p class="more-guides"><a href="../goodnotes-text-in-handschrift/">Text in GoodNotes in Handschrift umwandeln</a><a href="../">Zur Startseite</a></p>
+  </main>
+
+  <footer class="foot">
+    <span>Siebwrite, 2026</span>
+    <a href="mailto:siebwrite.kontakt@gmail.com">Kontakt</a>
+    <a href="../datenschutz/">Datenschutz</a>
+    <a href="../impressum/">Impressum</a>
+    <span>GoodNotes ist eine Marke ihres Inhabers.</span>
+  </footer>
+  <script type="module">
+    // Vorlage kopieren; wo das nicht geht, wenigstens markieren.
+    for (const btn of document.querySelectorAll('[data-copy]')) {
+      btn.addEventListener('click', async () => {
+        const source = document.getElementById(btn.dataset.copy);
+        try {
+          await navigator.clipboard.writeText(source.textContent);
+          btn.textContent = 'Kopiert';
+        } catch {
+          getSelection().selectAllChildren(source);
+          btn.textContent = 'Markiert';
+        }
+        setTimeout(() => { btn.textContent = 'Kopieren'; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -4,12 +4,14 @@ import { CELL_CHARS, CELL_GROUPS, FIRST_PASS, BASE_CELLS, EXTRA_PASSES, isCustom
 import { DrawingGrid } from './draw.js';
 import { ProfileStore } from './store.js';
 import { parseProfile, glyphTable, filledCount, createProfile } from './profile.js';
-import { layoutText, FORMATS } from './layout.js';
+import { layoutText } from './layout.js';
 import { drawPage, pagesToPdf, pagesToGoodNotes, INKS, inkRgb, inkHex, isCustomInk } from './render.js';
 import { PAGE_FORMATS } from './goodnotes/writer.js';
 import { fromBase64 } from './goodnotes/bytes.js';
 import { isTouch, saveFile, saveFiles, readFileText } from './save.js';
 import { handoffLink, readHandoff } from './handoff.js';
+import { readTextLink } from './textlink.js';
+import { DEFAULT_SETTINGS, cleanSettings, layoutOptions as settingsLayout, fileBase as textFileBase } from './compose.js';
 import { createCloud } from './cloud.js';
 import { PRESETS, presetById, loadFonts, presetProfile } from './presets.js';
 import { lang, tr } from './i18n.js';
@@ -75,14 +77,9 @@ function cssVar(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
-// Dateiname aus den ersten Wörtern, nur ASCII: manche Browser verwerfen
-// Download-Namen mit Sonderzeichen und nennen die Datei dann "download".
+// Dateiname aus den ersten Wörtern des Texts (compose.js).
 function fileBase() {
-  const words = $('text').value.trim().split(/\s+/).slice(0, 3).join(' ')
-    .replace(/[äöüÄÖÜß]/g, (c) => ({ ä: 'ae', ö: 'oe', ü: 'ue', Ä: 'Ae', Ö: 'Oe', Ü: 'Ue', ß: 'ss' })[c])
-    .normalize('NFD').replace(/[^A-Za-z0-9 _-]/g, '').trim();
-  const name = tr('Handschrift');
-  return words ? `${name} - ${words}` : name;
+  return textFileBase($('text').value, tr('Handschrift'));
 }
 
 // ---------- Schritt 1: Kästchen ----------
@@ -335,11 +332,7 @@ $('clear-all').addEventListener('click', askClear);
 
 // ---------- Schritt 2: Setzen ----------
 
-// hand: 'own' = eigene Handschrift, sonst die Id einer fertigen (presets.js).
-// ink: Name aus INKS oder eine eigene Farbe als "#rrggbb".
-const DEFAULT_SETTINGS = {
-  format: 'a4', paper: 'lined', ink: 'blau', size: 3.2, lines: 9, letters: 0.18, words: 0.9, natural: 0.5, pen: 0.35, seed: 1, hand: 'own',
-};
+// Standardwerte und Prüfung der Einstellungen: compose.js (teilt sich die App mit agent/).
 const settings = { ...DEFAULT_SETTINGS, ...cleanSettings(readJson(SETTINGS_KEY)) };
 let currentLayout = null;
 let sheetPage = 0;
@@ -382,18 +375,7 @@ function activeTable() {
 
 // Satz-Einstellungen; fertige Handschriften setzen nach ihren Vorschüben (presets.js).
 function layoutOptions(preset, overrides = {}) {
-  return {
-    format: FORMATS[settings.format],
-    xHeightMm: settings.size,
-    lineSpacingMm: settings.lines,
-    letterSpacing: settings.letters + (preset?.spacing ?? 0),
-    minGap: preset ? -0.06 : 0.02,
-    wordSpacing: settings.words,
-    natural: settings.natural,
-    penWidthMm: settings.pen,
-    seed: settings.seed,
-    ...overrides,
-  };
+  return settingsLayout(settings, preset, overrides);
 }
 
 const presetName = (id) => tr({ cursive: 'Schreibschrift', elegant: 'Elegant', quill: 'Feder', print: 'Druckschrift', playful: 'Verspielt' }[id]);
@@ -606,21 +588,6 @@ function readControls() {
   }
   $('ink-name').textContent = inkLabel(settings.ink);
   writeJson(SETTINGS_KEY, settings);
-}
-
-// Nur bekannte Einstellungen mit passendem Typ übernehmen (aus Speicher oder Link).
-function cleanSettings(s) {
-  const out = {};
-  for (const [k, def] of Object.entries(DEFAULT_SETTINGS)) {
-    const v = s?.[k];
-    if (typeof v === typeof def && (typeof def !== 'number' || Number.isFinite(v))) out[k] = v;
-  }
-  if (!INKS[out.ink] && !isCustomInk(out.ink)) delete out.ink;
-  if (typeof out.ink === 'string') out.ink = out.ink.toLowerCase();
-  if (!FORMATS[out.format] || !PAGE_FORMATS[out.format]) delete out.format;
-  if (!['lined', 'grid', 'blank'].includes(out.paper)) delete out.paper;
-  if (out.hand !== 'own' && !presetById(out.hand)) delete out.hand;
-  return out;
 }
 
 let composeQueued = false;
@@ -848,6 +815,29 @@ async function receiveHandoff() {
   }
 }
 
+// Text aus einem Link (textlink.js): siebwrite.de/app/#text=…&hand=cursive. So schicken
+// Chatbots und KI-Agenten Text her. Gesetzt wird mit der Handschrift auf diesem Gerät oder
+// der genannten fertigen. Den bisherigen Text holt „Rückgängig“ in der Meldung zurück.
+function receiveTextLink() {
+  const link = readTextLink(location.hash) ?? readTextLink(`#${location.search.slice(1)}`);
+  if (!link) return false;
+  // Text aus Adresszeile und Verlauf nehmen, wie beim Mitnehmen-Link.
+  history.replaceState(null, '', `${location.pathname}#${HASH.setzen}`);
+  const before = $('text').value;
+  Object.assign(settings, link.settings);
+  writeJson(SETTINGS_KEY, settings);
+  setText(link.text);
+  clearedText = null;
+  updateTextClear();
+  syncControls();
+  if (settings.hand !== 'own') needFonts();
+  showView();
+  if (before.trim() && before !== link.text && before !== EXAMPLE_TEXT) {
+    toast(tr('Text aus dem Link übernommen'), { label: tr('Rückgängig'), run: () => { setText(before); updateTextClear(); } });
+  }
+  return true;
+}
+
 // ---------- Ansichten ----------
 
 function showView() {
@@ -866,7 +856,7 @@ function showView() {
 
 window.addEventListener('hashchange', () => {
   if (location.hash.startsWith('#gn')) receiveHandoff();
-  else showView();
+  else if (!receiveTextLink()) showView();
 });
 let resizeTimer = null;
 window.addEventListener('resize', () => {
@@ -886,7 +876,10 @@ if (wanted) {
     settings.hand = wanted;
     writeJson(SETTINGS_KEY, settings);
   }
-  history.replaceState(null, '', `${location.pathname}${location.hash || `#${HASH.setzen}`}`);
+  // Mit ?text=… räumt receiveTextLink() die Adresse auf, nachdem es den Text gelesen hat.
+  if (!new URLSearchParams(location.search).has('text')) {
+    history.replaceState(null, '', `${location.pathname}${location.hash || `#${HASH.setzen}`}`);
+  }
 }
 
 $('text').value = readJson(TEXT_KEY) ?? EXAMPLE_TEXT;
@@ -901,5 +894,6 @@ updateProgress();
 updatePageInfo();
 cloud.start();
 receiveHandoff();
+receiveTextLink();
 if (settings.hand !== 'own') needFonts();
 document.documentElement.dataset.ready = '1'; // sonst zeigt die Seite nach kurzer Zeit „Neu laden“

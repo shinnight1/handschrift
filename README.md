@@ -64,7 +64,8 @@ node --test
 ```
 
 prüft Mitnehmen-Link, Profil, Abgleich mit Google Drive, Satz, LZ4, TPL, die `.goodnotes`-Datei,
-das PDF, die fertigen Handschriften, eigene Farben und die englische Fassung ohne Browser.
+das PDF, die fertigen Handschriften, eigene Farben, die englische Fassung und den Weg für
+KI-Agenten (Text-Link, Kommandozeile, MCP-Server, ZIP) ohne Browser.
 
 Für die Google-Anmeldung lokal muss `http://localhost:5190` in der Google Cloud Console beim
 OAuth-Client unter „Autorisierte JavaScript-Quellen“ stehen.
@@ -79,6 +80,34 @@ zählt die Versionsnummer hoch, die an Stylesheets und an jedem Modul hängt (ü
 allen sechs Seiten, deutsch und englisch). GitHub Pages lässt Browser Dateien 10 Minuten zwischenspeichern;
 ohne neue Nummer mischt der Browser neue und alte Module, und die App bleibt leer. Der Test schlägt
 fehl, wenn ein Modul in der Import Map fehlt.
+
+## KI-Assistenten und Agenten
+
+Erklärt für alle unter `/ki/` (englisch `/en/ai/`), für Crawler in `llms.txt`. Drei Wege, alle ohne
+eigenen Server:
+
+- **Text-Link:** `https://siebwrite.de/app/#text=…&hand=cursive&paper=lined&ink=blau&format=a4`
+  öffnet die App mit dem Text, gesetzt in der Handschrift auf diesem Gerät (oder der genannten
+  fertigen). Den Link kann jeder Chatbot bauen. Alles steht hinter dem `#`; die App nimmt es nach
+  dem Lesen aus der Adresszeile, „Rückgängig“ in der Meldung holt den vorigen Text zurück. Leser und
+  Bauer: `src/textlink.js`; er verzeiht vergessene `&`-Kodierung und Namen wie `blue` oder `kariert`
+  (`src/compose.js`). Die Startseite leitet `#text=` an die App weiter.
+- **Skill / Kommandozeile:** `agent/siebwrite.mjs` macht ohne Browser dieselben `.goodnotes`-Dateien
+  und PDFs wie die App (gemeinsame Einstellungen in `src/compose.js`; das Vorschaubild, das in der App
+  ein Canvas malt, rastert `agent/thumbnail.mjs` selbst und speichert es als JPEG). Nur Node.js ab 18,
+  keine Pakete: `node agent/siebwrite.mjs --help`. Anleitung für Agenten: `agent/SKILL.md`.
+- **MCP-Server:** `node agent/siebwrite.mjs mcp` (stdio) mit den Werkzeugen `create_handwriting`
+  und `handwriting_link`. `SIEBWRITE_PROFILE` zeigt auf eine `Handschrift-Profil.json`,
+  `SIEBWRITE_OUT` auf den Zielordner (sonst Downloads).
+
+Zum Herunterladen liegt alles als `agent/siebwrite-skill.zip` bereit (Claude-Skill, entpackt auch
+Kommandozeile und MCP). Nach jeder Änderung an `agent/` oder an einem Modul, das es nutzt:
+
+```
+node tools/build-agent.mjs
+```
+
+Der Test schlägt fehl, wenn das ZIP nicht mehr zum Code passt.
 
 ## Aufbau
 
@@ -110,6 +139,10 @@ fehl, wenn ein Modul in der Import Map fehlt.
 | `src/presets.js`, `src/presets-data.js` | Fertige Handschriften: Daten aus `tools/build-presets.mjs`, Varianten, Profil wie das eigene |
 | `src/i18n.js` | Sprache der Seite und Übersetzungen (`tr()`) |
 | `src/handoff.js` | Mitnehmen-Link |
+| `src/textlink.js` | Text-Link für Chatbots und Agenten (`#text=…`) |
+| `src/compose.js` | Satz-Einstellungen, die App und `agent/` teilen: Standardwerte, Prüfung, Optionen für den Satz, Dateiname |
+| `agent/*`, `tools/build-agent.mjs` | Siebwrite für KI-Agenten: Kommandozeile, MCP-Server, Skill, Vorschaubild ohne Canvas; das ZIP zum Herunterladen |
+| `ki/index.html`, `en/ai/index.html` | Seite „Mit KI“: Link-Vorlage für Chatbots, Skill zum Herunterladen, MCP |
 | `src/sync.js` | Abgleich-Regeln: wer gewinnt, was hoch- und was runterkommt |
 | `src/drive.js` | Google-Anmeldung (Token) und die Datei im App-Ordner von Google Drive |
 | `src/cloud.js` | Konto oben rechts (Anmeldeknopf oder Profilbild mit Punkt für den Abgleich), Fenster zum An- und Abmelden, Abgleich nach Änderungen |

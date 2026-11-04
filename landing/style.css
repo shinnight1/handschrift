@@ -758,6 +758,21 @@ main > section { max-width: var(--wide); margin: 0 auto; padding: clamp(72px, 12
 .guide-cta { display: grid; justify-items: start; gap: 14px; margin-top: clamp(40px, 6vw, 56px); padding-top: 28px; border-top: 1px solid var(--edge); }
 .guide-cta p { margin: 0; font-size: 18px; color: var(--bright); }
 .more-guides { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 18px; font-size: 14px; }
+/* Vorlagen und Befehle zum Kopieren (Seite /ki/) */
+.guide pre {
+  margin: 14px 0 18px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: var(--glass-rim);
+  color: var(--bright);
+  font: 400 13.5px/1.6 var(--mono);
+  overflow-x: auto; /* Befehle und JSON behalten ihre Zeilen und lassen sich seitlich wischen */
+}
+.guide code { color: var(--bright); font: 400 0.88em var(--mono); overflow-wrap: anywhere; }
+.copy-box { display: grid; justify-items: start; gap: 12px; margin: 14px 0 22px; }
+.copy-box pre { justify-self: stretch; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; } /* Fließtext zum Kopieren */
+.btn.btn-small { height: 42px; padding: 0 22px; font-size: 14px; }
 
 /* ---------- Schluss ---------- */
 

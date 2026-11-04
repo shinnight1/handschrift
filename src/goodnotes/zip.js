@@ -20,9 +20,12 @@ function crc32(data) {
 }
 
 class ZipWriter {
-  constructor() {
+  // dosDate: Datum aller Einträge im DOS-Format. 0 wie in GoodNotes-Dateien; Archive zum
+  // Herunterladen bekommen ein gültiges (tools/build-agent.mjs), sonst meckern manche Entpacker.
+  constructor({ dosDate = 0 } = {}) {
     this.body = new ByteWriter(1 << 16);
     this.entries = [];
+    this.dosDate = dosDate;
   }
 
   add(name, content) {
@@ -34,7 +37,7 @@ class ZipWriter {
     h.u16(20);
     h.u16(0x0800); // UTF-8-Namen
     h.u16(0); // gespeichert, nicht komprimiert
-    h.u16(0); h.u16(0); // Zeit, Datum
+    h.u16(0); h.u16(this.dosDate); // Zeit, Datum
     h.u32(crc);
     h.u32(content.length);
     h.u32(content.length);
@@ -53,7 +56,7 @@ class ZipWriter {
       w.u16(20); w.u16(20);
       w.u16(0x0800);
       w.u16(0);
-      w.u16(0); w.u16(0);
+      w.u16(0); w.u16(this.dosDate);
       w.u32(e.crc);
       w.u32(e.size); w.u32(e.size);
       w.u16(e.nameBytes.length);
