@@ -37,9 +37,9 @@ Options:
   --hand cursive            ready-made: cursive (default), elegant, quill, print, playful
   --profile, -p file.json   the user's own handwriting (Handschrift-Profil.json, exported
                             with "Sichern"/"Save" in the app at https://siebwrite.de/app/)
-  --paper lined             lined (default), grid, blank
+  --paper lined             lined (wide ruled, default), narrow (narrow ruled), grid, blank
   --ink blau                blau (default), schwarz, dunkelblau, grau, or #rrggbb
-  --format a4               a4 (default) or standard (GoodNotes' own page size)
+  --format a4               a4 (default), a5, a3 or standard (GoodNotes' own page size)
   --pdf                     write a PDF instead of .goodnotes files
   --out, -o folder          where to save (default: current folder)
   --name "…"                file name without extension
@@ -165,9 +165,9 @@ const HAND_PROP = {
   description: "Ready-made handwriting: cursive, elegant, quill, print, playful. 'own' = the user's own handwriting (needs profile_path or the SIEBWRITE_PROFILE setting). Default: own if a profile is set, else cursive.",
 };
 const STYLE_PROPS = {
-  paper: { type: 'string', enum: ['lined', 'grid', 'blank'], description: 'Paper. Default: lined.' },
+  paper: { type: 'string', enum: ['lined', 'narrow', 'grid', 'blank'], description: 'Paper: lined (wide ruled, default), narrow (narrow ruled), grid (squared), blank. Ruled paper sets the line spacing.' },
   ink: { type: 'string', description: 'blau (blue ballpoint, default), schwarz (black), dunkelblau (ink), grau (pencil), or a colour as #rrggbb.' },
-  format: { type: 'string', enum: ['a4', 'standard'], description: "Page size: a4 (default) or standard (GoodNotes' own page size)." },
+  format: { type: 'string', enum: ['a4', 'a5', 'a3', 'standard'], description: "Page size: a4 (default), a5, a3 or standard (GoodNotes' own page size)." },
 };
 const TEXT_PROP = {
   type: 'string',

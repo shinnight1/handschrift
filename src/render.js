@@ -1,4 +1,6 @@
 // Ausgabe der gesetzten Seiten: Vorschau auf Canvas, PDF und .goodnotes.
+// Eine Seite ist {width, height, strokes}; Seiten eines Arbeitsblatts tragen dazu image:
+// {jpeg} (das Blatt als Bild, worksheet.js), das unter der Handschrift liegt.
 
 import { PdfDoc, MM } from './pdf.js';
 import { writeGoodNotes } from './goodnotes/writer.js';
@@ -22,15 +24,22 @@ function inkRgb(ink) {
 
 const inkHex = (ink) => `#${inkRgb(ink).map((v) => Math.round(v * 255).toString(16).padStart(2, '0')).join('')}`;
 
-const PAPERS = { blank: 'Blanko', lined: 'Liniert', grid: 'Kariert' };
+const PAPERS = { lined: 'Liniert breit', narrow: 'Liniert schmal', grid: 'Kariert', blank: 'Leer' };
+
+// Linienabstand der linierten Papiere in mm, nach GoodNotes' „breit“ und „schmal“ liniert.
+// Goodnotes nennt keine Maße; Nutzer messen schmal 6,2–6,4 mm und breit 8,5–8,8 mm. Genommen
+// ist die amerikanische Linierung, die in beiden Spannen liegt (narrow ruled 1/4 Zoll, wide
+// ruled 11/32 Zoll). Geschätzt, nicht an einer Goodnotes-Seite nachgemessen.
+const RULINGS = { lined: 8.7, narrow: 6.35 };
 
 const PAPER_LINE = [0.72, 0.8, 0.9];
 const GRID_STEP = 5 * MM;
 
-// Linien des Papiers. Liniert: die Grundlinien der Schrift, über die ganze Seite.
+// Linien des Papiers. Liniert: die Grundlinien der Schrift, über die ganze Seite (der Satz
+// nimmt bei liniertem Papier dessen Linienabstand als Zeilenabstand, compose.js).
 function paperLines(page, paper, layout) {
   const lines = [];
-  if (paper === 'lined') {
+  if (RULINGS[paper]) {
     for (let y = layout.top + layout.lineHeight; y < page.height - 4 * MM; y += layout.lineHeight) {
       lines.push([0, y, page.width, y]);
     }
@@ -43,12 +52,17 @@ function paperLines(page, paper, layout) {
 
 const css = ([r, g, b]) => `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`;
 
-// Zeichnet eine Seite; pxPerPt = Pixel pro PDF-Punkt.
-function drawPage(ctx, page, pxPerPt, { paper = 'blank', ink = INKS.schwarz.rgb, layout }) {
+// Zeichnet eine Seite; pxPerPt = Pixel pro PDF-Punkt. background: Bild des Arbeitsblatts
+// (alles, was drawImage nimmt), füllt die ganze Seite.
+function drawPage(ctx, page, pxPerPt, { paper = 'blank', ink = INKS.schwarz.rgb, layout, background = null }) {
   ctx.save();
   ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, page.width * pxPerPt, page.height * pxPerPt);
   ctx.scale(pxPerPt, pxPerPt);
+  if (background) {
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(background, 0, 0, page.width, page.height);
+  }
   ctx.strokeStyle = css(PAPER_LINE);
   ctx.lineWidth = Math.max(0.4, 0.6 / pxPerPt);
   ctx.beginPath();
@@ -71,7 +85,12 @@ function drawPage(ctx, page, pxPerPt, { paper = 'blank', ink = INKS.schwarz.rgb,
   ctx.restore();
 }
 
-function addPaper(pdfPage, page, paper, layout) {
+// Seitenhintergrund: das Arbeitsblatt oder die Papierlinien.
+function addPaper(doc, pdfPage, page, paper, layout) {
+  if (page.image) {
+    pdfPage.image(doc.addImage(page.image.jpeg), 0, 0, page.width, page.height);
+    return;
+  }
   const lines = paperLines(page, paper, layout);
   if (!lines.length) return;
   pdfPage.strokeColor(...PAPER_LINE).lineWidth(0.5);
@@ -82,7 +101,7 @@ function pagesToPdf(pages, { paper = 'blank', ink = INKS.schwarz.rgb, layout }) 
   const doc = new PdfDoc();
   for (const page of pages) {
     const p = doc.addPage(page.width, page.height);
-    addPaper(p, page, paper, layout);
+    addPaper(doc, p, page, paper, layout);
     p.strokeColor(...ink).round();
     let width = null;
     for (const st of page.strokes) {
@@ -93,14 +112,15 @@ function pagesToPdf(pages, { paper = 'blank', ink = INKS.schwarz.rgb, layout }) 
   return doc.toBytes();
 }
 
-// Ein .goodnotes-Dokument pro Seite. thumbnail(page) darf ein JPEG liefern.
-function pagesToGoodNotes(pages, { format, paper = 'blank', ink = INKS.schwarz.rgb, layout, thumbnail }) {
+// Ein .goodnotes-Dokument pro Seite, in der Größe der Seite (A3, A4, A5, GoodNotes-Standard
+// oder die des Arbeitsblatts). thumbnail(page) darf ein JPEG liefern.
+function pagesToGoodNotes(pages, { paper = 'blank', ink = INKS.schwarz.rgb, layout, thumbnail }) {
   return pages.map((page) => {
     const bg = new PdfDoc();
-    addPaper(bg.addPage(page.width, page.height), page, paper, layout);
+    addPaper(bg, bg.addPage(page.width, page.height), page, paper, layout);
     return writeGoodNotes({
       strokes: page.strokes,
-      format,
+      format: { width: page.width, height: page.height },
       background: bg.toBytes(),
       thumbnail: thumbnail?.(page),
       color: [...ink, 1],
@@ -108,4 +128,4 @@ function pagesToGoodNotes(pages, { format, paper = 'blank', ink = INKS.schwarz.r
   });
 }
 
-export { INKS, PAPERS, PAPER_LINE, isCustomInk, inkRgb, inkHex, paperLines, drawPage, pagesToPdf, pagesToGoodNotes };
+export { INKS, PAPERS, RULINGS, PAPER_LINE, isCustomInk, inkRgb, inkHex, paperLines, drawPage, pagesToPdf, pagesToGoodNotes };

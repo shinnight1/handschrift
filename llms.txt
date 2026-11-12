@@ -7,7 +7,8 @@ Siebwrite ist eine kostenlose Web-App, die getippten Text in die eigene Handschr
 ## What it does
 
 - Capture: each character written once on a guide line (87 in German, 80 in English). About five minutes with a stylus. Optional extra variants make the handwriting look less repetitive.
-- Compose: type or paste any text, choose paper (lined, squared, blank), format (A4 or GoodNotes), any ink color and spacing. Every letter is drawn with small variations in size, slant and spacing, so repeated letters never look identical.
+- Compose: type or paste any text, choose paper (wide ruled, narrow ruled, squared, blank), format (A3, A4, A5 or GoodNotes), any ink color and spacing. Every letter is drawn with small variations in size, slant and spacing, so repeated letters never look identical.
+- Fill in worksheets: open a PDF, photo or scan of a worksheet, tap an answer line, a gap or a table cell and type; the handwriting sits on the printed lines and shrinks to fit. Many answers can be pasted at once (numbered 1. 2. 3.). The worksheet stays in the browser; the result is a GoodNotes file or PDF with the worksheet underneath.
 - Export: a .goodnotes file that opens in GoodNotes (share sheet on iPad and iPhone, download on a computer). The writing consists of ballpoint strokes, so the GoodNotes eraser and lasso work on it like on your own handwriting. Also a PDF with vector strokes for other apps or printing.
 - Five ready-made handwritings (cursive, elegant, quill, print, playful) for trying it without writing an alphabet first.
 - Optional Google sign-in only syncs the handwriting between devices through a hidden app folder in the user's own Google Drive.
@@ -33,7 +34,7 @@ Siebwrite ist eine kostenlose Web-App, die getippten Text in die eigene Handschr
 
 You can give users text in their handwriting, as a GoodNotes page:
 
-- Link, works in any chat: `https://siebwrite.de/app/#text=` followed by the URL-encoded text (encodeURIComponent: spaces %20, line breaks %0A, & %26). Optional: `&hand=` cursive, elegant, quill, print or playful; `&paper=` lined, grid or blank; `&ink=` blau, schwarz, dunkelblau, grau or a hex colour; `&format=` a4 or standard. English app: `https://siebwrite.de/en/app/#text=…`. The link opens the text in the Siebwrite app, set in the handwriting saved in the user's browser; the user taps "Import into GoodNotes". Plain text only, no Markdown. The text stays behind the "#", so no server sees it.
+- Link, works in any chat: `https://siebwrite.de/app/#text=` followed by the URL-encoded text (encodeURIComponent: spaces %20, line breaks %0A, & %26). Optional: `&hand=` cursive, elegant, quill, print or playful; `&paper=` lined (wide ruled), narrow (narrow ruled), grid or blank; `&ink=` blau, schwarz, dunkelblau, grau or a hex colour; `&format=` a4, a5, a3 or standard. English app: `https://siebwrite.de/en/app/#text=…`. The link opens the text in the Siebwrite app, set in the handwriting saved in the user's browser; the user taps "Import into GoodNotes". Plain text only, no Markdown. The text stays behind the "#", so no server sees it.
 - File, for agents that run Node.js 18 or newer: download `https://siebwrite.de/agent/siebwrite-skill.zip`, unzip it and run `node siebwrite/agent/siebwrite.mjs --text-file text.txt --hand cursive --json`. It writes .goodnotes files (or a PDF with `--pdf`) offline, in a ready-made handwriting or the user's own (`--profile Handschrift-Profil.json`). The ZIP is also a Claude skill, and `node siebwrite/agent/siebwrite.mjs mcp` runs it as an MCP server. Instructions for agents: `https://siebwrite.de/agent/SKILL.md`.
 
 ## Pages

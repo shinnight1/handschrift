@@ -14,9 +14,9 @@ import { thumbnailJpeg } from './thumbnail.mjs';
 const HANDS = ['own', ...PRESETS.map((p) => p.id)];
 const CHOICES = {
   hand: HANDS.join(', '),
-  paper: 'lined, grid, blank',
+  paper: 'lined (wide ruled), narrow (narrow ruled), grid, blank',
   ink: 'blau (blue ballpoint), schwarz (black), dunkelblau (ink), grau (pencil) or #rrggbb',
-  format: 'a4, standard (GoodNotes page size)',
+  format: 'a4, a5, a3, standard (GoodNotes page size)',
 };
 
 class UsageError extends Error {}
@@ -26,9 +26,9 @@ class UsageError extends Error {}
  * @param {string} o.text
  * @param {object|string} [o.profile]  Inhalt einer Handschrift-Profil.json: die eigene Handschrift
  * @param {string} [o.hand]    'own' oder eine fertige: cursive, elegant, quill, print, playful
- * @param {string} [o.paper]   lined, grid, blank
+ * @param {string} [o.paper]   lined (breit liniert), narrow (schmal liniert), grid, blank
  * @param {string} [o.ink]     blau, schwarz, dunkelblau, grau oder #rrggbb (auch blue, black …)
- * @param {string} [o.format]  a4 oder standard
+ * @param {string} [o.format]  a4, a5, a3 oder standard
  * @param {'goodnotes'|'pdf'} [o.output]
  * @param {number} [o.seed]    andere Zahl, andere Varianten (wie „Mischen“ in der App)
  * @param {string} [o.name]    Dateiname ohne Endung
@@ -77,7 +77,7 @@ async function makeHandwriting(o) {
   } else {
     const pageWord = lang === 'en' ? 'Page' : 'Seite';
     const thumbnail = (page) => thumbnailJpeg(page, { paper: settings.paper, ink, layout });
-    const all = pagesToGoodNotes(layout.pages, { format: settings.format, paper: settings.paper, ink, layout, thumbnail });
+    const all = pagesToGoodNotes(layout.pages, { paper: settings.paper, ink, layout, thumbnail });
     files = all.map((bytes, i) => ({ name: all.length > 1 ? `${base} (${pageWord} ${i + 1}).goodnotes` : `${base}.goodnotes`, bytes }));
   }
   const { hand: h, paper, ink: inkName, format } = settings;

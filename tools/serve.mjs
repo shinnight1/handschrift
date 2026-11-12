@@ -18,6 +18,9 @@ const TYPES = {
   '.xml': 'application/xml; charset=utf-8',
   '.txt': 'text/plain; charset=utf-8',
   '.md': 'text/plain; charset=utf-8',
+  '.wasm': 'application/wasm',
+  '.pdf': 'application/pdf',
+  '.jpg': 'image/jpeg',
 };
 
 createServer(async (req, res) => {

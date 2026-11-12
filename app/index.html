@@ -14,47 +14,49 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="../style.css?v=19">
+  <link rel="stylesheet" href="../style.css?v=20">
   <script type="importmap">{
     "imports": {
-      "../landing/eraser.js": "../landing/eraser.js?v=19",
-      "../landing/film.js": "../landing/film.js?v=19",
-      "../landing/glass.js": "../landing/glass.js?v=19",
-      "../landing/hand-font.js": "../landing/hand-font.js?v=19",
-      "../landing/note.js": "../landing/note.js?v=19",
-      "../landing/scribble.js": "../landing/scribble.js?v=19",
-      "../landing/sheet.js": "../landing/sheet.js?v=19",
-      "../landing/sky.js": "../landing/sky.js?v=19",
-      "../src/app.js": "../src/app.js?v=19",
-      "../src/charset.js": "../src/charset.js?v=19",
-      "../src/cloud.js": "../src/cloud.js?v=19",
-      "../src/compose.js": "../src/compose.js?v=19",
-      "../src/draw.js": "../src/draw.js?v=19",
-      "../src/drive.js": "../src/drive.js?v=19",
-      "../src/geometry.js": "../src/geometry.js?v=19",
-      "../src/goodnotes/bytes.js": "../src/goodnotes/bytes.js?v=19",
-      "../src/goodnotes/lz4.js": "../src/goodnotes/lz4.js?v=19",
-      "../src/goodnotes/proto.js": "../src/goodnotes/proto.js?v=19",
-      "../src/goodnotes/template-data.js": "../src/goodnotes/template-data.js?v=19",
-      "../src/goodnotes/tpl.js": "../src/goodnotes/tpl.js?v=19",
-      "../src/goodnotes/writer.js": "../src/goodnotes/writer.js?v=19",
-      "../src/goodnotes/zip.js": "../src/goodnotes/zip.js?v=19",
-      "../src/handoff.js": "../src/handoff.js?v=19",
-      "../src/i18n.js": "../src/i18n.js?v=19",
-      "../src/layout.js": "../src/layout.js?v=19",
-      "../src/pdf.js": "../src/pdf.js?v=19",
-      "../src/presets-data.js": "../src/presets-data.js?v=19",
-      "../src/presets.js": "../src/presets.js?v=19",
-      "../src/profile.js": "../src/profile.js?v=19",
-      "../src/random.js": "../src/random.js?v=19",
-      "../src/render.js": "../src/render.js?v=19",
-      "../src/save.js": "../src/save.js?v=19",
-      "../src/store.js": "../src/store.js?v=19",
-      "../src/sync.js": "../src/sync.js?v=19",
-      "../src/textlink.js": "../src/textlink.js?v=19"
+      "../landing/eraser.js": "../landing/eraser.js?v=20",
+      "../landing/film.js": "../landing/film.js?v=20",
+      "../landing/glass.js": "../landing/glass.js?v=20",
+      "../landing/hand-font.js": "../landing/hand-font.js?v=20",
+      "../landing/note.js": "../landing/note.js?v=20",
+      "../landing/scribble.js": "../landing/scribble.js?v=20",
+      "../landing/sheet.js": "../landing/sheet.js?v=20",
+      "../landing/sky.js": "../landing/sky.js?v=20",
+      "../src/app.js": "../src/app.js?v=20",
+      "../src/charset.js": "../src/charset.js?v=20",
+      "../src/cloud.js": "../src/cloud.js?v=20",
+      "../src/compose.js": "../src/compose.js?v=20",
+      "../src/draw.js": "../src/draw.js?v=20",
+      "../src/drive.js": "../src/drive.js?v=20",
+      "../src/geometry.js": "../src/geometry.js?v=20",
+      "../src/goodnotes/bytes.js": "../src/goodnotes/bytes.js?v=20",
+      "../src/goodnotes/lz4.js": "../src/goodnotes/lz4.js?v=20",
+      "../src/goodnotes/proto.js": "../src/goodnotes/proto.js?v=20",
+      "../src/goodnotes/template-data.js": "../src/goodnotes/template-data.js?v=20",
+      "../src/goodnotes/tpl.js": "../src/goodnotes/tpl.js?v=20",
+      "../src/goodnotes/writer.js": "../src/goodnotes/writer.js?v=20",
+      "../src/goodnotes/zip.js": "../src/goodnotes/zip.js?v=20",
+      "../src/handoff.js": "../src/handoff.js?v=20",
+      "../src/i18n.js": "../src/i18n.js?v=20",
+      "../src/layout.js": "../src/layout.js?v=20",
+      "../src/pdf.js": "../src/pdf.js?v=20",
+      "../src/presets-data.js": "../src/presets-data.js?v=20",
+      "../src/presets.js": "../src/presets.js?v=20",
+      "../src/profile.js": "../src/profile.js?v=20",
+      "../src/random.js": "../src/random.js?v=20",
+      "../src/render.js": "../src/render.js?v=20",
+      "../src/save.js": "../src/save.js?v=20",
+      "../src/sheet.js": "../src/sheet.js?v=20",
+      "../src/store.js": "../src/store.js?v=20",
+      "../src/sync.js": "../src/sync.js?v=20",
+      "../src/textlink.js": "../src/textlink.js?v=20",
+      "../src/worksheet.js": "../src/worksheet.js?v=20"
     }
   }</script>
-  <script type="module" src="../src/app.js?v=19"></script>
+  <script type="module" src="../src/app.js?v=20"></script>
   <script type="module">
     import { sky } from '../landing/sky.js';
     import { glass } from '../landing/glass.js';
@@ -146,10 +148,17 @@
       <div class="compose" id="compose">
         <div class="panel">
           <div class="field">
+            <span class="label" id="mode-label">Worauf schreiben</span>
+            <div class="seg" role="radiogroup" aria-labelledby="mode-label">
+              <label><input type="radio" name="mode" id="mode-text" value="text" checked>Leeres Blatt</label>
+              <label><input type="radio" name="mode" id="mode-sheet" value="sheet">Arbeitsblatt</label>
+            </div>
+          </div>
+          <div class="field">
             <span class="label" id="hands-label">Handschrift</span>
             <div class="hands" id="hands" role="radiogroup" aria-labelledby="hands-label"></div>
           </div>
-          <div class="field">
+          <div class="field" id="text-field">
             <div class="field-row">
               <label class="label" for="text">Text</label>
               <button class="btn btn-text btn-mini" id="text-clear" type="button" hidden>Leeren</button>
@@ -157,21 +166,40 @@
             <textarea id="text" spellcheck="true"></textarea>
           </div>
 
+          <div class="field" id="sheet-field" hidden>
+            <div class="field-row">
+              <span class="label">Arbeitsblatt <span class="label-value" id="sheet-name"></span></span>
+              <span class="field-actions">
+                <label class="btn btn-text btn-mini" for="sheet-file" id="sheet-pick">Öffnen</label>
+                <button class="btn btn-text btn-mini btn-danger" id="sheet-remove" type="button" hidden>Entfernen</button>
+              </span>
+            </div>
+            <input class="sr-only" type="file" id="sheet-file" accept="application/pdf,.pdf,image/*">
+            <p class="hint" id="sheet-help">Tippe im Blatt auf eine Antwortlinie, eine Lücke oder eine Tabellenzelle: Dort entsteht ein Feld, das auf die Linien passt. Mit Maus oder Stift lassen sich Felder auch aufziehen.</p>
+            <ol class="sfields" id="sheet-fields"></ol>
+            <div class="sheet-actions">
+              <button class="btn" id="sheet-paste" type="button" hidden>Antworten einfügen</button>
+            </div>
+          </div>
+
           <fieldset class="settings">
             <legend class="sr-only">Einstellungen</legend>
-            <div class="field">
-              <span class="label">Format</span>
-              <div class="seg" role="radiogroup" aria-label="Format">
+            <div class="field span-2" id="format-field">
+              <span class="label" id="format-label">Format</span>
+              <div class="seg" role="radiogroup" aria-labelledby="format-label">
+                <label><input type="radio" name="format" id="format-a3" value="a3">A3</label>
                 <label><input type="radio" name="format" id="format-a4" value="a4" checked>A4</label>
+                <label><input type="radio" name="format" id="format-a5" value="a5">A5</label>
                 <label><input type="radio" name="format" id="format-standard" value="standard">GoodNotes</label>
               </div>
             </div>
-            <div class="field">
-              <span class="label">Papier</span>
-              <div class="seg" role="radiogroup" aria-label="Papier">
-                <label><input type="radio" name="paper" id="paper-lined" value="lined" checked>Liniert</label>
-                <label><input type="radio" name="paper" id="paper-grid" value="grid">Kariert</label>
-                <label><input type="radio" name="paper" id="paper-blank" value="blank">Leer</label>
+            <div class="field span-2" id="paper-field">
+              <span class="label" id="paper-label">Papier</span>
+              <div class="papers" role="radiogroup" aria-labelledby="paper-label">
+                <label class="paper"><input type="radio" name="paper" id="paper-lined" value="lined" checked><span class="paper-sheet paper-lined" aria-hidden="true"></span><span class="paper-name">Liniert breit</span></label>
+                <label class="paper"><input type="radio" name="paper" id="paper-narrow" value="narrow"><span class="paper-sheet paper-narrow" aria-hidden="true"></span><span class="paper-name">Liniert schmal</span></label>
+                <label class="paper"><input type="radio" name="paper" id="paper-grid" value="grid"><span class="paper-sheet paper-grid" aria-hidden="true"></span><span class="paper-name">Kariert</span></label>
+                <label class="paper"><input type="radio" name="paper" id="paper-blank" value="blank"><span class="paper-sheet paper-blank" aria-hidden="true"></span><span class="paper-name">Leer</span></label>
               </div>
             </div>
             <div class="field">
@@ -186,9 +214,9 @@
             <details class="more span-2">
               <summary>Feinschliff</summary>
               <div class="more-grid">
-                <div class="field">
+                <div class="field" id="lines-field">
                   <div class="field-row"><label class="label" for="lines">Zeilenabstand</label><output for="lines" id="lines-out"></output></div>
-                  <input type="range" id="lines" min="6" max="14" step="0.5" value="9">
+                  <input type="range" id="lines" min="6" max="14" step="0.05" value="9">
                 </div>
                 <div class="field">
                   <div class="field-row"><label class="label" for="letters">Buchstabenabstand</label><output for="letters" id="letters-out"></output></div>
@@ -222,7 +250,17 @@
             <button class="chip chip-warn chip-action" id="missing" type="button" title="Fehlende Zeichen jetzt schreiben" hidden><span id="missing-chars"></span><svg width="15" height="15" aria-hidden="true"><use href="#i-pen"/></svg></button>
             <button class="btn" id="reshuffle" type="button" title="Andere Varianten und Schwankungen auswürfeln"><svg width="18" height="18"><use href="#i-shuffle"/></svg>Neu mischen</button>
           </div>
-          <div class="page-frame"><canvas id="preview" aria-label="Vorschau der Seite"></canvas></div>
+          <div class="page-frame" id="page-frame">
+            <canvas id="preview" aria-label="Vorschau der Seite"></canvas>
+            <div class="sheet-layer" id="sheet-layer" hidden></div>
+            <div class="sheet-drop" id="sheet-drop" hidden>
+              <svg class="sheet-drop-icon" width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><path d="M12 6h14l8 8v24H12z M26 6v8h8 M17 22h12 M17 27h12 M17 32h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
+              <p class="sheet-drop-title">Arbeitsblatt hierher ziehen</p>
+              <p class="sheet-drop-sub">PDF, Foto oder Scan. Es bleibt auf deinem Gerät.</p>
+              <label class="btn btn-primary" for="sheet-file">Arbeitsblatt öffnen</label>
+              <p class="sheet-drop-status" id="sheet-status" role="status"></p>
+            </div>
+          </div>
           <div class="export">
             <button class="btn btn-primary" id="save-goodnotes" type="button">Als GoodNotes importieren</button>
             <button class="btn" id="save-pdf" type="button">Als PDF</button>
@@ -263,6 +301,17 @@
         <span class="spacer"></span>
         <a class="btn btn-text" href="../datenschutz/" target="_blank" rel="noopener">Datenschutz</a>
         <button class="btn btn-text" id="cloud-close" type="button">Schließen</button>
+      </div>
+    </dialog>
+
+    <dialog class="dialog" id="paste-dialog" aria-labelledby="paste-title">
+      <h2 id="paste-title">Antworten einfügen</h2>
+      <p>Alle Antworten auf einmal, zum Beispiel aus einem Chat. Nummeriert (1. 2. 3. oder a) b) c)) kommen sie in die Felder mit dieser Nummer, sonst der Reihe nach, getrennt durch Leerzeilen. Feld 1 ist das oberste.</p>
+      <textarea id="paste-text" spellcheck="true"></textarea>
+      <div class="dialog-actions">
+        <button class="btn btn-primary" id="paste-apply" type="button">Verteilen</button>
+        <span class="spacer"></span>
+        <button class="btn btn-text" id="paste-close" type="button">Abbrechen</button>
       </div>
     </dialog>
 
