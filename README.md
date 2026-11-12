@@ -16,14 +16,56 @@ weiter ankommen. Englisch unter `/en/` (App `/en/app/`, Datenschutz `/en/privacy
    Durchgang (87 Zeichen) geht Setzen schon, weitere Varianten machen die Schrift lebendiger.
    Wer noch mehr Abwechslung will, schaltet „+ 5 Durchgänge“ dazu: noch fünfmal alles, freiwillig.
 2. **Setzen:** Oben die Handschrift wählen: „Meine“ oder eine der fünf fertigen (Schreibschrift,
-   Elegant, Feder, Druckschrift, Verspielt). Text eintippen, Format, Papier, Farbe und Abstände
-   einstellen; das `+` hinter den Farben öffnet das Farbfeld des Browsers für jede andere Farbe
+   Elegant, Feder, Druckschrift, Verspielt). Text eintippen, Format (A3, A4, A5, GoodNotes), Papier
+   (liniert breit, liniert schmal, kariert, leer), Farbe und Abstände einstellen. Liniertes Papier gibt
+   den Zeilenabstand vor (breit 8,7 mm, schmal 6,35 mm; Goodnotes nennt keine Maße, das sind die
+   amerikanischen Linierungen, die zu Messungen von Nutzern passen, nicht an Goodnotes nachgemessen);
+   beim Wechsel wächst oder schrumpft die Schrift im selben Verhältnis mit. Das `+` hinter den Farben öffnet das Farbfeld des Browsers für jede andere Farbe
    (gespeichert werden die letzten sechs). „Mischen“ würfelt die Varianten neu. Steht oben
    „Fehlt: *“, führt ein Tipp darauf direkt zum Kästchen für das Zeichen. Zeichen, die nicht in
    der Liste sind (z. B. `*`, `#`, `§`), bekommen dabei ein eigenes Kästchen unter „Eigene Zeichen“.
    Bei fertigen Handschriften lässt sich nichts nachschreiben; dort fehlt aber kaum etwas.
 3. **Als GoodNotes importieren:** auf iPad und Handy öffnet sich das Teilen-Menü, dort GoodNotes
    wählen. Am PC wird die `.goodnotes`-Datei heruntergeladen. Jede Seite wird eine eigene Datei.
+
+Statt auf leeres Papier lässt sich auch auf ein **Arbeitsblatt** schreiben (Schalter oben im
+Setzen, siehe unten).
+
+## Arbeitsblätter ausfüllen
+
+Ein PDF, Foto oder Scan öffnen (oder aufs Setzen ziehen), dann:
+
+- **Tippen** auf eine Antwortlinie, eine Lücke (`______`) oder in eine Tabellenzelle legt ein Feld an,
+  das passt: bei Linien alle gleich langen, leeren Linien im gleichen Abstand darunter und darüber
+  (mehrzeilige Antwort) samt Platz zum Schreiben darüber; bei einer Lücke nur die Lücke; in einer
+  Tabelle genau die Zelle. Liegt keine Linie in der Nähe, ein Feld für eine Zeile.
+- **Aufziehen** mit Maus oder Stift (Apple Pencil zeichnet, der Finger scrollt weiter). Felder lassen
+  sich verschieben, an den Ecken in der Größe ändern und löschen (Entf, oder „Feld löschen“).
+- **Text** tippt man direkt am Feld oder in der Liste im Bedienfeld. Die Handschrift setzt sich auf
+  die erkannten Linien im Feld; ohne Linien steht sie in niedrigen Feldern mittig, in großen oben.
+  Passt der Text nicht, wird die Schrift bis 1,5 mm x-Höhe kleiner, danach wird das Feld rot.
+  „Größe“ ist dabei die größte Schrift.
+- **Antworten einfügen** verteilt mehrere Antworten auf einmal, etwa aus einem Chat: „1. … 2. …“
+  oder „a) … b) …“ in die Felder mit dieser Nummer (Lesereihenfolge: Seite, dann von oben nach
+  unten), sonst der Reihe nach, getrennt durch Leerzeilen.
+- **Ausgabe** wie sonst: PDF mit dem Blatt als Bild unter den Strichen, GoodNotes eine Datei je
+  Seite, das Blatt als Seitenhintergrund, die Handschrift radierbar. Die Seiten haben die Größe des
+  Blatts; das ist in GoodNotes ungetestet, deshalb „Beta“.
+
+Wie es geht: `src/worksheet.js` (ohne Browser, getestet) findet gedruckte Linien in einem
+Graustufenbild der Seite (150 dpi). Eine Linie ist eine Pixelzeile, die in Fenstern von 1,5 mm
+dunkel genug ist, während 0,8 und 1,2 mm darüber und darunter fast nichts gedruckt ist; daran fällt
+Text heraus. Punkt- und Strichlinien halten Lücken bis 3 mm aus, im Foto zerfallene Punktlinien
+werden über leere Lücken wieder verbunden. Senkrechte Linien (dieselbe Suche auf dem gedrehten Bild)
+grenzen Tabellenzellen ab. Fotos werden vorher wie ein Scan behandelt (`src/sheet.js`): Schatten und
+graues Papier je Bildblock auf Weiß gezogen, Schräglage geschätzt (Projektionsprofil, ±5°) und
+gerade gedreht. PDFs liest PDF.js (Mozilla) aus `vendor/pdfjs-6.4.299/`; es lädt erst beim ersten
+PDF. Höchstens 20 Seiten, je Seite höchstens 6 Megapixel (220 dpi bei A4), ab fünf Seiten 4.
+
+Das Blatt bleibt im Browser: Seiten als JPEG in IndexedDB (`siebwrite` → `sheet`), die Felder im
+localStorage (`handschrift.sheet.v1`), der Modus unter `handschrift.mode.v1`. Mitnehmen-Link und
+Google Drive nehmen das Blatt nicht mit. Für KI-Agenten (`agent/`) gibt es Arbeitsblätter nicht:
+PDFs zu rastern bräuchte in Node Pakete.
 
 ## Wo die Handschrift liegt
 
@@ -64,8 +106,9 @@ node --test
 ```
 
 prüft Mitnehmen-Link, Profil, Abgleich mit Google Drive, Satz, LZ4, TPL, die `.goodnotes`-Datei,
-das PDF, die fertigen Handschriften, eigene Farben, die englische Fassung und den Weg für
-KI-Agenten (Text-Link, Kommandozeile, MCP-Server, ZIP) ohne Browser.
+das PDF, die fertigen Handschriften, eigene Farben, Formate und Linierungen, Arbeitsblätter
+(Linien finden, Felder, Satz in Feldern, PDF und GoodNotes mit Blatt), die englische Fassung und
+den Weg für KI-Agenten (Text-Link, Kommandozeile, MCP-Server, ZIP) ohne Browser.
 
 Für die Google-Anmeldung lokal muss `http://localhost:5190` in der Google Cloud Console beim
 OAuth-Client unter „Autorisierte JavaScript-Quellen“ stehen.
@@ -134,8 +177,11 @@ Der Test schlägt fehl, wenn das ZIP nicht mehr zum Code passt.
 | `src/charset.js` | welche Zeichen in welcher Reihenfolge erfasst werden |
 | `src/draw.js` | Schreibkästchen, Stift-Erkennung, Rückgängig |
 | `src/profile.js`, `src/store.js` | Profil, Glyphen-Maße, Speichern im Browser |
-| `src/layout.js`, `src/random.js` | Text setzen, Varianten und Schwankungen |
-| `src/render.js`, `src/pdf.js` | Vorschau, PDF, Papierlinien, Farben (feste und eigene `#rrggbb`) |
+| `src/layout.js`, `src/random.js` | Text setzen (ganze Seiten und einzelne Felder), Varianten und Schwankungen, Formate A3/A4/A5/GoodNotes |
+| `src/render.js`, `src/pdf.js` | Vorschau, PDF (auch mit JPEG als Seitenhintergrund), Papierlinien (breit/schmal liniert, kariert), Farben (feste und eigene `#rrggbb`) |
+| `src/worksheet.js` | Arbeitsblatt ohne Browser: Linien und Tabellenzellen finden, Schräglage schätzen, Feld aus einem Tipp, Felder setzen, Antworten verteilen |
+| `src/sheet.js` | Arbeitsblatt im Browser: PDF (über PDF.js) und Fotos öffnen, Fotos ausgleichen und gerade drehen, Speichern in IndexedDB, Felder über der Vorschau |
+| `vendor/pdfjs-6.4.299/` | PDF.js von Mozilla (Apache 2.0), unverändert aus `pdfjs-dist`; neue Fassung: Ordner mit neuer Nummer, Pfad in `src/sheet.js` |
 | `src/presets.js`, `src/presets-data.js` | Fertige Handschriften: Daten aus `tools/build-presets.mjs`, Varianten, Profil wie das eigene |
 | `src/i18n.js` | Sprache der Seite und Übersetzungen (`tr()`) |
 | `src/handoff.js` | Mitnehmen-Link |
@@ -188,9 +234,11 @@ Nicht dokumentiert; der Aufbau folgt InkLift (siehe `THIRD_PARTY_NOTICES.md`).
   Protobuf-Datensätze, pro Strich ein Kopf- und ein Inhaltsdatensatz.
 - Die Punkte eines Strichs stecken als TPL-Abbild (`vuA(v)A(S(uu))A(S(uuuu))vA(f)`, Kugelschreiber)
   in einem Apple-LZ4-Rahmen (`bv41` … `bv4$`).
-- Indizes und Ereignisprotokoll kommen aus einer geprüften Ein-Seiten-Vorlage. Für A4 wird die
-  Seitengröße im Ereignisprotokoll umgeschrieben; das ist ungetestet, deshalb „Beta“.
-- Der Seitenhintergrund ist ein eigenes PDF mit den Papierlinien (liniert, kariert, blanko). Die
+- Indizes und Ereignisprotokoll kommen aus einer geprüften Ein-Seiten-Vorlage. Für A3, A4, A5 und
+  Arbeitsblätter wird die Seitengröße im Ereignisprotokoll umgeschrieben; das ist ungetestet,
+  deshalb „Beta“.
+- Der Seitenhintergrund ist ein eigenes PDF mit den Papierlinien (liniert, kariert, blanko) oder dem
+  Arbeitsblatt als JPEG. Die
   Vorlage stammt aus einem Heft auf Goodnotes' eingebautem Punktpapier; mit dessen Namen an der Seite
   zeigt Goodnotes sein Punktraster statt unseres PDFs. Deshalb fällt der Vorlagenname weg, der Anhang
   bekommt pro Datei eine eigene UUID und seine echte Größe im Ereignisprotokoll.

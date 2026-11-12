@@ -20,8 +20,10 @@ const UNITS_PER_POINT = 132 / 72;
 const PAGE_FORMATS = {
   // Seitengröße der geprüften Vorlage.
   standard: { width: 455.04, height: 588.45, label: 'GoodNotes-Standard', tested: true },
-  // Gleiche Vorlage, Seitengröße im Ereignisprotokoll auf A4 umgeschrieben. Ungetestet.
+  // Gleiche Vorlage, Seitengröße im Ereignisprotokoll umgeschrieben. Ungetestet.
+  a3: { width: 841.89, height: 1190.55, label: 'A3', tested: false },
   a4: { width: 595.28, height: 841.89, label: 'A4', tested: false },
+  a5: { width: 419.53, height: 595.28, label: 'A5', tested: false },
 };
 
 const PAGE_UUID = '47C42002-8FC8-521C-80C0-A3C6E11DA9C1';
@@ -157,18 +159,26 @@ function noteStream(strokes, color = [0, 0, 0, 1], now = Date.now()) {
   return concat(parts);
 }
 
+// Seitengröße aus einem Schlüssel von PAGE_FORMATS oder direkt {width, height} in Punkten
+// (Arbeitsblätter haben die Größe ihrer Vorlage).
+function pageSize(format) {
+  const page = typeof format === 'string' ? PAGE_FORMATS[format] : format;
+  if (!page || !(page.width > 0) || !(page.height > 0)) throw new Error(`unbekanntes Seitenformat ${format}`);
+  return page;
+}
+
 /**
  * @param {object} o
  * @param {Array} o.strokes     Striche in PDF-Punkten (siehe noteStream)
- * @param {string} o.format     Schlüssel aus PAGE_FORMATS
+ * @param {string|{width: number, height: number}} o.format  Schlüssel aus PAGE_FORMATS oder Größe in Punkten
  * @param {Uint8Array} o.background  einseitiges PDF in genau dieser Seitengröße
  * @param {Uint8Array} [o.thumbnail] JPEG-Vorschau
  */
 function writeGoodNotes({ strokes, format = 'standard', background, thumbnail, color }) {
-  const page = PAGE_FORMATS[format];
-  if (!page) throw new Error(`unbekanntes Seitenformat ${format}`);
+  const page = pageSize(format);
+  const std = PAGE_FORMATS.standard;
   let events = template('index.events.pb');
-  if (format !== 'standard') events = eventsWithPageSize(events, page.width, page.height);
+  if (page.width !== std.width || page.height !== std.height) events = eventsWithPageSize(events, page.width, page.height);
   const attachment = uuid();
   events = eventsWithOwnPaper(events, attachment, background.length);
   const own = (name) => replaceAscii(template(name), ATTACHMENT_UUID, attachment);

@@ -53,6 +53,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+## PDF.js — https://github.com/mozilla/pdf.js
+
+Liest Arbeitsblätter als PDF im Browser (`src/sheet.js`). Unverändert unter
+`vendor/pdfjs-6.4.299/`: die Legacy-Fassung aus dem npm-Paket `pdfjs-dist` 6.4.299
+(`legacy/build/pdf.min.mjs` und `pdf.worker.min.mjs`, als `.js` gespeichert) und die
+WebAssembly-Decoder aus `wasm/`. Copyright Mozilla Foundation, Apache-2.0
+(`vendor/pdfjs-6.4.299/LICENSE`, auch `licenses/Apache-2.0.txt`). Die Decoder enthalten
+Code von PDFium (JBIG2, BSD-3-Clause), OpenJPEG (BSD-2-Clause) und qcms (MIT); die
+Lizenztexte liegen daneben in `vendor/pdfjs-6.4.299/wasm/LICENSE_*`.
+
 ## Google-Knopf — https://uiverse.io/Yaya12085/sharp-quail-80
 
 Aussehen des Knopfs „Weiter mit Google“ in der App (`.btn-google` in `style.css`, Logo in

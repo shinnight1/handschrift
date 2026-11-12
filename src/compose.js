@@ -4,12 +4,15 @@
 // wie eine aus der App.
 
 import { FORMATS } from './layout.js';
-import { INKS, isCustomInk } from './render.js';
+import { INKS, PAPERS, RULINGS, isCustomInk } from './render.js';
 import { PAGE_FORMATS } from './goodnotes/writer.js';
 import { presetById } from './presets.js';
 
 // hand: 'own' = eigene Handschrift, sonst die Id einer fertigen (presets.js).
 // ink: Name aus INKS oder eine eigene Farbe als "#rrggbb".
+// format: a3, a4, a5 oder standard (GoodNotes' eigene Seitengröße).
+// paper: lined (liniert breit), narrow (liniert schmal), grid, blank. Bei liniertem Papier
+// gibt das Papier den Zeilenabstand vor; lines gilt für kariert und leer.
 const DEFAULT_SETTINGS = {
   format: 'a4', paper: 'lined', ink: 'blau', size: 3.2, lines: 9, letters: 0.18, words: 0.9, natural: 0.5, pen: 0.35, seed: 1, hand: 'own',
 };
@@ -24,20 +27,24 @@ function cleanSettings(s) {
   if (!INKS[out.ink] && !isCustomInk(out.ink)) delete out.ink;
   if (typeof out.ink === 'string') out.ink = out.ink.toLowerCase();
   if (!FORMATS[out.format] || !PAGE_FORMATS[out.format]) delete out.format;
-  if (!['lined', 'grid', 'blank'].includes(out.paper)) delete out.paper;
+  if (!PAPERS[out.paper]) delete out.paper;
   if (out.hand !== 'own' && !presetById(out.hand)) delete out.hand;
   return out;
 }
 
 // Andere Namen, die Menschen und KI-Agenten für dieselben Werte benutzen.
 const ALIASES = {
-  paper: { liniert: 'lined', ruled: 'lined', kariert: 'grid', squared: 'grid', karo: 'grid', blanko: 'blank', plain: 'blank', leer: 'blank' },
+  paper: {
+    liniert: 'lined', ruled: 'lined', breit: 'lined', wide: 'lined', 'liniert-breit': 'lined', 'wide-ruled': 'lined', 'ruled-wide': 'lined',
+    schmal: 'narrow', eng: 'narrow', 'liniert-schmal': 'narrow', 'narrow-ruled': 'narrow', 'ruled-narrow': 'narrow',
+    kariert: 'grid', squared: 'grid', karo: 'grid', blanko: 'blank', plain: 'blank', leer: 'blank',
+  },
   ink: {
     black: 'schwarz', blue: 'blau', ballpoint: 'blau', kuli: 'blau', 'kuli-blau': 'blau',
     darkblue: 'dunkelblau', navy: 'dunkelblau', ink: 'dunkelblau', tinte: 'dunkelblau',
     pencil: 'grau', bleistift: 'grau', gray: 'grau', grey: 'grau',
   },
-  format: { goodnotes: 'standard' },
+  format: { goodnotes: 'standard', 'din-a3': 'a3', 'din-a4': 'a4', 'din-a5': 'a5', dina3: 'a3', dina4: 'a4', dina5: 'a5' },
   hand: { mine: 'own', meine: 'own', eigene: 'own' },
 };
 
@@ -62,12 +69,15 @@ function pickSettings(input = {}) {
   return { settings, invalid };
 }
 
+// Zeilenabstand: bei liniertem Papier der Linienabstand, sonst der eingestellte.
+const lineSpacing = (settings) => RULINGS[settings.paper] ?? settings.lines;
+
 // Satz-Optionen; fertige Handschriften setzen nach ihren Vorschüben (presets.js).
 function layoutOptions(settings, preset, overrides = {}) {
   return {
     format: FORMATS[settings.format],
     xHeightMm: settings.size,
-    lineSpacingMm: settings.lines,
+    lineSpacingMm: lineSpacing(settings),
     letterSpacing: settings.letters + (preset?.spacing ?? 0),
     minGap: preset ? -0.06 : 0.02,
     wordSpacing: settings.words,
@@ -87,4 +97,4 @@ function fileBase(text, name) {
   return words ? `${name} - ${words}` : name;
 }
 
-export { DEFAULT_SETTINGS, cleanSettings, pickSettings, layoutOptions, fileBase };
+export { DEFAULT_SETTINGS, cleanSettings, pickSettings, lineSpacing, layoutOptions, fileBase };

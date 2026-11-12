@@ -5,13 +5,15 @@ import { DrawingGrid } from './draw.js';
 import { ProfileStore } from './store.js';
 import { parseProfile, glyphTable, filledCount, createProfile } from './profile.js';
 import { layoutText } from './layout.js';
-import { drawPage, pagesToPdf, pagesToGoodNotes, INKS, inkRgb, inkHex, isCustomInk } from './render.js';
+import { drawPage, pagesToPdf, pagesToGoodNotes, INKS, RULINGS, inkRgb, inkHex, isCustomInk } from './render.js';
 import { PAGE_FORMATS } from './goodnotes/writer.js';
 import { fromBase64 } from './goodnotes/bytes.js';
 import { isTouch, saveFile, saveFiles, readFileText } from './save.js';
 import { handoffLink, readHandoff } from './handoff.js';
 import { readTextLink } from './textlink.js';
-import { DEFAULT_SETTINGS, cleanSettings, layoutOptions as settingsLayout, fileBase as textFileBase } from './compose.js';
+import { DEFAULT_SETTINGS, cleanSettings, lineSpacing, layoutOptions as settingsLayout, fileBase as textFileBase } from './compose.js';
+import { layoutSheet, splitAnswers } from './worksheet.js';
+import { SheetEditor, openSheetFile, storeSheet, restoreSheet, storeFields, restoreFields, pageImage, dropImage, MAX_PAGES } from './sheet.js';
 import { createCloud } from './cloud.js';
 import { PRESETS, presetById, loadFonts, presetProfile } from './presets.js';
 import { lang, tr } from './i18n.js';
@@ -22,6 +24,7 @@ const TEXT_KEY = 'handschrift.text.v1';
 const TIPS_KEY = 'handschrift.tips.v1';
 const EXTRA_KEY = 'handschrift.extra.v1';
 const INKS_KEY = 'handschrift.inks.v1';
+const MODE_KEY = 'handschrift.mode.v1';
 const EXAMPLE_TEXT = lang === 'en' ? `Dear Grandma,
 
 thank you so much for the lovely parcel! The cookies were gone on the very first evening. I hope you are both well and the garden makes it through the autumn.
@@ -77,8 +80,9 @@ function cssVar(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
-// Dateiname aus den ersten Wörtern des Texts (compose.js).
+// Dateiname aus den ersten Wörtern des Texts bzw. dem Namen des Arbeitsblatts (compose.js).
 function fileBase() {
+  if (mode === 'sheet' && sheet) return textFileBase(sheet.name, tr('Handschrift'));
   return textFileBase($('text').value, tr('Handschrift'));
 }
 
@@ -338,6 +342,13 @@ let currentLayout = null;
 let sheetPage = 0;
 let prepared = null; // fertige .goodnotes-Dateien zum aktuellen Satz
 
+// Worauf geschrieben wird: 'text' (leeres Blatt, Text aus dem Textfeld) oder 'sheet'
+// (Arbeitsblatt mit Feldern, sheet.js und worksheet.js).
+let mode = readJson(MODE_KEY) === 'sheet' ? 'sheet' : 'text';
+let sheet = null; // {id, name, pages}
+let sheetImages = []; // Bild je Seite für die Vorschau
+let sheetLoading = false;
+
 // ----- Handschrift: eigene oder fertige -----
 
 let presetFonts = null; // Daten der fertigen Handschriften, erst bei Bedarf geladen
@@ -548,7 +559,7 @@ function setInk(ink) {
 
 const RANGE_FORMAT = {
   size: (v) => `${v.toFixed(1)} mm`,
-  lines: (v) => `${v.toFixed(1)} mm`,
+  lines: (v) => `${/0$/.test(v.toFixed(2)) ? v.toFixed(1) : v.toFixed(2)} mm`,
   letters: (v) => `${Math.round(v * 100)} %`,
   words: (v) => `${Math.round(v * 100)} %`,
   natural: (v) => `${Math.round(v * 100)} %`,
@@ -563,11 +574,20 @@ function showRange(key) {
   input.style.setProperty('--fill', `${(100 * (v - input.min)) / (input.max - input.min)}%`);
 }
 
+// Liniertes Papier gibt den Zeilenabstand vor (render.js, RULINGS); der Regler zeigt ihn dann
+// nur. Auf Arbeitsblättern gilt der eigene Wert, für Felder ohne Linien.
+const ruledLines = () => (mode === 'sheet' ? null : RULINGS[settings.paper] ?? null);
+function syncLines() {
+  const ruled = ruledLines();
+  $('lines').disabled = Boolean(ruled);
+  $('lines').value = ruled ?? settings.lines;
+  $('lines-field').title = ruled ? tr('Liniertes Papier gibt den Zeilenabstand vor') : '';
+}
+
 function syncControls() {
-  for (const key of Object.keys(RANGE_FORMAT)) {
-    $(key).value = settings[key];
-    showRange(key);
-  }
+  for (const key of Object.keys(RANGE_FORMAT)) $(key).value = settings[key];
+  syncLines();
+  for (const key of Object.keys(RANGE_FORMAT)) showRange(key);
   for (const name of ['format', 'paper']) {
     const input = document.querySelector(`input[name="${name}"][value="${settings[name]}"]`);
     if (input) input.checked = true;
@@ -578,14 +598,24 @@ function syncControls() {
 }
 
 function readControls() {
+  const before = { paper: settings.paper, spacing: lineSpacing(settings) };
   for (const key of Object.keys(RANGE_FORMAT)) {
+    if (key === 'lines' && $('lines').disabled) continue; // zeigt gerade den Linienabstand
     settings[key] = Number($(key).value);
-    showRange(key);
   }
   for (const name of ['format', 'paper', 'ink']) {
     const input = document.querySelector(`input[name="${name}"]:checked`);
     if (input) settings[name] = input.value;
   }
+  // Anderes Papier, anderer Zeilenabstand: die Schrift wächst oder schrumpft mit, wie man auf
+  // schmal liniertem Papier auch kleiner schreibt.
+  const spacing = lineSpacing(settings);
+  if (settings.paper !== before.paper && spacing !== before.spacing) {
+    settings.size = Math.round(Math.max(2, Math.min(6, (settings.size * spacing) / before.spacing)) * 10) / 10;
+    $('size').value = settings.size;
+  }
+  syncLines();
+  for (const key of Object.keys(RANGE_FORMAT)) showRange(key);
   $('ink-name').textContent = inkLabel(settings.ink);
   writeJson(SETTINGS_KEY, settings);
 }
@@ -606,12 +636,19 @@ function compose() {
   $('compose').hidden = empty;
   if (empty) { currentLayout = null; shareLink = null; return; }
 
-  currentLayout = layoutText($('text').value, table, layoutOptions(preset));
-  sheetPage = Math.min(sheetPage, currentLayout.pages.length - 1);
+  if (mode === 'sheet') {
+    // Felder ohne Linien nehmen den eigenen Zeilenabstand, nicht den des Papiers
+    const res = sheet ? layoutSheet(sheet.pages, editor.fields, table, layoutOptions(preset, { lineSpacingMm: settings.lines })) : null;
+    editor.setResults(res?.fields ?? new Map());
+    currentLayout = res && { pages: res.pages, missing: res.missing, sheet: true };
+  } else {
+    currentLayout = layoutText($('text').value, table, layoutOptions(preset));
+  }
+  if (currentLayout) sheetPage = Math.min(sheetPage, currentLayout.pages.length - 1);
   renderSheet();
 
   // Fehlende Zeichen lassen sich nur in der eigenen Handschrift nachschreiben.
-  const missing = currentLayout.missing;
+  const missing = currentLayout?.missing ?? [];
   $('missing').hidden = missing.length === 0;
   $('missing-chars').textContent = missing.length ? tr('Fehlt: {chars}', { chars: missing.join(' ') }) : '';
   $('missing').classList.toggle('is-static', Boolean(preset));
@@ -620,19 +657,42 @@ function compose() {
   scheduleOutput();
 }
 
+// Papier der Ausgabe: auf Arbeitsblättern ist das Blatt selbst der Hintergrund.
+const outputPaper = () => (mode === 'sheet' ? 'blank' : settings.paper);
+const backgroundOf = (page) => (page?.image ? sheetImages[currentLayout.pages.indexOf(page)] ?? null : null);
+
 function renderSheet() {
-  if (!currentLayout) return;
+  const isSheet = mode === 'sheet';
+  const waiting = isSheet && !sheet; // Arbeitsblatt-Modus, aber noch kein Blatt
+  $('sheet-drop').hidden = !waiting;
+  $('preview').hidden = waiting;
+  $('sheet-layer').hidden = !isSheet || !sheet;
+  $('save-goodnotes').disabled = !currentLayout;
+  $('save-pdf').disabled = !currentLayout;
+  $('reshuffle').disabled = !currentLayout;
+  if (!currentLayout) {
+    $('sheet-info').textContent = '0/0';
+    $('page-prev').disabled = true;
+    $('page-next').disabled = true;
+    $('page-frame').style.removeProperty('--aspect');
+    return;
+  }
   const pages = currentLayout.pages;
   const page = pages[sheetPage];
   const canvas = $('preview');
+  $('page-frame').style.setProperty('--aspect', (page.height / page.width).toFixed(4));
   const cssWidth = canvas.parentElement.clientWidth || 600;
   const dpr = window.devicePixelRatio || 1;
   const pxPerPt = (cssWidth * dpr) / page.width;
   canvas.width = Math.round(page.width * pxPerPt);
   canvas.height = Math.round(page.height * pxPerPt);
   drawPage(canvas.getContext('2d'), page, pxPerPt, {
-    paper: settings.paper, ink: inkRgb(settings.ink), layout: currentLayout,
+    paper: outputPaper(), ink: inkRgb(settings.ink), layout: currentLayout, background: backgroundOf(page),
   });
+  if (isSheet) {
+    editor.setPage(sheetPage);
+    editor.render();
+  }
   $('sheet-info').textContent = `${sheetPage + 1}/${pages.length}`;
   $('page-prev').disabled = sheetPage === 0;
   $('page-next').disabled = sheetPage >= pages.length - 1;
@@ -642,7 +702,8 @@ function renderSheet() {
 function updateGoodNotesNote() {
   const parts = [isTouch() ? tr('Im Teilen-Menü GoodNotes wählen.') : tr('Lädt die .goodnotes-Datei herunter.')];
   if (currentLayout?.pages.length > 1) parts.push(tr('Eine Datei pro Seite.'));
-  if (!PAGE_FORMATS[settings.format].tested) parts.push(tr('A4 ist Beta.'));
+  if (mode === 'sheet') parts.push(tr('Arbeitsblätter sind in GoodNotes noch Beta.'));
+  else if (!PAGE_FORMATS[settings.format].tested) parts.push(tr('{format} ist Beta.', { format: PAGE_FORMATS[settings.format].label }));
   $('goodnotes-note').textContent = parts.join(' ');
 }
 
@@ -652,14 +713,14 @@ function thumbnail(page) {
   canvas.width = 360;
   canvas.height = Math.round(page.height * pxPerPt);
   drawPage(canvas.getContext('2d'), page, pxPerPt, {
-    paper: settings.paper, ink: inkRgb(settings.ink), layout: currentLayout,
+    paper: outputPaper(), ink: inkRgb(settings.ink), layout: currentLayout, background: backgroundOf(page),
   });
   return fromBase64(canvas.toDataURL('image/jpeg', 0.8).split(',')[1]);
 }
 
 function buildGoodNotes() {
   const files = pagesToGoodNotes(currentLayout.pages, {
-    format: settings.format, paper: settings.paper, ink: inkRgb(settings.ink), layout: currentLayout, thumbnail,
+    paper: outputPaper(), ink: inkRgb(settings.ink), layout: currentLayout, thumbnail,
   });
   const base = fileBase();
   const names = files.map((_, i) => (files.length > 1 ? `${base} (${tr('Seite')} ${i + 1}).goodnotes` : `${base}.goodnotes`));
@@ -681,7 +742,7 @@ async function exportGoodNotes() {
 
 async function exportPdf() {
   if (!currentLayout) return;
-  const pdf = pagesToPdf(currentLayout.pages, { paper: settings.paper, ink: inkRgb(settings.ink), layout: currentLayout });
+  const pdf = pagesToPdf(currentLayout.pages, { paper: outputPaper(), ink: inkRgb(settings.ink), layout: currentLayout });
   try {
     await saveFile(`${fileBase()}.pdf`, pdf);
     toast(tr('PDF gespeichert'));
@@ -778,6 +839,150 @@ $('missing').addEventListener('click', () => {
 $('save-goodnotes').addEventListener('click', exportGoodNotes);
 $('save-pdf').addEventListener('click', exportPdf);
 
+// ---------- Arbeitsblatt ----------
+
+// Felder über der Vorschau (sheet.js). Jede Änderung setzt neu und landet gleich im Speicher.
+let fieldsTimer = null;
+const editor = new SheetEditor({
+  layer: $('sheet-layer'),
+  list: $('sheet-fields'),
+  onChange: () => {
+    clearTimeout(fieldsTimer);
+    fieldsTimer = setTimeout(() => storeFields(sheet, editor.fields), 400);
+    updateSheetPanel();
+    scheduleCompose();
+  },
+  onPage: (page) => { sheetPage = page; renderSheet(); },
+  onRemove: (field, index) => toast(tr('Feld gelöscht'), { label: tr('Rückgängig'), run: () => editor.restore(field, index) }),
+});
+
+function applyMode() {
+  const isSheet = mode === 'sheet';
+  for (const input of document.querySelectorAll('input[name="mode"]')) input.checked = input.value === mode;
+  $('text-field').hidden = isSheet;
+  $('sheet-field').hidden = !isSheet;
+  $('format-field').hidden = isSheet; // das Blatt bringt Format und Papier mit
+  $('paper-field').hidden = isSheet;
+  syncLines();
+  showRange('lines');
+  updateSheetPanel();
+}
+
+function setMode(next) {
+  mode = next === 'sheet' ? 'sheet' : 'text';
+  writeJson(MODE_KEY, mode);
+  sheetPage = 0;
+  applyMode();
+  scheduleCompose();
+}
+for (const input of document.querySelectorAll('input[name="mode"]')) input.addEventListener('change', () => setMode(input.value));
+
+function updateSheetPanel() {
+  const count = editor.fields.length;
+  $('sheet-name').textContent = sheet?.name ?? '';
+  $('sheet-pick').textContent = sheet ? tr('Anderes') : tr('Öffnen');
+  $('sheet-remove').hidden = !sheet;
+  $('sheet-help').hidden = Boolean(sheet && count);
+  $('sheet-paste').hidden = !count;
+}
+
+// Fortschritt beim Öffnen: auf der Ablage und im Bedienfeld, wo sonst der Name steht.
+function setSheetStatus(text) {
+  $('sheet-status').textContent = text;
+  if (text) $('sheet-name').textContent = text;
+  else updateSheetPanel();
+}
+
+// Blatt wechseln: Felder dazu, Bilder der Seiten für die Vorschau nach und nach.
+async function useSheet(next, fields) {
+  sheet = next;
+  sheetImages.forEach(dropImage);
+  sheetImages = [];
+  sheetPage = 0;
+  editor.setSheet(next, fields);
+  updateSheetPanel();
+  scheduleCompose();
+  if (!next) return;
+  for (let i = 0; i < next.pages.length; i++) {
+    const img = await pageImage(next.pages[i]).catch(() => null);
+    if (sheet !== next) { dropImage(img); return; } // inzwischen ein anderes Blatt
+    sheetImages[i] = img;
+    if (i === sheetPage) renderSheet();
+  }
+  scheduleCompose(); // Vorschaubilder für GoodNotes mit Blatt
+}
+
+async function loadSheetFile(file) {
+  if (sheetLoading) return;
+  sheetLoading = true;
+  if (mode !== 'sheet') setMode('sheet');
+  setSheetStatus(tr('Öffne {name} …', { name: file.name }));
+  try {
+    const { sheet: next, skipped } = await openSheetFile(file, (i, n) => setSheetStatus(tr('Seite {a} von {b} …', { a: i, b: n })));
+    const before = sheet ? { sheet, fields: editor.fields } : null;
+    useSheet(next, []); // Seitenbilder kommen nach und nach
+    storeFields(next, []);
+    const kept = await storeSheet(next);
+    const undo = before ? { label: tr('Rückgängig'), run: () => { useSheet(before.sheet, before.fields); storeSheet(before.sheet); storeFields(before.sheet, before.fields); } } : null;
+    if (skipped) toast(tr('Nur die ersten {n} Seiten', { n: MAX_PAGES }), undo);
+    else if (!kept) toast(tr('Der Browser speichert das Blatt nicht: Es bleibt nur bis zum Neuladen.'), undo);
+    else toast(tr('Tippe auf eine Linie, und es entsteht ein Feld'), undo);
+  } catch (err) {
+    toast(err?.message || tr('Das Blatt ließ sich nicht öffnen.'));
+  } finally {
+    sheetLoading = false;
+    setSheetStatus('');
+  }
+}
+
+$('sheet-file').addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  e.target.value = '';
+  if (file) loadSheetFile(file);
+});
+
+$('sheet-remove').addEventListener('click', () => {
+  const before = { sheet, fields: editor.fields };
+  useSheet(null, []);
+  storeSheet(null);
+  storeFields(null, []);
+  toast(tr('Arbeitsblatt entfernt'), {
+    label: tr('Rückgängig'),
+    run: () => { useSheet(before.sheet, before.fields); storeSheet(before.sheet); storeFields(before.sheet, before.fields); },
+  });
+});
+
+// Datei aufs Setzen ziehen: wird zum Arbeitsblatt.
+const dragged = (e) => [...(e.dataTransfer?.items ?? [])].some((item) => item.kind === 'file');
+$('compose').addEventListener('dragover', (e) => {
+  if (!dragged(e)) return;
+  e.preventDefault();
+  $('page-frame').classList.add('is-drop');
+});
+$('compose').addEventListener('dragleave', (e) => {
+  if (!e.relatedTarget || !$('compose').contains(e.relatedTarget)) $('page-frame').classList.remove('is-drop');
+});
+$('compose').addEventListener('drop', (e) => {
+  $('page-frame').classList.remove('is-drop');
+  const file = e.dataTransfer?.files?.[0];
+  if (!file) return;
+  e.preventDefault();
+  loadSheetFile(file);
+});
+
+// Alle Antworten auf einmal (worksheet.js, splitAnswers)
+$('sheet-paste').addEventListener('click', () => {
+  $('paste-text').value = '';
+  $('paste-dialog').showModal();
+  $('paste-text').focus();
+});
+$('paste-close').addEventListener('click', () => $('paste-dialog').close());
+$('paste-apply').addEventListener('click', () => {
+  const n = editor.fill(splitAnswers($('paste-text').value, editor.fields.length));
+  $('paste-dialog').close();
+  toast(n ? tr(n === 1 ? '{n} Feld ausgefüllt' : '{n} Felder ausgefüllt', { n }) : tr('Nichts zum Verteilen gefunden'));
+});
+
 // ---------- Ankommender Link ----------
 
 function showResult(state, message) {
@@ -826,6 +1031,7 @@ function receiveTextLink() {
   const before = $('text').value;
   Object.assign(settings, link.settings);
   writeJson(SETTINGS_KEY, settings);
+  if (mode !== 'text') setMode('text'); // der Text soll zu sehen sein
   setText(link.text);
   clearedText = null;
   updateTextClear();
@@ -885,6 +1091,8 @@ if (wanted) {
 $('text').value = readJson(TEXT_KEY) ?? EXAMPLE_TEXT;
 updateTextClear();
 syncControls();
+applyMode();
+restoreSheet().then((saved) => { if (saved && !sheet) useSheet(saved, restoreFields(saved)); });
 applyGridColors();
 document.fonts.ready.then(applyGridColors); // Vorlagen-Zeichen erst mit geladener Schrift richtig
 resetSlots();

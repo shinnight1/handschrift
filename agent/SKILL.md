@@ -26,9 +26,9 @@ The JSON lists the saved `files`, the number of `pages`, the characters that wer
 | --- | --- |
 | `--hand` | ready-made: `cursive` (default), `elegant`, `quill`, `print`, `playful` |
 | `--profile <file>` | the user's own handwriting, a `Handschrift-Profil.json` |
-| `--paper` | `lined` (default), `grid`, `blank` |
+| `--paper` | `lined` wide ruled (default), `narrow` narrow ruled, `grid`, `blank` |
 | `--ink` | `blau` blue ballpoint (default), `schwarz` black, `dunkelblau` ink, `grau` pencil, or `#rrggbb` |
-| `--format` | `a4` (default) or `standard` (GoodNotes' own page size) |
+| `--format` | `a4` (default), `a5`, `a3` or `standard` (GoodNotes' own page size) |
 | `--pdf` | a PDF instead of `.goodnotes` files |
 | `--seed <n>` | other letter variants, if the user wants it to look different |
 | `--lang en` | English file names and link (default `de`) |
@@ -43,7 +43,7 @@ The JSON lists the saved `files`, the number of `pages`, the characters that wer
 
 - Plain text only. Markdown is drawn literally: no `#` headings, `**bold**`, `*` or `-` bullets, or tables. Use line breaks, an empty line between paragraphs, and numbers like `1.` for lists.
 - The user's own handwriting has letters (with ä ö ü ß), digits and `. , ! ? : ; - ' " ( ) / & + = % € @`. Anything else (→, •, emoji, many symbols) is left out and reported in `missing`. Rephrase with words or allowed characters, or tell the user.
-- An A4 page holds about 150 words in `cursive` and up to about 280 in `quill`; the `standard` page about half of that. Longer texts become several pages and files.
+- An A4 page holds about 150 words in `cursive` and up to about 280 in `quill`; A5 and the `standard` page about half of that, A3 about twice. `narrow` paper fits more lines. Longer texts become several pages and files.
 
 ## Getting it into GoodNotes
 

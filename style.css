@@ -541,8 +541,9 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px 
   animation: rise .7s var(--ease) both .08s;
 }
 #preview { display: block; width: 100%; height: auto; }
-/* Am Desktop passt die ganze Seite samt Knöpfen ins Fenster (A4 ist 1,414-mal so hoch wie breit) */
-@media (min-width: 901px) { .page-frame { width: min(100%, calc((100svh - 290px) / 1.414)); margin-inline: auto; } }
+/* Am Desktop passt die ganze Seite samt Knöpfen ins Fenster (--aspect: Höhe durch Breite der
+   Seite, setzt app.js; A4, A3 und A5 sind 1,414-mal so hoch wie breit) */
+@media (min-width: 901px) { .page-frame { width: min(100%, calc((100svh - 290px) / var(--aspect, 1.414))); margin-inline: auto; } }
 .export { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .export .btn { flex: 1 1 160px; min-height: 50px; font-size: 15px; }
 .export .btn-primary { flex-grow: 2; }
@@ -560,6 +561,106 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px 
   .export .btn-primary { flex: 2.2 1 0; }
 }
 .hint { font-size: 13px; color: var(--muted); margin: 0; }
+
+/* Papier: kleine Ausschnitte wie in GoodNotes' Vorlagenwahl. Breit (8,7 mm) und schmal
+   (6,35 mm) stehen hier als 9 und 6,6 px Linienabstand, also im selben Verhältnis. */
+.papers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.paper {
+  position: relative; display: grid; gap: 7px; justify-items: center; align-content: start; min-width: 0; padding: 9px 6px 8px;
+  border-radius: 16px; cursor: pointer; color: var(--muted); background: rgba(0, 0, 0, 0.32); box-shadow: var(--well);
+  transition: background-color .25s, box-shadow .4s var(--spring), color .25s, scale .5s var(--spring);
+}
+.paper:hover { color: var(--bright); background-color: rgba(255, 255, 255, 0.04); }
+.paper:active { scale: 0.96; transition-duration: .12s; }
+.paper input { position: absolute; opacity: 0; pointer-events: none; }
+.paper:has(input:checked) { color: var(--bright); background: var(--glass-hi); box-shadow: var(--glass-rim), 0 0 0 1.5px var(--bright), 0 0 20px -6px rgba(255, 255, 255, 0.45); }
+.paper:has(input:focus-visible) { outline: 2px solid var(--bright); outline-offset: 2px; }
+.paper-sheet {
+  display: block; width: 100%; max-width: 60px; aspect-ratio: 1 / 1.12; border-radius: 4px; background-color: #fff; background-repeat: no-repeat;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 4px 10px -6px rgba(0, 0, 0, 0.9);
+}
+.paper-lined { background-image: repeating-linear-gradient(180deg, transparent 0 8px, #a9c0e2 8px 9px); background-size: 100% calc(100% - 7px); background-position: 0 7px; }
+.paper-narrow { background-image: repeating-linear-gradient(180deg, transparent 0 5.6px, #a9c0e2 5.6px 6.6px); background-size: 100% calc(100% - 7px); background-position: 0 7px; }
+.paper-grid { background-image: linear-gradient(#c6d4ea 1px, transparent 1px), linear-gradient(90deg, #c6d4ea 1px, transparent 1px); background-size: 6px 6px; background-repeat: repeat; }
+.paper-name { font: 500 10.5px/1.25 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; text-align: center; text-wrap: balance; }
+#lines-field:has(input:disabled) input { opacity: 0.45; cursor: default; }
+
+/* Arbeitsblatt im Bedienfeld: Datei, Hilfe, eine Zeile je Feld */
+.field-actions { display: inline-flex; gap: 2px; margin: -10px -10px -10px 0; }
+.field-actions .btn-mini { margin: 0; }
+.sfields { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.sfields:empty { display: none; }
+.sfield { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 8px; animation: rise .4s var(--ease); }
+.sfield-num {
+  display: grid; place-items: center; width: 30px; height: 30px; margin-top: 7px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+  background: var(--glass-hi); color: var(--bright); font: 500 13px/1 var(--mono); box-shadow: var(--glass-rim);
+  transition: background .3s, color .3s, scale .5s var(--spring);
+}
+.sfield-num:active { scale: 0.9; transition-duration: .12s; }
+.sfield.is-selected .sfield-num { background: var(--metal); color: var(--paper-ink); box-shadow: 0 0 14px -2px rgba(255, 255, 255, 0.5); }
+.sfield.is-over .sfield-num { background: linear-gradient(180deg, rgba(229, 72, 77, 0.9), rgba(190, 50, 55, 0.9)); color: #fff; }
+.sfield textarea { min-height: 44px; max-height: 220px; padding: 10px 14px; border-radius: 14px; resize: vertical; field-sizing: content; }
+.sfield-del { width: 34px; min-height: 34px; margin-top: 5px; font-size: 18px; color: var(--muted); }
+.sheet-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.sheet-actions:not(:has(> :not([hidden]))) { display: none; }
+
+/* Vorschau mit Arbeitsblatt: die Felder liegen als Ebene über dem Canvas */
+.page-frame { position: relative; }
+.page-frame.is-drop { box-shadow: 0 0 0 2px var(--bright), 0 0 40px -10px rgba(255, 255, 255, 0.5); }
+.sheet-layer {
+  position: absolute; inset: 0; z-index: 1; cursor: crosshair;
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+.sbox {
+  position: absolute; border-radius: 3px; touch-action: none; cursor: move;
+  border: 1px dashed rgba(30, 58, 155, 0.4); transition: background-color .2s, border-color .2s;
+}
+.sbox.is-empty { border: 1.5px dashed rgba(30, 58, 155, 0.65); background: rgba(30, 58, 155, 0.06); }
+.sbox.is-selected { border: 1.5px solid var(--paper-ink); background: rgba(30, 58, 155, 0.06); }
+.sbox.is-over { border-color: var(--danger); background: rgba(229, 72, 77, 0.07); }
+.sbox.is-band { border: 1.5px dashed var(--paper-ink); background: rgba(30, 58, 155, 0.08); pointer-events: none; }
+.sbox-num {
+  position: absolute; left: -9px; top: -9px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+  background: var(--paper-ink); color: #fff; font: 600 11px/18px var(--mono); text-align: center; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+.sbox.is-over .sbox-num { background: var(--danger); }
+/* Ausgefüllt: Nummer leiser, damit sie den ersten Buchstaben nicht verdeckt */
+.sbox:not(.is-empty):not(.is-over) .sbox-num { opacity: 0.55; scale: 0.8; transform-origin: 0 0; }
+.sbox.is-selected .sbox-num { display: none; }
+.sbox-h { position: absolute; display: none; width: 28px; height: 28px; touch-action: none; }
+.sbox-h::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 1.5px var(--paper-ink), 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+.sbox.is-selected .sbox-h { display: block; }
+.sbox-nw { left: -14px; top: -14px; cursor: nwse-resize; }
+.sbox-ne { right: -14px; top: -14px; cursor: nesw-resize; }
+.sbox-sw { left: -14px; bottom: -14px; cursor: nesw-resize; }
+.sbox-se { right: -14px; bottom: -14px; cursor: nwse-resize; }
+/* Eingabe direkt am gewählten Feld: dunkles Glas über dem Papier */
+.sedit {
+  position: absolute; z-index: 3; display: grid; gap: 6px; padding: 8px; border-radius: 18px; cursor: auto;
+  background: linear-gradient(180deg, rgba(34, 34, 40, 0.88), rgba(16, 16, 20, 0.92));
+  -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: var(--glass-rim), 0 18px 40px -12px rgba(0, 0, 0, 0.85);
+  user-select: text; -webkit-user-select: text; animation: rise .35s var(--ease);
+}
+.sedit textarea { min-height: 58px; max-height: 160px; padding: 10px 12px; border-radius: 12px; font-size: 16px; resize: none; field-sizing: content; }
+.sedit-bar { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.sedit .btn-mini { margin: 0; }
+/* Noch kein Blatt: Ablage statt Papier */
+.page-frame:has(> .sheet-drop:not([hidden])) { background: transparent; box-shadow: none; overflow: visible; }
+.sheet-drop {
+  display: grid; place-content: center; justify-items: center; gap: 10px; aspect-ratio: 1 / 1.414; padding: 24px; text-align: center;
+  border-radius: 24px; border: 1.5px dashed rgba(255, 255, 255, 0.22); background: rgba(0, 0, 0, 0.25); color: var(--text);
+  transition: border-color .25s, background-color .25s;
+}
+.page-frame.is-drop .sheet-drop { border-color: var(--bright); background: rgba(255, 255, 255, 0.06); }
+.sheet-drop-icon { color: var(--muted); }
+.sheet-drop-title { margin: 0; font: 400 24px/1.15 var(--serif); color: var(--bright); text-wrap: balance; }
+.sheet-drop-sub { margin: 0 0 8px; color: var(--muted); font-size: 14px; text-wrap: pretty; }
+.sheet-drop-status { margin: 0; min-height: 1.4em; font: 400 13px/1.4 var(--mono); color: var(--muted); }
+.dialog textarea { min-height: 160px; margin: 6px 0 2px; }
 .gn-result {
   margin: 0; padding: 12px 16px; border-radius: 18px; font-size: 14px; color: var(--muted);
   background: var(--glass); box-shadow: var(--glass-rim); animation: rise .5s var(--ease);

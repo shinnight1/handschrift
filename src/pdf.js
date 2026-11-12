@@ -1,5 +1,6 @@
-// Minimaler PDF-Writer: Vektorpfade und Helvetica-Text, Ursprung oben links.
-// Reicht für Vorlage, Ausgabe-PDF und den Seitenhintergrund der GoodNotes-Datei.
+// Minimaler PDF-Writer: Vektorpfade, Helvetica-Text und JPEG-Bilder, Ursprung oben links.
+// Reicht für Vorlage, Ausgabe-PDF und den Seitenhintergrund der GoodNotes-Datei (Papierlinien
+// oder ein Arbeitsblatt als Bild).
 
 import { ByteWriter } from './goodnotes/bytes.js';
 
@@ -31,11 +32,34 @@ const num = (v) => {
 // Ungefähre Breite für zentrierten Text (Helvetica, Mittelwert pro Zeichen).
 const textWidth = (str, size) => [...str].length * size * 0.52;
 
+// Breite, Höhe und Farbkanäle eines JPEGs aus dem Bildkopf (SOF). PDF bettet das JPEG
+// unverändert ein (DCTDecode), braucht dafür aber diese Angaben.
+function jpegInfo(bytes) {
+  if (bytes[0] !== 0xff || bytes[1] !== 0xd8) throw new Error('kein JPEG');
+  let i = 2;
+  while (i + 9 < bytes.length) {
+    if (bytes[i] !== 0xff) { i++; continue; }
+    const marker = bytes[i + 1];
+    if (marker === 0xff || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd8)) { i += marker === 0xff ? 1 : 2; continue; }
+    const length = (bytes[i + 2] << 8) | bytes[i + 3];
+    if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+      return {
+        height: (bytes[i + 5] << 8) | bytes[i + 6],
+        width: (bytes[i + 7] << 8) | bytes[i + 8],
+        components: bytes[i + 9],
+      };
+    }
+    i += 2 + length;
+  }
+  throw new Error('JPEG ohne Bildkopf');
+}
+
 class PdfPage {
   constructor(width, height) {
     this.width = width;
     this.height = height;
     this.ops = [];
+    this.images = new Set(); // Bilder, die die Seite zeichnet (PdfDoc.addImage)
   }
 
   y(v) { return this.height - v; }
@@ -104,6 +128,13 @@ class PdfPage {
     return this;
   }
 
+  // Bild aus PdfDoc.addImage() in das Rechteck x, y, w, h (oben links, Punkte).
+  image(img, x, y, w, h) {
+    this.images.add(img);
+    this.ops.push(`q ${num(w)} 0 0 ${num(h)} ${num(x)} ${num(this.y(y + h))} cm /${img.name} Do Q`);
+    return this;
+  }
+
   // x, y = linke Grundlinie
   text(x, y, size, str, bold = false) {
     this.ops.push(`BT /${bold ? 'F2' : 'F1'} ${num(size)} Tf ${num(x)} ${num(this.y(y))} Td (${encodeText(str)}) Tj ET`);
@@ -115,8 +146,10 @@ class PdfPage {
   }
 }
 
+const COLOR_SPACES = { 1: '/DeviceGray', 3: '/DeviceRGB', 4: '/DeviceCMYK /Decode [1 0 1 0 1 0 1 0]' };
+
 class PdfDoc {
-  constructor() { this.pages = []; }
+  constructor() { this.pages = []; this.images = new Map(); }
 
   addPage(width = A4.width, height = A4.height) {
     const page = new PdfPage(width, height);
@@ -124,20 +157,43 @@ class PdfDoc {
     return page;
   }
 
+  // JPEG zum Zeichnen mit PdfPage.image(); dasselbe Bild auf mehreren Seiten steht nur einmal drin.
+  addImage(jpeg) {
+    if (!this.images.has(jpeg)) {
+      const info = jpegInfo(jpeg);
+      if (!COLOR_SPACES[info.components]) throw new Error(`JPEG mit ${info.components} Farbkanälen`);
+      this.images.set(jpeg, { name: `Im${this.images.size + 1}`, jpeg, ...info });
+    }
+    return this.images.get(jpeg);
+  }
+
   toBytes() {
-    const objects = []; // Index = Objektnummer - 1
+    const objects = []; // Index = Objektnummer - 1; Text oder {head, data} für Binärdaten
     const add = (body) => { objects.push(body); return objects.length; };
     const catalogId = add(null);
     const pagesId = add(null);
     const fontId = add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
     const boldId = add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    const imageIds = new Map();
     const pageIds = [];
     for (const page of this.pages) {
+      const xobjects = [];
+      for (const img of page.images) {
+        if (!imageIds.has(img)) {
+          imageIds.set(img, add({
+            head: `<< /Type /XObject /Subtype /Image /Width ${img.width} /Height ${img.height} /ColorSpace ${COLOR_SPACES[img.components]} ` +
+              `/BitsPerComponent 8 /Filter /DCTDecode /Length ${img.jpeg.length} >>`,
+            data: img.jpeg,
+          }));
+        }
+        xobjects.push(`/${img.name} ${imageIds.get(img)} 0 R`);
+      }
       const content = page.ops.join('\n');
       const contentId = add(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+      const xobject = xobjects.length ? ` /XObject << ${xobjects.join(' ')} >>` : '';
       pageIds.push(add(
         `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${num(page.width)} ${num(page.height)}] ` +
-        `/Resources << /Font << /F1 ${fontId} 0 R /F2 ${boldId} 0 R >> >> /Contents ${contentId} 0 R >>`,
+        `/Resources << /Font << /F1 ${fontId} 0 R /F2 ${boldId} 0 R >>${xobject} >> /Contents ${contentId} 0 R >>`,
       ));
     }
     objects[catalogId - 1] = `<< /Type /Catalog /Pages ${pagesId} 0 R >>`;
@@ -148,7 +204,13 @@ class PdfDoc {
     const offsets = [];
     objects.forEach((body, i) => {
       offsets.push(w.length);
-      w.ascii(`${i + 1} 0 obj\n${body}\nendobj\n`);
+      if (typeof body === 'string') {
+        w.ascii(`${i + 1} 0 obj\n${body}\nendobj\n`);
+      } else {
+        w.ascii(`${i + 1} 0 obj\n${body.head}\nstream\n`);
+        w.bytes(body.data);
+        w.ascii('\nendstream\nendobj\n');
+      }
     });
     const xref = w.length;
     w.ascii(`xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`);
@@ -158,4 +220,4 @@ class PdfDoc {
   }
 }
 
-export { MM, A4, textWidth, PdfPage, PdfDoc };
+export { MM, A4, textWidth, jpegInfo, PdfPage, PdfDoc };
