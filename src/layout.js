@@ -62,9 +62,28 @@ function resolve(char, table, depth = 0) {
   return null;
 }
 
+// Wo die Zeilen anfangen, als Anteil 0–1 des größten Einzugs. Von Hand trifft man den linken
+// Rand nie genau: Der Anfang wandert über ein paar Zeilen langsam nach rechts oder links und
+// springt dazu von Zeile zu Zeile ein wenig. Eigener Zufall, damit Buchstaben und Wortabstände
+// bei gleichem Startwert gleich bleiben; gemerkt, weil der Umbruch schon vorher wissen muss,
+// wie viel Platz jede Zeile hat.
+function lineStarts(seed) {
+  const r = rng((seed ^ 0x5bd1e995) >>> 0);
+  const starts = [];
+  let drift = 0;
+  return (i) => {
+    while (starts.length <= i) {
+      drift = 0.75 * drift + 0.66 * r.gauss(); // langsame Wanderung, Streuung etwa 1
+      const z = 0.75 * drift + 0.66 * r.gauss(); // plus Sprung je Zeile, Streuung etwa 1
+      starts.push(Math.max(0, Math.min(1, 0.5 + z / 4)));
+    }
+    return starts[i];
+  };
+}
+
 // Setzer für eine Schriftgröße: macht aus Text Zeilen und aus Zeilen Striche. Der Zufall läuft
 // in fester Reihenfolge (erst alle Zeichen eines Absatzes, dann seine Wortabstände, dann je
-// Zeile Welle und Einzug), damit gleiche Einstellungen immer dieselbe Handschrift ergeben.
+// Zeile die Welle), damit gleiche Einstellungen immer dieselbe Handschrift ergeben.
 function typesetter(table, o) {
   const r = rng(o.seed);
   const n = Math.max(0, Math.min(1, o.natural));
@@ -72,6 +91,11 @@ function typesetter(table, o) {
   const xhPt = o.xHeightMm * MM;
   const s = xhPt / xh; // Punkte pro Glyphen-Einheit
   const penPt = o.penWidthMm * MM;
+
+  // Einzug von Zeile i, nie nach links über den Rand hinaus. Bei mittlerer Schwankung bis gut
+  // eine x-Höhe (Standard 0 bis 4 mm), in schmalen Feldern höchstens 8 % der Breite (room).
+  const starts = lineStarts(o.seed);
+  const indent = (i, room) => Math.min(n * 2.5 * xhPt, 0.08 * room) * starts(i);
 
   const missing = new Set();
   const lastVariant = new Map();
@@ -140,7 +164,7 @@ function typesetter(table, o) {
   }
 
   // Eine Zeile ab left auf die Grundlinie; Striche landen in sink. Jede Zeile schwingt ein
-  // wenig (Welle, leichte Schräge) und beginnt nicht ganz bündig.
+  // wenig (Welle, leichte Schräge). Den Einzug (indent) rechnet der Aufrufer in left ein.
   function placeLine(sink, line, left, baseline) {
     const phase = r.range(0, Math.PI * 2);
     const wavelength = r.range(70, 150) * MM;
@@ -148,7 +172,7 @@ function typesetter(table, o) {
     const slope = n * 0.005 * r.gauss();
     const wander = (x) => amp * Math.sin((2 * Math.PI * x) / wavelength + phase) + slope * x;
 
-    let x = left + Math.abs(n * 0.6 * MM * r.gauss());
+    let x = left;
     for (const word of line) {
       x += word.space;
       word.glyphs.forEach((g, gi) => {
@@ -173,7 +197,7 @@ function typesetter(table, o) {
     }
   }
 
-  return { breakLines, placeLine, missing, xhPt };
+  return { breakLines, placeLine, indent, missing, xhPt };
 }
 
 /**
@@ -194,7 +218,8 @@ function layoutText(text, table, options = {}) {
   const bottom = format.height - format.margins.bottom * MM;
   const maxWidth = right - left;
 
-  const lines = t.breakLines(text, () => maxWidth);
+  // Eingerückte Zeilen sind kürzer, damit rechts nichts über den Rand läuft.
+  const lines = t.breakLines(text, (i) => maxWidth - t.indent(i, maxWidth));
 
   // Zeilen auf Seiten setzen.
   const linesPerPage = Math.max(1, Math.floor((bottom - top) / lineH));
@@ -203,7 +228,7 @@ function layoutText(text, table, options = {}) {
     const pageIndex = Math.floor(i / linesPerPage);
     if (!pages[pageIndex]) pages[pageIndex] = { width: format.width, height: format.height, strokes: [] };
     const baseline = top + ((i % linesPerPage) + 1) * lineH;
-    t.placeLine(pages[pageIndex].strokes, line, left, baseline);
+    t.placeLine(pages[pageIndex].strokes, line, left + t.indent(i, maxWidth), baseline);
   });
   if (!pages.length) pages.push({ width: format.width, height: format.height, strokes: [] });
 
@@ -278,7 +303,8 @@ function layoutBox(text, table, box, options = {}) {
   for (;;) {
     const t = typesetter(table, { ...o, xHeightMm: xh });
     const geo = boxGeometry(box, rules, xh * MM, ratio);
-    const widthFor = (i) => Math.max(xh * MM, geo.extent(i)[1] - geo.extent(i)[0]);
+    const room = (i) => geo.extent(i)[1] - geo.extent(i)[0];
+    const widthFor = (i) => Math.max(xh * MM, room(i) - t.indent(i, room(i)));
     const lines = t.breakLines(text, widthFor);
     const used = lines.filter((line, i) => line.length || i < lines.length - 1).length;
     const fits = used <= geo.capacity;
@@ -289,7 +315,7 @@ function layoutBox(text, table, box, options = {}) {
       const single = !rules.length && lines.length === 1 && geo.capacity <= 2;
       const middle = box.y + (box.h - (ASCENT + DESCENT) * xh * MM) / 2 + ASCENT * xh * MM;
       const baseline = (i) => (single ? Math.max(geo.first, middle) : geo.baseline(i));
-      lines.forEach((line, i) => t.placeLine(strokes, line, geo.extent(i)[0], baseline(i)));
+      lines.forEach((line, i) => t.placeLine(strokes, line, geo.extent(i)[0] + t.indent(i, room(i)), baseline(i)));
       return { strokes, missing: [...t.missing], overflow: !fits, xHeightMm: xh, lines: lines.length };
     }
     xh = Math.max(minXh, xh * 0.9);
