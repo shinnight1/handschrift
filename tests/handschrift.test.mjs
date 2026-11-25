@@ -337,6 +337,38 @@ test('Fertige Handschriften setzen nach Vorschub: Schreibschrift berührt sich, 
   }
 });
 
+test('Zeilen beginnen nicht alle bündig: Einzug wandert mit der Schwankung, bleibt in den Rändern', async () => {
+  const fonts = await loadFonts();
+  const preset = presetById('print');
+  const table = glyphTable(presetProfile('print', fonts), { snap: 0 });
+  const o = (natural) => ({ format: FORMATS.a4, natural, letterSpacing: 0.18 + preset.spacing, minGap: -0.06 });
+  const MM = 72 / 25.4;
+  // Jede Zeile beginnt mit demselben Wort; linke Kante je Zeile in mm ab dem Rand
+  const starts = (natural) => {
+    const layout = layoutText(Array.from({ length: 20 }, () => 'll').join('\n'), table, o(natural));
+    const lines = new Map();
+    for (const st of layout.pages[0].strokes) {
+      const k = Math.round((Math.min(...st.points.map(([, y]) => y)) - layout.top) / layout.lineHeight);
+      lines.set(k, Math.min(lines.get(k) ?? Infinity, ...st.points.map(([x]) => x)));
+    }
+    return [...lines.values()].map((x) => x / MM - FORMATS.a4.margins.left);
+  };
+  const spread = (xs) => Math.max(...xs) - Math.min(...xs);
+  assert.ok(spread(starts(0)) < 0.05, 'ohne Schwankung bündig');
+  const half = starts(0.5);
+  assert.ok(spread(half) > 2 && spread(half) < 6, `Standard: sichtbar versetzt (${spread(half).toFixed(1)} mm)`);
+  assert.ok(spread(starts(1)) > spread(half), 'mehr Schwankung, mehr Versatz');
+  assert.deepEqual(starts(0.5), half, 'gleicher Startwert, gleiche Zeilenanfänge');
+
+  // Eingerückte Zeilen werden kürzer umbrochen: rechts nie über den Rand
+  for (const natural of [0, 0.5, 1]) {
+    const layout = layoutText('Ein Satz mit vielen Wörtern, der weit über die Zeile läuft. '.repeat(30), table, o(natural));
+    const xs = layout.pages.flatMap((p) => p.strokes.flatMap((s) => s.points.map(([x]) => x / MM)));
+    assert.ok(Math.max(...xs) <= 210 - FORMATS.a4.margins.right + 0.5, `${natural}: rechter Rand`);
+    assert.ok(Math.min(...xs) >= FORMATS.a4.margins.left - 0.5, `${natural}: linker Rand`);
+  }
+});
+
 test('Eigene Farben: #rrggbb geht in Vorschau, PDF und GoodNotes, Unsinn fällt auf Schwarz', () => {
   assert.ok(isCustomInk('#C2185B') && isCustomInk('#000000'));
   assert.ok(!isCustomInk('blau') && !isCustomInk('#fff') && !isCustomInk('red') && !isCustomInk(null));
